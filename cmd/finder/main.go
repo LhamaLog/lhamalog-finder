@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	httpadp "github.com/ORG_PENDENTE/lhamalog-finder/internal/adapter/in/http"
-	"github.com/ORG_PENDENTE/lhamalog-finder/internal/config"
+	httpadp "github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http"
+	"github.com/LhamaLog/lhamalog-finder/internal/config"
 )
 
 // versao é definida no build com -ldflags "-X main.versao=X"; padrão "dev".
