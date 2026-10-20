@@ -1,5 +1,5 @@
 IMAGE := lhamalog-finder
-COMPOSE := docker compose -f lhamalog-finder/docker-compose.yml
+COMPOSE := docker compose -f docker-compose.yml
 
 # Portabilidade: no Windows (cmd/PowerShell) o binário é .exe, a remoção usa comandos do cmd
 # e o -race fica de fora (exige cgo/gcc no Windows).

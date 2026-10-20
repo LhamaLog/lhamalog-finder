@@ -1,3 +1,3 @@
-module github.com/ORG_PENDENTE/lhamalog-finder
+module lhamalog.com
 
-go 1.27
+go 1.27.2
