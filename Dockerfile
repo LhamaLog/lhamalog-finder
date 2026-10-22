@@ -1,14 +1,14 @@
-# Etapa de build
-FROM golang:1.27 AS build
-WORKDIR /src
-COPY go.mod ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/finder ./cmd/finder
+# Go 1.27.0 fica na imagem: o projeto roda sem a linguagem instalada na máquina.
+FROM golang:1.27.0
 
-# Etapa final
-FROM gcr.io/distroless/static-debian12:nonroot
-COPY --from=build /out/finder /finder
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /usr/local/bin/finder ./cmd/finder
+
 EXPOSE 8085
-USER nonroot:nonroot
-ENTRYPOINT ["/finder"]
+USER nobody
+ENTRYPOINT ["/usr/local/bin/finder"]
