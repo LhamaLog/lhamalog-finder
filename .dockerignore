@@ -5,3 +5,5 @@ bin
 *.out
 coverage*
 .env
+vendor/
+*.log

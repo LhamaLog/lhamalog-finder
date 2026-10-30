@@ -6,3 +6,8 @@ coverage*
 .env
 .idea/
 .vscode/
+vendor/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
