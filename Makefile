@@ -10,7 +10,7 @@ endif
 .PHONY: run build test lint docker infra-up infra-down infra-config clean
 
 run:
-	docker compose up -d mongo redis elasticsearch
+	docker compose up -d mongo redis openobserve
 	docker compose up -d --wait redis
 	docker compose up --build --no-deps finder
 
@@ -26,7 +26,7 @@ lint:
 docker: build
 
 infra-up:
-	docker compose up -d mongo redis elasticsearch
+	docker compose up -d mongo redis openobserve
 
 infra-down:
 	docker compose down
