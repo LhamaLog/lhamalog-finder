@@ -22,7 +22,8 @@ type Config struct {
 
 // Carregar lê as variáveis de ambiente com valores padrão.
 // RedisAddr usa localhost:6379, o endereço já usado pelo processo e pelo Compose.
-// Stream, grupo e o conjunto dos códigos concluídos não têm padrão: não há nome definido para eles.
+// Stream, grupo e o conjunto dos códigos concluídos não têm padrão no código.
+// O processo nativo recebe esses nomes de um .env, aplicado antes desta leitura.
 func Carregar() Config {
 	c := Config{
 		HTTPAddr:            valor("FINDER_HTTP_ADDR", ":8085"),

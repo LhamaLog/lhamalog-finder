@@ -20,6 +20,9 @@ services:
       FINDER_OPENOBSERVE_ORG: ${OPENOBSERVE_ORG:-default}
       FINDER_OPENOBSERVE_USER: ${OPENOBSERVE_ROOT_EMAIL:-root@example.com}
       FINDER_OPENOBSERVE_PASSWORD: ${OPENOBSERVE_ROOT_PASSWORD:-Complexpass#123}
+      FINDER_REDIS_STREAM: ${FINDER_REDIS_STREAM:-fila:logs}
+      FINDER_REDIS_GROUP: ${FINDER_REDIS_GROUP:-finder}
+      FINDER_REDIS_CODIGOS: ${FINDER_REDIS_CODIGOS:-finder:codigos}
     depends_on:
       mongo:
         condition: service_started
