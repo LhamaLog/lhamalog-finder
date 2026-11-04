@@ -22,6 +22,10 @@ func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	log.Info("[LhamaLog] lhamalog-finder iniciado", "versao", versao)
 
+	if err := config.AplicarArquivoEnv(); err != nil {
+		log.Error("falha ao ler .env", "erro", err)
+		os.Exit(1)
+	}
 	cfg := config.Carregar()
 	fila, err := queue.Nova(queue.Opcoes{
 		Addr:    cfg.RedisAddr,

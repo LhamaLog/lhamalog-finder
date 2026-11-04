@@ -16,6 +16,9 @@ services:
     environment:
       FINDER_HTTP_ADDR: ":8085"
       FINDER_WORKERS: ${FINDER_WORKERS:-4}
+      FINDER_REDIS_STREAM: ${FINDER_REDIS_STREAM:-fila:logs}
+      FINDER_REDIS_GROUP: ${FINDER_REDIS_GROUP:-finder}
+      FINDER_REDIS_CODIGOS: ${FINDER_REDIS_CODIGOS:-finder:codigos}
     depends_on:
       mongo:
         condition: service_started
