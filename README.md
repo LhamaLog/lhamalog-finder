@@ -112,18 +112,20 @@ docker build -t lhamalog-finder .
 docker run --rm -p 8085:8085 lhamalog-finder
 ```
 
-Variáveis: `FINDER_PORT` (porta no host, padrão `8085`), `FINDER_WORKERS` (padrão `4`). Dentro do contêiner o processo escuta em `:8085`.
+Variáveis: `FINDER_PORT` (porta no host, padrão `8085`), `FINDER_WORKERS` (padrão `4`), `FINDER_HTTP_ADDR` (endereço da consulta de saúde, padrão `:8085`). Os nomes da fila vêm de `FINDER_REDIS_ADDR`, `FINDER_REDIS_STREAM`, `FINDER_REDIS_GROUP` e `FINDER_REDIS_CODIGOS`.
 Sem GitHub Actions: rode `make test` localmente antes de cada push.
+
+Com o processo no ar, `GET /health` responde `{"status":"UP"}`.
 
 ## Log de inicialização
 
-Depois de abrir a porta HTTP, o Finder registra a linha padrão do LhamaLog (ADR_149) via `slog` (JSON):
+Ao iniciar, o Finder registra esta linha via `slog` (JSON):
 
 ```
-{"level":"INFO","msg":"[LhamaLog] lhamalog-finder iniciado","versao":"dev","porta":8085,"go":"go1.27.0","workers":4}
+{"level":"INFO","msg":"[LhamaLog] lhamalog-finder iniciado","versao":"dev"}
 ```
 
-A versão é `dev` por padrão. A linha `go` reflete o Go 1.27.0 da imagem.
+A versão é `dev` por padrão. Um item concluído registra `item concluído`. Um item fora do contrato registra `item descartado`.
 
 ## Layout
 

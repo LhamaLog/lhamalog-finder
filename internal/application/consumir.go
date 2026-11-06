@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/application/port/in"
 	"github.com/LhamaLog/lhamalog-finder/internal/application/port/out"
@@ -10,6 +11,7 @@ import (
 
 // Servico executa o consumo de um item livre.
 // Não há porta para o OpenObserve.
+// Codigos e Disp continuam na montagem. A conclusão grava o código e tira a pendência numa operação só da fila. Essa operação é a disponibilidade.
 type Servico struct {
 	Fila     out.Fila
 	Codigos  out.Codigos
@@ -32,6 +34,10 @@ func (s *Servico) Executar(ctx context.Context, pedido in.Pedido) (in.Saida, err
 		return in.Saida{}, nil
 	}
 	if !item.Aceito() {
+		if err := s.Fila.EncerrarSemConclusao(ctx, item.ID); err != nil {
+			return in.Saida{ForaDeContrato: true}, err
+		}
+		slog.Info("item descartado", "id", string(item.ID))
 		return in.Saida{ForaDeContrato: true}, nil
 	}
 	if s.Reservas != nil && !s.Reservas.Marcar(pedido.Instancia, item) {
@@ -62,29 +68,20 @@ func (s *Servico) Executar(ctx context.Context, pedido in.Pedido) (in.Saida, err
 		}
 		return in.Saida{}, nil
 	}
-	aceito, err := s.Codigos.RegistrarPrimeira(ctx, item.Codigo)
+	nova, err := s.Fila.ConcluirPrimeira(ctx, item.ID, item.Codigo)
 	if err != nil {
 		return in.Saida{}, err
 	}
-	if !aceito {
+	if !nova {
 		_ = domain.Fim(emPasso, true, true, true)
 		if s.Reservas != nil {
 			s.Reservas.Encerrar(item.ID)
-		}
-		if err := s.Fila.EncerrarSemConclusao(ctx, item.ID); err != nil {
-			return in.Saida{}, err
 		}
 		return in.Saida{}, nil
 	}
 	_ = domain.Fim(emPasso, true, true, false)
 	if s.Reservas != nil {
 		s.Reservas.ConcluirItem(item.ID)
-	}
-	if err := s.Fila.Concluir(ctx, item.ID); err != nil {
-		return in.Saida{}, err
-	}
-	if err := s.Disp.Disponibilizar(ctx, item.Codigo); err != nil {
-		return in.Saida{}, err
 	}
 	return in.Saida{Conclusoes: 1, CodigosDisponiveis: []domain.Codigo{item.Codigo}}, nil
 }

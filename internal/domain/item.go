@@ -8,6 +8,8 @@ type ID string
 type Codigo string
 
 // Estado do item no consumo.
+// Os estados gravados são só estes quatro.
+// A condição parcial não é um estado: é o código já no conjunto com o item ainda pendente.
 const (
 	Livre        = "livre"
 	EmPasso      = "em_passo"

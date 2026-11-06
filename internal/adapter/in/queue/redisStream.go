@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 	"github.com/redis/go-redis/v9"
@@ -27,6 +28,7 @@ type Opcoes struct {
 type fluxo interface {
 	Ler(ctx context.Context) (domain.Item, bool, error)
 	Ack(ctx context.Context, id domain.ID) error
+	ConcluirCodigo(ctx context.Context, id domain.ID, codigo domain.Codigo) (bool, error)
 	Marcar(ctx context.Context, codigo domain.Codigo) (bool, error)
 	Existe(ctx context.Context, codigo domain.Codigo) (bool, error)
 	Fechar() error
@@ -51,7 +53,7 @@ func Nova(op Opcoes) (*Fila, error) {
 	if op.Consumidor == "" {
 		op.Consumidor = consumidorLocal()
 	}
-	rdb := redis.NewClient(&redis.Options{Addr: op.Addr})
+	rdb := redis.NewClient(&redis.Options{Addr: op.Addr, ClientName: op.Consumidor})
 	fx := &redisFluxo{
 		rdb:        rdb,
 		stream:     op.Stream,
@@ -111,6 +113,17 @@ func (f *Fila) Concluir(ctx context.Context, id domain.ID) error {
 	}
 	f.esquecer(id)
 	return nil
+}
+
+// ConcluirPrimeira registra o código uma vez e tira o item da pendência na mesma operação.
+// Se o código já está no conjunto, só tira o item da pendência.
+func (f *Fila) ConcluirPrimeira(ctx context.Context, id domain.ID, codigo domain.Codigo) (bool, error) {
+	nova, err := f.fluxo.ConcluirCodigo(ctx, id, codigo)
+	if err != nil {
+		return false, err
+	}
+	f.esquecer(id)
+	return nova, nil
 }
 
 // Liberar devolve o item ao processo, sem conclusão e sem prazo numérico.
@@ -197,12 +210,24 @@ func (r *redisFluxo) garantirGrupo(ctx context.Context) error {
 }
 
 func (r *redisFluxo) Ler(ctx context.Context) (domain.Item, bool, error) {
+	item, ok, err := r.lerID(ctx, "0", -1)
+	if err != nil || ok {
+		return item, ok, err
+	}
+	item, ok, err = r.reivindicarMaisAntiga(ctx)
+	if err != nil || ok {
+		return item, ok, err
+	}
+	return r.lerID(ctx, ">", 0)
+}
+
+func (r *redisFluxo) lerID(ctx context.Context, id string, block time.Duration) (domain.Item, bool, error) {
 	lista, err := r.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
 		Group:    r.group,
 		Consumer: r.consumidor,
-		Streams:  []string{r.stream, ">"},
+		Streams:  []string{r.stream, id},
 		Count:    1,
-		Block:    0,
+		Block:    block,
 	}).Result()
 	if err == redis.Nil {
 		return domain.Item{}, false, nil
@@ -215,6 +240,85 @@ func (r *redisFluxo) Ler(ctx context.Context) (domain.Item, bool, error) {
 	}
 	msg := lista[0].Messages[0]
 	return itemDaMensagem(msg.ID, msg.Values), true, nil
+}
+
+// reivindicarMaisAntiga reserva a pendência mais antiga de um consumidor sem conexão viva.
+// O tempo de ociosidade zero é só o argumento da operação. A regra é a conexão ausente.
+func (r *redisFluxo) reivindicarMaisAntiga(ctx context.Context) (domain.Item, bool, error) {
+	vivos, err := r.consumidoresVivos(ctx)
+	if err != nil {
+		return domain.Item{}, false, err
+	}
+	inicio := "-"
+	for {
+		pagina, err := r.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
+			Stream: r.stream,
+			Group:  r.group,
+			Start:  inicio,
+			End:    "+",
+			Count:  100,
+		}).Result()
+		if err == redis.Nil || len(pagina) == 0 {
+			return domain.Item{}, false, nil
+		}
+		if err != nil {
+			return domain.Item{}, false, err
+		}
+		for _, p := range pagina {
+			if p.ID == inicio || p.Consumer == "" || p.Consumer == r.consumidor || vivos[p.Consumer] {
+				continue
+			}
+			msgs, err := r.rdb.XClaim(ctx, &redis.XClaimArgs{
+				Stream:   r.stream,
+				Group:    r.group,
+				Consumer: r.consumidor,
+				MinIdle:  0,
+				Messages: []string{p.ID},
+			}).Result()
+			if err != nil {
+				return domain.Item{}, false, err
+			}
+			if len(msgs) == 0 {
+				continue
+			}
+			return itemDaMensagem(msgs[0].ID, msgs[0].Values), true, nil
+		}
+		if len(pagina) < 100 {
+			return domain.Item{}, false, nil
+		}
+		inicio = pagina[len(pagina)-1].ID
+	}
+}
+
+func (r *redisFluxo) consumidoresVivos(ctx context.Context) (map[string]bool, error) {
+	texto, err := r.rdb.ClientList(ctx).Result()
+	if err != nil {
+		return nil, err
+	}
+	vivos := map[string]bool{}
+	for _, linha := range strings.Split(texto, "\n") {
+		for _, campo := range strings.Fields(linha) {
+			nome, ok := strings.CutPrefix(campo, "name=")
+			if ok && nome != "" {
+				vivos[nome] = true
+			}
+		}
+	}
+	return vivos, nil
+}
+
+const scriptConcluir = `
+local novo = redis.call('SADD', KEYS[1], ARGV[1])
+redis.call('XACK', KEYS[2], ARGV[2], ARGV[3])
+return novo
+`
+
+func (r *redisFluxo) ConcluirCodigo(ctx context.Context, id domain.ID, codigo domain.Codigo) (bool, error) {
+	n, err := r.rdb.Eval(ctx, scriptConcluir, []string{r.codigos, r.stream}, string(codigo), r.group, string(id)).Int64()
+	if err != nil {
+		return false, err
+	}
+	return n == 1, nil
 }
 
 func (r *redisFluxo) Ack(ctx context.Context, id domain.ID) error {

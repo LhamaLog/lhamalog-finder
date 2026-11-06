@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
 
@@ -43,6 +45,18 @@ func main() {
 	}
 	defer fila.Fechar()
 
+	ouvinte, err := net.Listen("tcp", cfg.HTTPAddr)
+	if err != nil {
+		log.Error("falha ao abrir a consulta de saúde", "erro", err, "addr", cfg.HTTPAddr)
+		os.Exit(1)
+	}
+	srv := servidor(cfg.HTTPAddr)
+	go func() {
+		if err := srv.Serve(ouvinte); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("consulta de saúde encerrada", "erro", err)
+		}
+	}()
+
 	svc := &application.Servico{
 		Fila:     fila,
 		Codigos:  fila,
@@ -63,12 +77,13 @@ func main() {
 		}
 		if err != nil {
 			log.Error("falha de leitura da fila", "erro", err, "conclusoes", saida.Conclusoes)
-			os.Exit(1)
+			continue
 		}
 		if saida.Conclusoes > 0 {
 			log.Info("item concluído", "codigos", saida.CodigosDisponiveis)
 		}
 	}
 
+	_ = srv.Shutdown(context.Background())
 	log.Info("finder encerrado")
 }
