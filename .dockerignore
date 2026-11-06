@@ -1,0 +1,9 @@
+.git
+bin
+*.exe
+*.test
+*.out
+coverage*
+.env
+vendor/
+*.log

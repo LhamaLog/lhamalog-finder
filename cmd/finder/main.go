@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime"
-	"syscall"
-	"time"
 
-	httpadp "github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http"
+	"github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue"
+	"github.com/LhamaLog/lhamalog-finder/internal/application"
+	"github.com/LhamaLog/lhamalog-finder/internal/application/port/in"
 	"github.com/LhamaLog/lhamalog-finder/internal/config"
+	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
 
 // versao é definida no build com -ldflags "-X main.versao=X"; padrão "dev".
@@ -22,30 +22,68 @@ var versao = "dev"
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	cfg := config.Carregar()
+	log.Info("[LhamaLog] lhamalog-finder iniciado", "versao", versao)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: httpadp.NovoRoteador(), ReadHeaderTimeout: 5 * time.Second}
-	ln, err := net.Listen("tcp", cfg.HTTPAddr)
-	if err != nil {
-		log.Error("falha ao abrir a porta HTTP", "erro", err)
+	if err := config.AplicarArquivoEnv(); err != nil {
+		log.Error("falha ao ler .env", "erro", err)
 		os.Exit(1)
 	}
-	porta := ln.Addr().(*net.TCPAddr).Port
+	cfg := config.Carregar()
+	fila, err := queue.Nova(queue.Opcoes{
+		Addr:    cfg.RedisAddr,
+		Stream:  cfg.RedisStream,
+		Group:   cfg.RedisGroup,
+		Codigos: cfg.RedisCodigos,
+	})
+	if err != nil {
+		if errors.Is(err, queue.ErrNomesAusentes) {
+			log.Error("consumo da fila sem nomes externos", "erro", err)
+		} else {
+			log.Error("falha ao abrir a fila", "erro", err)
+		}
+		os.Exit(1)
+	}
+	defer fila.Fechar()
+
+	ouvinte, err := net.Listen("tcp", cfg.HTTPAddr)
+	if err != nil {
+		log.Error("falha ao abrir a consulta de saúde", "erro", err, "addr", cfg.HTTPAddr)
+		os.Exit(1)
+	}
+	srv := servidor(cfg.HTTPAddr)
 	go func() {
-		if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error("falha no servidor HTTP", "erro", err)
-			stop()
+		if err := srv.Serve(ouvinte); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("consulta de saúde encerrada", "erro", err)
 		}
 	}()
-	// Log padrão do LhamaLog (ADR_149).
-	log.Info("[LhamaLog] lhamalog-finder iniciado", "versao", versao, "porta", porta, "go", runtime.Version(), "workers", cfg.Workers)
 
-	<-ctx.Done()
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	_ = srv.Shutdown(shutdownCtx)
+	svc := &application.Servico{
+		Fila:     fila,
+		Codigos:  fila,
+		Disp:     fila,
+		Reservas: domain.NovoQuadro(nil),
+	}
+	ctx, parar := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer parar()
+
+	for {
+		saida, err := svc.Executar(ctx, in.Pedido{
+			Instancia:     fila.Instancia(),
+			WorkerNoAr:    true,
+			InstanciaNoAr: true,
+		})
+		if ctx.Err() != nil {
+			break
+		}
+		if err != nil {
+			log.Error("falha de leitura da fila", "erro", err, "conclusoes", saida.Conclusoes)
+			continue
+		}
+		if saida.Conclusoes > 0 {
+			log.Info("item concluído", "codigos", saida.CodigosDisponiveis)
+		}
+	}
+
+	_ = srv.Shutdown(context.Background())
 	log.Info("finder encerrado")
 }

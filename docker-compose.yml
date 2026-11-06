@@ -1,10 +1,49 @@
-# Ambiente local do lhamalog-collector (somente desenvolvimento) - ADR_151.
-# Uso (na raiz do repositorio): make infra-up | make infra-down
-#   ou: docker compose -f infra/local/compose.yaml up -d
-# Variaveis opcionais: copie .env.example para .env nesta mesma pasta e ajuste.
+# Ambiente local do lhamalog-finder (somente desenvolvimento).
+# Uso (na raiz do repositório): docker compose up --build
+#   ou: make run | make infra-up | make infra-down
 name: lhamalog-finder-local
 
 services:
+  finder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lhamalog-finder
+    container_name: lhamalog-finder
+    restart: "no"
+    # Mesma rede do Redis: o cliente em localhost:6379 alcança o serviço.
+    network_mode: "service:redis"
+    environment:
+      FINDER_HTTP_ADDR: ":8085"
+      FINDER_WORKERS: ${FINDER_WORKERS:-4}
+      FINDER_REDIS_STREAM: ${FINDER_REDIS_STREAM:-fila:logs}
+      FINDER_REDIS_GROUP: ${FINDER_REDIS_GROUP:-finder}
+      FINDER_REDIS_CODIGOS: ${FINDER_REDIS_CODIGOS:-finder:codigos}
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://127.0.0.1:8085/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # Toolchain Go 1.27.0 para testes e vet, sem instalar Go na máquina.
+  # Não sobe com `docker compose up`; use `docker compose run --rm gotools ...`.
+  gotools:
+    image: golang:1.27.0
+    working_dir: /src
+    volumes:
+      - .:/src
+    profiles:
+      - tools
+    entrypoint: ["go"]
+
   mongo:
     image: mongo:8.0.34
     container_name: lhamalog-finder-mongo
@@ -35,6 +74,7 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "${REDIS_PORT:-6379}:6379"
+      - "${FINDER_PORT:-8085}:8085"
     volumes:
       - redis-data:/data
     healthcheck:

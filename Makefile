@@ -1,40 +1,32 @@
 IMAGE := lhamalog-finder
-COMPOSE := docker compose -f docker-compose.yml
 
-# Portabilidade: no Windows (cmd/PowerShell) o binário é .exe, a remoção usa comandos do cmd
-# e o -race fica de fora (exige cgo/gcc no Windows).
+# Portabilidade: no Windows (cmd/PowerShell) a remoção usa comandos do cmd.
 ifeq ($(OS),Windows_NT)
-BIN := bin\finder.exe
 RM := if exist bin rmdir /s /q bin
-RACE :=
-LINT_EXTRA := where golangci-lint >nul 2>&1 && golangci-lint run || echo golangci-lint nao instalado (opcional)
 else
-BIN := bin/finder
 RM := rm -rf bin
-RACE := -race
-LINT_EXTRA := command -v golangci-lint >/dev/null && golangci-lint run || echo "golangci-lint não instalado (opcional)"
 endif
 
-.PHONY: run build test lint docker infra-up infra-down clean
+.PHONY: run build test lint docker infra-up infra-down infra-config clean
 
 run:
-	go run ./cmd/finder
+	docker compose up -d mongo redis elasticsearch
+	docker compose up -d --wait redis
+	docker compose up --build --no-deps finder
 
 build:
-	go build -o $(BIN) ./cmd/finder
-
-test:
-	go test $(RACE) ./...
-
-lint:
-	go vet ./...
-	@$(LINT_EXTRA)
-
-docker:
 	docker build -t $(IMAGE) .
 
+test:
+	docker compose run --rm --no-deps gotools test -race ./...
+
+lint:
+	docker compose run --rm --no-deps gotools vet ./...
+
+docker: build
+
 infra-up:
-	docker compose up -d
+	docker compose up -d mongo redis elasticsearch
 
 infra-down:
 	docker compose down
