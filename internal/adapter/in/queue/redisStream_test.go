@@ -61,6 +61,10 @@ func (f *fluxoParado) Ler(context.Context) (domain.Item, bool, error) {
 
 func (f *fluxoParado) Ack(context.Context, domain.ID) error { return nil }
 
+func (f *fluxoParado) ConcluirCodigo(context.Context, domain.ID, domain.Codigo) (bool, error) {
+	return true, nil
+}
+
 func (f *fluxoParado) Marcar(context.Context, domain.Codigo) (bool, error) { return true, nil }
 
 func (f *fluxoParado) Existe(context.Context, domain.Codigo) (bool, error) { return false, nil }
