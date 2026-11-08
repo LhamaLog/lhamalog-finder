@@ -3,7 +3,9 @@ package application
 import (
 	"bytes"
 	"context"
+	"errors"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -163,6 +165,142 @@ func TestExecutarApontamentoRepetido(t *testing.T) {
 	}
 }
 
+func TestExecutarErroComEstadoProntoNaoGuarda(t *testing.T) {
+	leitura := &leituraFixa{err: errors.New("falha de leitura")}
+	prontos := novoMemProntos()
+	s := &ServicoCaptura{
+		Fonte:   &fonteFixa{lista: []domain.Codigo{"apontamento-a"}},
+		Leitura: leitura,
+		Prontos: prontos,
+	}
+	saida, err := s.Executar(context.Background(), in.PedidoCaptura{InstanciaNoAr: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saida.Prontos) != 0 || len(saida.Falhas) != 1 || saida.Falhas[0].Motivo != domain.MotivoInacessivel {
+		t.Fatalf("saída: %+v", saida)
+	}
+	if saida.Falhas[0].Apontamento != "apontamento-a" {
+		t.Fatalf("apontamento: %+v", saida.Falhas[0])
+	}
+	if _, ok, _ := prontos.Ler(context.Background(), "apontamento-a", true); ok {
+		t.Fatal("erro com estado pronto guardou log")
+	}
+}
+
+func TestExecutarRegistroVazioNaoFicaPronto(t *testing.T) {
+	leitura := &leituraFixa{regs: map[domain.Codigo]domain.Registro{
+		"nulo":  nil,
+		"vazio": {},
+	}}
+	prontos := novoMemProntos()
+	s := &ServicoCaptura{
+		Fonte:   &fonteFixa{lista: []domain.Codigo{"nulo", "vazio"}},
+		Leitura: leitura,
+		Prontos: prontos,
+	}
+	saida, err := s.Executar(context.Background(), in.PedidoCaptura{InstanciaNoAr: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saida.Prontos) != 0 || len(saida.Falhas) != 2 {
+		t.Fatalf("saída: %+v", saida)
+	}
+	for _, falha := range saida.Falhas {
+		if falha.Motivo != domain.MotivoAusente {
+			t.Fatalf("falha: %+v", falha)
+		}
+	}
+	if _, ok, _ := prontos.Ler(context.Background(), "nulo", true); ok {
+		t.Fatal("registro nulo ficou pronto")
+	}
+	if _, ok, _ := prontos.Ler(context.Background(), "vazio", true); ok {
+		t.Fatal("registro vazio ficou pronto")
+	}
+}
+
+func TestExecutarCancelamentoNoMeioDevolveErro(t *testing.T) {
+	leitura := &leituraEspera{entrou: make(chan struct{}), solta: make(chan struct{}), reg: domain.Registro("log")}
+	prontos := novoMemProntos()
+	s := &ServicoCaptura{
+		Fonte:   &fonteFixa{lista: []domain.Codigo{"apontamento-a"}},
+		Leitura: leitura,
+		Prontos: prontos,
+	}
+	ctx, cancelar := context.WithCancel(context.Background())
+	defer cancelar()
+	done := make(chan struct{})
+	var saida in.SaidaCaptura
+	var err error
+	go func() {
+		saida, err = s.Executar(ctx, in.PedidoCaptura{InstanciaNoAr: true})
+		close(done)
+	}()
+	select {
+	case <-leitura.entrou:
+	case <-time.After(2 * time.Second):
+		t.Fatal("a leitura não começou")
+	}
+	cancelar()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("a captura não terminou depois do cancelamento")
+	}
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("err=%v", err)
+	}
+	if len(saida.Prontos) != 0 {
+		t.Fatalf("prontos: %+v", saida.Prontos)
+	}
+	if _, ok, _ := prontos.Ler(context.Background(), "apontamento-a", true); ok {
+		t.Fatal("cancelamento guardou log")
+	}
+}
+
+func TestExecutarParadaDuranteLeituraNaoGuarda(t *testing.T) {
+	var noAr atomic.Bool
+	noAr.Store(true)
+	leitura := &leituraEspera{entrou: make(chan struct{}), solta: make(chan struct{}), reg: domain.Registro("log")}
+	prontos := novoMemProntos()
+	s := &ServicoCaptura{
+		Fonte:   &fonteFixa{lista: []domain.Codigo{"apontamento-a"}},
+		Leitura: leitura,
+		Prontos: prontos,
+	}
+	done := make(chan struct{})
+	var saida in.SaidaCaptura
+	var err error
+	go func() {
+		saida, err = s.Executar(context.Background(), in.PedidoCaptura{
+			InstanciaNoAr: true,
+			SegueNoAr:     noAr.Load,
+		})
+		close(done)
+	}()
+	select {
+	case <-leitura.entrou:
+	case <-time.After(2 * time.Second):
+		t.Fatal("a leitura não começou")
+	}
+	noAr.Store(false)
+	close(leitura.solta)
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("a captura não terminou depois da parada")
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saida.Prontos) != 0 || len(saida.Falhas) != 0 {
+		t.Fatalf("saída: %+v", saida)
+	}
+	if _, ok, _ := prontos.Ler(context.Background(), "apontamento-a", true); ok {
+		t.Fatal("parada durante a leitura guardou log")
+	}
+}
+
 type fonteFixa struct {
 	lista []domain.Codigo
 }
@@ -176,18 +314,39 @@ type leituraFixa struct {
 	chamadas int
 	regs     map[domain.Codigo]domain.Registro
 	estados  map[domain.Codigo]out.EstadoLeitura
+	err      error
 }
 
 func (f *leituraFixa) Ler(_ context.Context, codigo domain.Codigo) (domain.Registro, out.EstadoLeitura, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.chamadas++
+	if f.err != nil {
+		return nil, out.LeituraPronta, f.err
+	}
 	if f.estados != nil {
 		if est, ok := f.estados[codigo]; ok {
 			return nil, est, nil
 		}
 	}
 	return f.regs[codigo], out.LeituraPronta, nil
+}
+
+type leituraEspera struct {
+	uma    sync.Once
+	entrou chan struct{}
+	solta  chan struct{}
+	reg    domain.Registro
+}
+
+func (f *leituraEspera) Ler(ctx context.Context, _ domain.Codigo) (domain.Registro, out.EstadoLeitura, error) {
+	f.uma.Do(func() { close(f.entrou) })
+	select {
+	case <-f.solta:
+		return f.reg, out.LeituraPronta, nil
+	case <-ctx.Done():
+		return f.reg, out.LeituraPronta, nil
+	}
 }
 
 type leituraSobreposta struct {

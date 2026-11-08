@@ -66,12 +66,22 @@ func (s *ServicoCaptura) um(ctx context.Context, pedido in.PedidoCaptura, codigo
 		f := domain.FalhaCaptura{Apontamento: codigo, Motivo: domain.MotivoInutilizavel}
 		return nil, &f, nil
 	}
-	if !pedido.InstanciaNoAr || ctx.Err() != nil {
+	if err := ctx.Err(); err != nil {
+		return nil, nil, err
+	}
+	if !instanciaNoAr(pedido) {
 		return nil, nil, nil
 	}
 	reg, estado, err := s.Leitura.Ler(ctx, codigo)
-	if ctx.Err() != nil || !pedido.InstanciaNoAr {
+	if errCtx := ctx.Err(); errCtx != nil {
+		return nil, nil, errCtx
+	}
+	if !instanciaNoAr(pedido) {
 		return nil, nil, nil
+	}
+	if err != nil {
+		f := domain.FalhaCaptura{Apontamento: codigo, Motivo: domain.MotivoInacessivel}
+		return nil, &f, nil
 	}
 	switch estado {
 	case out.LeituraAusente:
@@ -81,8 +91,9 @@ func (s *ServicoCaptura) um(ctx context.Context, pedido in.PedidoCaptura, codigo
 		f := domain.FalhaCaptura{Apontamento: codigo, Motivo: domain.MotivoInacessivel}
 		return nil, &f, nil
 	}
-	if err != nil {
-		return nil, nil, err
+	if len(reg) == 0 {
+		f := domain.FalhaCaptura{Apontamento: codigo, Motivo: domain.MotivoAusente}
+		return nil, &f, nil
 	}
 	if err := s.Prontos.Guardar(ctx, codigo, reg); err != nil {
 		return nil, nil, err
@@ -96,4 +107,11 @@ func (s *ServicoCaptura) um(ctx context.Context, pedido in.PedidoCaptura, codigo
 	}
 	pronto := domain.LogPronto{Apontamento: codigo, Conteudo: lido}
 	return &pronto, nil, nil
+}
+
+func instanciaNoAr(pedido in.PedidoCaptura) bool {
+	if pedido.SegueNoAr != nil {
+		return pedido.SegueNoAr()
+	}
+	return pedido.InstanciaNoAr
 }

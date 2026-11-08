@@ -7,8 +7,11 @@ import (
 )
 
 // PedidoCaptura informa se a instância segue no ar durante a captura.
+// SegueNoAr, quando informado, é lido de novo depois da leitura.
+// Sem ele, vale InstanciaNoAr.
 type PedidoCaptura struct {
 	InstanciaNoAr bool
+	SegueNoAr     func() bool
 }
 
 // SaidaCaptura é o efeito observável de uma execução.
