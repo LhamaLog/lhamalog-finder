@@ -80,19 +80,19 @@ Na raiz do repositório, com o Docker em execução:
 make run
 ```
 
-O alvo sobe MongoDB, Redis e Elasticsearch, espera o Redis aceitar conexões e então inicia o Finder em primeiro plano, compilado com Go 1.27.0. A primeira execução baixa as imagens e pode demorar.
+O alvo sobe MongoDB, Redis e OpenObserve v1.1.2, espera o Redis aceitar conexões e então inicia o Finder em primeiro plano, compilado com Go 1.27.0. A primeira execução baixa as imagens e pode demorar. O OpenObserve local escuta na porta 5080. Organização, usuário e senha não são definidos por este módulo.
 
 O log fica nesse terminal. Interrompa com Ctrl+C. Para remover os contêineres: `make infra-down`.
 
 Sem make:
 
 ```bash
-docker compose up -d mongo redis elasticsearch
+docker compose up -d mongo redis openobserve
 docker compose up -d --wait redis
 docker compose up --build --no-deps finder
 ```
 
-Só a infraestrutura, sem o Finder: `make infra-up` (ou `docker compose up -d mongo redis elasticsearch`).
+Só a infraestrutura, sem o Finder: `make infra-up` (ou `docker compose up -d mongo redis openobserve`).
 
 Outros alvos, todos dentro do Docker:
 
@@ -105,7 +105,7 @@ Outros alvos, todos dentro do Docker:
 | `docker compose run --rm --no-deps gotools test ./...` | testes sem make                              |
 
 
-Para subir só o Finder, sem MongoDB, Redis e Elasticsearch:
+Para subir só o Finder, sem MongoDB, Redis e OpenObserve:
 
 ```bash
 docker build -t lhamalog-finder .
@@ -137,7 +137,7 @@ internal/application/port/in  portas de entrada
 internal/application/port/out portas de saída
 internal/adapter/in/queue/    consumidor Redis Streams
 internal/adapter/in/http/     health interno
-internal/adapter/out/{mongo,elastic,llm}/
+internal/adapter/out/{mongo,openobserve}/
 internal/config/              configuração por variáveis de ambiente
 ```
 
@@ -149,7 +149,6 @@ Antes de adicionar qualquer dependência, ver Drive da equipe > Arquitetura > De
 
 - github.com/redis/go-redis/v9 — Redis Streams
 - go.mongodb.org/mongo-driver/v2 — MongoDB
-- github.com/elastic/go-elasticsearch/v9 — Elasticsearch
 - go.opentelemetry.io/otel (+ sdk, exporters OTLP) — observabilidade
 - golang.org/x/sync (errgroup, semaphore) — concorrência
 - github.com/testcontainers/testcontainers-go — testes de integração

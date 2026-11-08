@@ -11,7 +11,7 @@ Feature: consumo da fila (reserva exclusiva e conclusão no mesmo passo). Spec: 
 ## 2. Como subir o projeto
 - Testes: `make test` ou `docker compose run --rm --no-deps gotools test -race ./...` (local: `go test -v -count=1 ./...`).
 - Lint: `make lint` (`go vet ./...`).
-- App: `make run` (sobe mongo, redis, elasticsearch e finder). **Observação:** o adaptador Redis não está conectado ao caso de uso nesta feature (T014 bloqueada), então não há prova caixa-preta com Redis real.
+- App: `make run` (sobe mongo, redis, openobserve e finder). **Observação:** o adaptador Redis não está conectado ao caso de uso nesta feature (T014 bloqueada), então não há prova caixa-preta com Redis real.
 
 ## 3. Dados de teste
 - Itens com conteúdo = somente o código de apontamento (ex.: `cod-1`, `cod-2`).
