@@ -222,3 +222,12 @@ Task: "Caso de uso com substitutos em internal/application/capturar_test.go"
 - The OpenObserve adapter, the local base change, and SC-001 stay out of this list
 - Commit after each task or logical group
 - Stop at any checkpoint to validate the story with fakes
+
+---
+
+## Phase 8: Convergence
+
+- [X] T022 CRITICAL: Retirar da captura o contrato inventado do OpenObserve em `internal/adapter/out/openobserve/cliente.go`, `internal/config/config.go` e `docker-compose.yml` (organização `default`, URL, usuário, senha, caminho `api/{org}/_search` e SQL). Esses nomes seguem sem fonte do solicitante per Constitution V e FR-005 (contradicts)
+- [X] T023 Fazer um apontamento selecionar um único log armazenado. `Ler` não pode tratar o apontamento como nome de stream e devolver `hits[0]` com `size` 1 per FR-002 (contradicts)
+- [X] T024 Não classificar apontamento não vazio como inacessível por falha de `streamAceito`. Formato, tamanho e alfabeto não estão definidos; só o vazio é inutilizável e o armazenamento não é consultado para esse valor per FR-006 (contradicts)
+- [X] T025 Não devolver o corpo cru como log pronto quando a resposta não é a consulta esperada. Sucesso só com o registro armazenado, inteiro per FR-003 (contradicts)

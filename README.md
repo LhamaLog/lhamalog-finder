@@ -80,7 +80,7 @@ Na raiz do repositório, com o Docker em execução:
 make run
 ```
 
-O alvo sobe MongoDB, Redis e OpenObserve v1.1.2, espera o Redis aceitar conexões e então inicia o Finder em primeiro plano, compilado com Go 1.27.0. A primeira execução baixa as imagens e pode demorar. O OpenObserve local escuta na porta 5080. O usuário inicial é o do guia oficial (`root@example.com` / `Complexpass#123`), trocável por `OPENOBSERVE_ROOT_EMAIL` e `OPENOBSERVE_ROOT_PASSWORD`.
+O alvo sobe MongoDB, Redis e OpenObserve v1.1.2, espera o Redis aceitar conexões e então inicia o Finder em primeiro plano, compilado com Go 1.27.0. A primeira execução baixa as imagens e pode demorar. O OpenObserve local escuta na porta 5080. Organização, usuário e senha não são definidos por este módulo.
 
 O log fica nesse terminal. Interrompa com Ctrl+C. Para remover os contêineres: `make infra-down`.
 
@@ -153,8 +153,6 @@ Antes de adicionar qualquer dependência, ver Drive da equipe > Arquitetura > De
 - golang.org/x/sync (errgroup, semaphore) — concorrência
 - github.com/testcontainers/testcontainers-go — testes de integração
 - LLM / BancoVetorial — [PENDENTE]
-
-A leitura no OpenObserve usa `net/http` da biblioteca padrão (`POST /api/{org}/_search`). Não há módulo novo para isso.
 
 
 

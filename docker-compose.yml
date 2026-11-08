@@ -16,10 +16,6 @@ services:
     environment:
       FINDER_HTTP_ADDR: ":8085"
       FINDER_WORKERS: ${FINDER_WORKERS:-4}
-      FINDER_OPENOBSERVE_URL: http://openobserve:5080
-      FINDER_OPENOBSERVE_ORG: ${OPENOBSERVE_ORG:-default}
-      FINDER_OPENOBSERVE_USER: ${OPENOBSERVE_ROOT_EMAIL:-root@example.com}
-      FINDER_OPENOBSERVE_PASSWORD: ${OPENOBSERVE_ROOT_PASSWORD:-Complexpass#123}
       FINDER_REDIS_STREAM: ${FINDER_REDIS_STREAM:-fila:logs}
       FINDER_REDIS_GROUP: ${FINDER_REDIS_GROUP:-finder}
       FINDER_REDIS_CODIGOS: ${FINDER_REDIS_CODIGOS:-finder:codigos}
@@ -87,16 +83,13 @@ services:
       timeout: 5s
       retries: 10
 
-  # OpenObserve OSS v1.1.2. Porta 5080 e credencial inicial são as do guia oficial.
-  # https://openobserve.ai/docs/getting-started/
+  # OpenObserve na base local. Organização, usuário e senha não são nomeados aqui.
   openobserve:
     image: openobserve/openobserve:v1.1.2
     container_name: lhamalog-finder-openobserve
     restart: unless-stopped
     environment:
       ZO_DATA_DIR: /data
-      ZO_ROOT_USER_EMAIL: ${OPENOBSERVE_ROOT_EMAIL:-root@example.com}
-      ZO_ROOT_USER_PASSWORD: ${OPENOBSERVE_ROOT_PASSWORD:-Complexpass#123}
     ports:
       - "${OPENOBSERVE_PORT:-5080}:5080"
     volumes:
