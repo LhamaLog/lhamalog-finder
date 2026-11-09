@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/application/port/in"
@@ -84,4 +85,138 @@ func (s *Servico) Executar(ctx context.Context, pedido in.Pedido) (in.Saida, err
 		s.Reservas.ConcluirItem(item.ID)
 	}
 	return in.Saida{Conclusoes: 1, CodigosDisponiveis: []domain.Codigo{item.Codigo}}, nil
+}
+
+// ConsumoReferencia interpreta log.ingested e entrega a referência à porta de efeito.
+// A entrada válida só é confirmada depois do efeito concluído.
+// Não há consulta ao OpenObserve nem uso de correlationId ou do id Redis como idempotência.
+type ConsumoReferencia struct {
+	Fila   out.Entradas
+	Chaves out.ChaveLote
+	Efeito out.Efeito
+	dono   map[string]string
+}
+
+// SaidaLote é o efeito observável de uma entrada do stream de logs.
+type SaidaLote struct {
+	Confirmacoes int
+	Efeitos      int
+	Invalida     bool
+	FalhaLeitura bool
+}
+
+// Executar lê uma entrada. Inválida é confirmada uma vez. Válida espera o efeito.
+func (s *ConsumoReferencia) Executar(ctx context.Context) (SaidaLote, error) {
+	if err := ctx.Err(); err != nil {
+		return SaidaLote{}, err
+	}
+	entrada, ok, err := s.Fila.Ler(ctx)
+	if err != nil {
+		return SaidaLote{FalhaLeitura: true}, err
+	}
+	if !ok {
+		return SaidaLote{}, nil
+	}
+	ref, err := domain.InterpretarEnvelope(entrada.Campos)
+	if err != nil {
+		return s.encerrarInvalida(ctx, entrada, err)
+	}
+	ref.EntradaID = entrada.ID
+	return s.tratarValida(ctx, entrada, ref)
+}
+
+func (s *ConsumoReferencia) encerrarInvalida(ctx context.Context, entrada domain.Entrada, err error) (SaidaLote, error) {
+	var erro *domain.ErroEnvelope
+	idem := ""
+	motivo := err.Error()
+	if errors.As(err, &erro) {
+		idem = erro.IdempotencyID
+		motivo = erro.Motivo
+	}
+	if idem != "" {
+		delete(s.dono, idem)
+	}
+	args := []any{"id", entrada.ID, "motivo", motivo}
+	if idem != "" {
+		args = append(args, "idempotencyId", idem)
+	}
+	slog.Info("entrada inválida", args...)
+	if err := s.Fila.EncerrarInvalida(ctx, entrada.ID, idem); err != nil {
+		return SaidaLote{}, err
+	}
+	return SaidaLote{Confirmacoes: 1, Invalida: true}, nil
+}
+
+func (s *ConsumoReferencia) tratarValida(ctx context.Context, entrada domain.Entrada, ref domain.Referencia) (SaidaLote, error) {
+	estado, err := s.Chaves.Consultar(ctx, ref.IdempotencyID)
+	if err != nil {
+		return SaidaLote{}, err
+	}
+	if estado == domain.EstadoConcluido {
+		return s.confirmarSemEfeito(ctx, entrada.ID, ref.IdempotencyID)
+	}
+	if estado == domain.EstadoEmProcessamento {
+		return s.retomar(ctx, entrada, ref)
+	}
+	criou, err := s.Chaves.Reservar(ctx, ref.IdempotencyID)
+	if err != nil {
+		return SaidaLote{}, err
+	}
+	if !criou {
+		return s.retomar(ctx, entrada, ref)
+	}
+	s.definirDono(ref.IdempotencyID, entrada.ID)
+	return s.executarEfeito(ctx, entrada, ref)
+}
+
+func (s *ConsumoReferencia) retomar(ctx context.Context, entrada domain.Entrada, ref domain.Referencia) (SaidaLote, error) {
+	estado, err := s.Chaves.Consultar(ctx, ref.IdempotencyID)
+	if err != nil {
+		return SaidaLote{}, err
+	}
+	if estado == domain.EstadoConcluido {
+		return s.confirmarSemEfeito(ctx, entrada.ID, ref.IdempotencyID)
+	}
+	dono := s.dono[ref.IdempotencyID]
+	if (dono == entrada.ID || dono == "") && (entrada.Ociosa || entrada.Reivindicada) {
+		s.definirDono(ref.IdempotencyID, entrada.ID)
+		return s.executarEfeito(ctx, entrada, ref)
+	}
+	if err := s.Fila.Adiar(ctx, entrada.ID); err != nil {
+		return SaidaLote{}, err
+	}
+	return SaidaLote{}, nil
+}
+
+func (s *ConsumoReferencia) executarEfeito(ctx context.Context, entrada domain.Entrada, ref domain.Referencia) (SaidaLote, error) {
+	if s.Efeito == nil {
+		return SaidaLote{}, nil
+	}
+	concluido, err := s.Efeito.Executar(ctx, ref)
+	if err != nil || !concluido {
+		return SaidaLote{}, err
+	}
+	if err := s.Chaves.Concluir(ctx, ref.IdempotencyID); err != nil {
+		return SaidaLote{Efeitos: 1}, err
+	}
+	delete(s.dono, ref.IdempotencyID)
+	if err := s.Fila.Confirmar(ctx, entrada.ID); err != nil {
+		return SaidaLote{Efeitos: 1}, err
+	}
+	return SaidaLote{Confirmacoes: 1, Efeitos: 1}, nil
+}
+
+func (s *ConsumoReferencia) confirmarSemEfeito(ctx context.Context, id, idem string) (SaidaLote, error) {
+	if err := s.Fila.Confirmar(ctx, id); err != nil {
+		return SaidaLote{}, err
+	}
+	delete(s.dono, idem)
+	return SaidaLote{Confirmacoes: 1}, nil
+}
+
+func (s *ConsumoReferencia) definirDono(idem, id string) {
+	if s.dono == nil {
+		s.dono = map[string]string{}
+	}
+	s.dono[idem] = id
 }

@@ -3,6 +3,7 @@ package application
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
 	"strings"
@@ -270,4 +271,410 @@ type memDisp struct {
 func (m *memDisp) Disponibilizar(_ context.Context, codigo domain.Codigo) error {
 	m.codigos = append(m.codigos, codigo)
 	return nil
+}
+
+func TestInterpretacaoEntregaSemConfirmar(t *testing.T) {
+	casos := []struct {
+		nome     string
+		contagem int
+		recordID any
+		trace    string
+		comTrace bool
+	}{
+		{nome: "um registro com trace", contagem: 1, recordID: "rec-1", trace: "trace-1", comTrace: true},
+		{nome: "varios sem trace", contagem: 4, recordID: nil, comTrace: false},
+	}
+	for _, caso := range casos {
+		t.Run(caso.nome, func(t *testing.T) {
+			fila := &memEntradas{}
+			chaves := &memChaves{}
+			efeito := &efeitoFake{}
+			fila.porLer = []domain.Entrada{{
+				ID:     "1-0",
+				Campos: camposLote(t, caso.contagem, caso.recordID, caso.trace, caso.comTrace),
+			}}
+			s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+			saida, err := s.Executar(context.Background())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if saida.Confirmacoes != 0 || fila.confirmados["1-0"] != 0 || efeito.concluidos != 0 {
+				t.Fatalf("confirmações=%d fila=%d efeitos=%d", saida.Confirmacoes, fila.confirmados["1-0"], efeito.concluidos)
+			}
+			if len(efeito.refs) != 1 {
+				t.Fatalf("entregas=%d", len(efeito.refs))
+			}
+			ref := efeito.refs[0]
+			if ref.TenantID != "tenant-1" || ref.ProductID != "prod-1" || ref.Organizacao != "org-1" || ref.Stream != "logs" {
+				t.Fatalf("consulta: %+v", ref)
+			}
+			if ref.BatchID != "batch-1" || ref.IdempotencyID != "batch-1" || ref.CorrelationID != "corr-1" || ref.EntradaID != "1-0" {
+				t.Fatalf("identidade: %+v", ref)
+			}
+			if ref.MinTimestampMicros != 100 || ref.MaxTimestampMicros != 200 || ref.RecordCount != int64(caso.contagem) {
+				t.Fatalf("faixa: %+v", ref)
+			}
+			if caso.contagem == 1 {
+				if ref.RecordID == nil || *ref.RecordID != "rec-1" {
+					t.Fatalf("recordId: %+v", ref.RecordID)
+				}
+			} else if ref.RecordID != nil {
+				t.Fatalf("lote múltiplo levou recordId %q", *ref.RecordID)
+			}
+			if caso.comTrace {
+				if ref.TraceID == nil || *ref.TraceID != caso.trace {
+					t.Fatalf("trace: %+v", ref.TraceID)
+				}
+			} else if ref.TraceID != nil {
+				t.Fatal("trace ausente foi inventado")
+			}
+			if len(chaves.reservas) != 1 || chaves.reservas[0] != "batch-1" {
+				t.Fatalf("reservas=%v", chaves.reservas)
+			}
+			if chaves.estado["batch-1"] != domain.EstadoEmProcessamento {
+				t.Fatalf("estado=%s", chaves.estado["batch-1"])
+			}
+		})
+	}
+}
+
+func TestEntradaInvalidaConfirmaUmaVezSemConcluir(t *testing.T) {
+	var buf bytes.Buffer
+	anterior := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(anterior) })
+
+	meta := `{"tenantId":"tenant-1","productId":"prod-1","correlationId":"corr-1","senha":"segredo-redis"}`
+	body := `{"signal":"LOGS","mensagem":"CONTEUDO-DE-LOG-SECRETO"}`
+	fila := &memEntradas{chaves: &memChaves{estado: map[string]string{"batch-1": domain.EstadoEmProcessamento}}}
+	fila.porLer = []domain.Entrada{{
+		ID: "9-0",
+		Campos: map[string]string{
+			"idempotencyId": "batch-1",
+			"event":         "trace.ingested",
+			"origin":        "collector",
+			"schemaVersion": "1",
+			"publishedAt":   "2026-11-08T12:00:00Z",
+			"metadata":      meta,
+			"body":          body,
+		},
+	}}
+	efeito := &efeitoFake{concluido: true}
+	s := &ConsumoReferencia{Fila: fila, Chaves: fila.chaves, Efeito: efeito}
+	saida, err := s.Executar(context.Background())
+	if err != nil || !saida.Invalida || saida.Confirmacoes != 1 {
+		t.Fatalf("saída=%+v err=%v", saida, err)
+	}
+	if _, err := s.Executar(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if fila.confirmados["9-0"] != 1 || len(fila.encerradas) != 1 || fila.encerradas[0].idem != "batch-1" {
+		t.Fatalf("confirmações=%d encerradas=%v", fila.confirmados["9-0"], fila.encerradas)
+	}
+	if fila.pendentes["9-0"] {
+		t.Fatal("entrada inválida permaneceu pendente")
+	}
+	if fila.chaves.conclusoes != 0 || fila.chaves.estado["batch-1"] == domain.EstadoConcluido {
+		t.Fatalf("conclusões=%d estado=%s", fila.chaves.conclusoes, fila.chaves.estado["batch-1"])
+	}
+	if fila.chaves.estado["batch-1"] != domain.EstadoAusente {
+		t.Fatalf("reserva=%s", fila.chaves.estado["batch-1"])
+	}
+	if len(efeito.refs) != 0 {
+		t.Fatal("inválida foi entregue")
+	}
+	registro := buf.String()
+	if !strings.Contains(registro, "9-0") || !strings.Contains(registro, "batch-1") || !strings.Contains(registro, "event diferente de log.ingested") {
+		t.Fatalf("registro: %s", registro)
+	}
+	if strings.Contains(registro, "segredo-redis") || strings.Contains(registro, "CONTEUDO-DE-LOG-SECRETO") || strings.Contains(registro, meta) || strings.Contains(registro, body) {
+		t.Fatalf("registro expõe conteúdo: %s", registro)
+	}
+}
+
+func TestSegundaEntradaEsperaEEfeitoConcluidoNaoRepete(t *testing.T) {
+	campos := camposLote(t, 1, "rec-1", "", false)
+	fila := &memEntradas{}
+	chaves := &memChaves{}
+	efeito := &efeitoFake{}
+	s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+	fila.porLer = []domain.Entrada{
+		{ID: "1-0", Campos: campos},
+		{ID: "2-0", Campos: campos},
+	}
+	primeira, err := s.Executar(context.Background())
+	if err != nil || primeira.Confirmacoes != 0 || efeito.chamadas != 1 || efeito.concluidos != 0 {
+		t.Fatalf("primeira=%+v chamadas=%d err=%v", primeira, efeito.chamadas, err)
+	}
+	segunda, err := s.Executar(context.Background())
+	if err != nil || segunda.Confirmacoes != 0 || efeito.chamadas != 1 || fila.confirmados["2-0"] != 0 || fila.adiados["2-0"] != 1 {
+		t.Fatalf("segunda=%+v chamadas=%d confirmados=%v adiados=%v err=%v", segunda, efeito.chamadas, fila.confirmados, fila.adiados, err)
+	}
+	if fila.pendentes["2-0"] != true {
+		t.Fatal("segunda entrada não permaneceu pendente")
+	}
+
+	efeito.concluido = true
+	fila.cursor = 0
+	fila.porLer = []domain.Entrada{{ID: "1-0", Campos: campos, Ociosa: true}}
+	concluida, err := s.Executar(context.Background())
+	if err != nil || concluida.Confirmacoes != 1 || concluida.Efeitos != 1 || efeito.concluidos != 1 {
+		t.Fatalf("conclusão=%+v efeitos=%d err=%v", concluida, efeito.concluidos, err)
+	}
+	fila.cursor = 0
+	fila.porLer = []domain.Entrada{{ID: "2-0", Campos: campos, Ociosa: true}}
+	delete(fila.adiados, "2-0")
+	repetida, err := s.Executar(context.Background())
+	if err != nil || repetida.Confirmacoes != 1 || efeito.concluidos != 1 || fila.confirmados["2-0"] != 1 {
+		t.Fatalf("repetida=%+v efeitos=%d confirmados=%v err=%v", repetida, efeito.concluidos, fila.confirmados, err)
+	}
+}
+
+func TestQuedaAntesEDepoisDoEfeito(t *testing.T) {
+	campos := camposLote(t, 1, "rec-1", "", false)
+	fila := &memEntradas{}
+	chaves := &memChaves{}
+	s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: nil}
+	fila.porLer = []domain.Entrada{{ID: "1-0", Campos: campos}}
+	saida, err := s.Executar(context.Background())
+	if err != nil || saida.Efeitos != 0 || saida.Confirmacoes != 0 || chaves.estado["batch-1"] != domain.EstadoEmProcessamento {
+		t.Fatalf("antes=%+v estado=%s err=%v", saida, chaves.estado["batch-1"], err)
+	}
+
+	efeito := &efeitoFake{concluido: true}
+	s.Efeito = efeito
+	fila.falhaConfirmar = true
+	fila.cursor = 0
+	fila.porLer = []domain.Entrada{{ID: "1-0", Campos: campos, Ociosa: true}}
+	if _, err := s.Executar(context.Background()); err == nil {
+		t.Fatal("esperava falha antes da confirmação")
+	}
+	if efeito.concluidos != 1 || chaves.estado["batch-1"] != domain.EstadoConcluido || fila.confirmados["1-0"] != 0 {
+		t.Fatalf("efeitos=%d estado=%s confirmados=%d", efeito.concluidos, chaves.estado["batch-1"], fila.confirmados["1-0"])
+	}
+	fila.cursor = 0
+	fila.porLer = []domain.Entrada{{ID: "1-0", Campos: campos}}
+	saida, err = s.Executar(context.Background())
+	if err != nil || saida.Confirmacoes != 1 || efeito.concluidos != 1 {
+		t.Fatalf("reentrega=%+v efeitos=%d err=%v", saida, efeito.concluidos, err)
+	}
+}
+
+func TestReassumirEntradaAbandonada(t *testing.T) {
+	campos := camposLote(t, 1, "rec-1", "", false)
+	fila := &memEntradas{}
+	chaves := &memChaves{estado: map[string]string{"batch-1": domain.EstadoEmProcessamento}}
+	efeito := &efeitoFake{concluido: true}
+	s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+	fila.porLer = []domain.Entrada{{ID: "4-0", Campos: campos, Ociosa: true, Reivindicada: true}}
+	saida, err := s.Executar(context.Background())
+	if err != nil || saida.Efeitos != 1 || saida.Confirmacoes != 1 || chaves.estado["batch-1"] != domain.EstadoConcluido {
+		t.Fatalf("saída=%+v estado=%s err=%v", saida, chaves.estado["batch-1"], err)
+	}
+}
+
+func TestCorrelationEIdRedisNaoDeduplicam(t *testing.T) {
+	um := camposLote(t, 1, "rec-1", "", false)
+	outro := camposLote(t, 1, "rec-2", "", false)
+	outro["idempotencyId"] = "batch-2"
+	body := map[string]any{}
+	if err := json.Unmarshal([]byte(outro["body"]), &body); err != nil {
+		t.Fatal(err)
+	}
+	aberto := body["openobserve"].(map[string]any)
+	aberto["batchId"] = "batch-2"
+	bruto, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outro["body"] = string(bruto)
+	fila := &memEntradas{porLer: []domain.Entrada{
+		{ID: "1-0", Campos: um},
+		{ID: "2-0", Campos: outro},
+	}}
+	chaves := &memChaves{}
+	efeito := &efeitoFake{concluido: true}
+	s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+	if _, err := s.Executar(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Executar(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if efeito.concluidos != 2 || len(chaves.reservas) != 2 || chaves.reservas[0] != "batch-1" || chaves.reservas[1] != "batch-2" {
+		t.Fatalf("efeitos=%d reservas=%v", efeito.concluidos, chaves.reservas)
+	}
+}
+
+type memEntradas struct {
+	porLer         []domain.Entrada
+	cursor         int
+	confirmados    map[string]int
+	adiados        map[string]int
+	pendentes      map[string]bool
+	encerradas     []parEncerrado
+	falhaConfirmar bool
+	chaves         *memChaves
+}
+
+type parEncerrado struct {
+	id   string
+	idem string
+}
+
+func (m *memEntradas) Ler(context.Context) (domain.Entrada, bool, error) {
+	for m.cursor < len(m.porLer) {
+		item := m.porLer[m.cursor]
+		m.cursor++
+		if m.confirmados[item.ID] > 0 {
+			continue
+		}
+		if m.pendentes == nil {
+			m.pendentes = map[string]bool{}
+		}
+		m.pendentes[item.ID] = true
+		return item, true, nil
+	}
+	return domain.Entrada{}, false, nil
+}
+
+func (m *memEntradas) Confirmar(_ context.Context, id string) error {
+	if m.falhaConfirmar {
+		m.falhaConfirmar = false
+		return errors.New("redis indisponível")
+	}
+	if m.confirmados == nil {
+		m.confirmados = map[string]int{}
+	}
+	m.confirmados[id]++
+	delete(m.pendentes, id)
+	return nil
+}
+
+func (m *memEntradas) Adiar(_ context.Context, id string) error {
+	if m.adiados == nil {
+		m.adiados = map[string]int{}
+	}
+	m.adiados[id]++
+	return nil
+}
+
+func (m *memEntradas) EncerrarInvalida(ctx context.Context, id, idem string) error {
+	m.encerradas = append(m.encerradas, parEncerrado{id: id, idem: idem})
+	if m.chaves != nil && idem != "" {
+		if err := m.chaves.RemoverReserva(ctx, idem); err != nil {
+			return err
+		}
+	}
+	return m.Confirmar(ctx, id)
+}
+
+type memChaves struct {
+	estado     map[string]string
+	reservas   []string
+	conclusoes int
+	remocoes   int
+}
+
+func (m *memChaves) Reservar(_ context.Context, id string) (bool, error) {
+	if m.estado == nil {
+		m.estado = map[string]string{}
+	}
+	m.reservas = append(m.reservas, id)
+	if m.estado[id] == "" || m.estado[id] == domain.EstadoAusente {
+		m.estado[id] = domain.EstadoEmProcessamento
+		return true, nil
+	}
+	return false, nil
+}
+
+func (m *memChaves) Concluir(_ context.Context, id string) error {
+	if m.estado == nil {
+		m.estado = map[string]string{}
+	}
+	m.conclusoes++
+	if m.estado[id] != domain.EstadoConcluido {
+		m.estado[id] = domain.EstadoConcluido
+	}
+	return nil
+}
+
+func (m *memChaves) Consultar(_ context.Context, id string) (string, error) {
+	if m.estado[id] == "" {
+		return domain.EstadoAusente, nil
+	}
+	return m.estado[id], nil
+}
+
+func (m *memChaves) RemoverReserva(_ context.Context, id string) error {
+	if m.estado == nil {
+		m.estado = map[string]string{}
+	}
+	m.remocoes++
+	if m.estado[id] == domain.EstadoEmProcessamento {
+		m.estado[id] = domain.EstadoAusente
+	}
+	return nil
+}
+
+type efeitoFake struct {
+	refs       []domain.Referencia
+	chamadas   int
+	concluidos int
+	concluido  bool
+	err        error
+}
+
+func (e *efeitoFake) Executar(_ context.Context, ref domain.Referencia) (bool, error) {
+	e.chamadas++
+	e.refs = append(e.refs, ref)
+	if e.err != nil {
+		return false, e.err
+	}
+	if e.concluido {
+		e.concluidos++
+	}
+	return e.concluido, nil
+}
+
+func camposLote(t *testing.T, contagem int, recordID any, trace string, comTrace bool) map[string]string {
+	t.Helper()
+	meta := map[string]any{
+		"tenantId":      "tenant-1",
+		"productId":     "prod-1",
+		"correlationId": "corr-1",
+	}
+	if comTrace {
+		meta["traceId"] = trace
+	}
+	body := map[string]any{
+		"signal":    "LOGS",
+		"productId": "prod-1",
+		"openobserve": map[string]any{
+			"organization":       "org-1",
+			"stream":             "logs",
+			"batchId":            "batch-1",
+			"recordId":           recordID,
+			"minTimestampMicros": 100,
+			"maxTimestampMicros": 200,
+		},
+		"recordCount": contagem,
+	}
+	mb, err := json.Marshal(meta)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bb, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return map[string]string{
+		"idempotencyId": "batch-1",
+		"event":         "log.ingested",
+		"origin":        "collector",
+		"schemaVersion": "1",
+		"publishedAt":   "2026-11-08T12:00:00Z",
+		"metadata":      string(mb),
+		"body":          string(bb),
+	}
 }

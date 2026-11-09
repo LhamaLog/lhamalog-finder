@@ -12,9 +12,7 @@ import (
 
 	"github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue"
 	"github.com/LhamaLog/lhamalog-finder/internal/application"
-	"github.com/LhamaLog/lhamalog-finder/internal/application/port/in"
 	"github.com/LhamaLog/lhamalog-finder/internal/config"
-	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
 
 // versao é definida no build com -ldflags "-X main.versao=X"; padrão "dev".
@@ -29,21 +27,26 @@ func main() {
 		os.Exit(1)
 	}
 	cfg := config.Carregar()
-	fila, err := queue.Nova(queue.Opcoes{
-		Addr:    cfg.RedisAddr,
-		Stream:  cfg.RedisStream,
-		Group:   cfg.RedisGroup,
-		Codigos: cfg.RedisCodigos,
-	})
-	if err != nil {
-		if errors.Is(err, queue.ErrNomesAusentes) {
-			log.Error("consumo da fila sem nomes externos", "erro", err)
-		} else {
-			log.Error("falha ao abrir a fila", "erro", err)
-		}
+	if err := cfg.ValidarConsumo(); err != nil {
+		log.Error("consumo recusado", "erro", err)
 		os.Exit(1)
 	}
-	defer fila.Fechar()
+	lote, err := queue.NovaLote(queue.OpcoesLote{
+		Addr:         cfg.RedisAddr,
+		Senha:        cfg.RedisSenha,
+		Stream:       cfg.RedisStream,
+		Group:        cfg.RedisGroup,
+		Consumidor:   cfg.RedisConsumidor,
+		Idempotencia: cfg.RedisIdempotencia,
+		Count:        int64(cfg.RedisCount),
+		Block:        cfg.RedisBlock,
+		Ociosidade:   cfg.RedisPendenciaOciosa,
+	})
+	if err != nil {
+		log.Error("falha ao abrir a fila", "erro", err)
+		os.Exit(1)
+	}
+	defer lote.Fechar()
 
 	ouvinte, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
@@ -57,30 +60,20 @@ func main() {
 		}
 	}()
 
-	svc := &application.Servico{
-		Fila:     fila,
-		Codigos:  fila,
-		Disp:     fila,
-		Reservas: domain.NovoQuadro(nil),
-	}
+	// A porta de efeito fica ausente: esta feature não consulta o OpenObserve.
+	// FINDER_WORKERS não define o paralelismo desta leitura.
+	consumo := &application.ConsumoReferencia{Fila: lote, Chaves: lote}
 	ctx, parar := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer parar()
 
 	for {
-		saida, err := svc.Executar(ctx, in.Pedido{
-			Instancia:     fila.Instancia(),
-			WorkerNoAr:    true,
-			InstanciaNoAr: true,
-		})
+		_, err := consumo.Executar(ctx)
 		if ctx.Err() != nil {
 			break
 		}
 		if err != nil {
-			log.Error("falha de leitura da fila", "erro", err, "conclusoes", saida.Conclusoes)
+			log.Error("falha no consumo do lote", "erro", err)
 			continue
-		}
-		if saida.Conclusoes > 0 {
-			log.Info("item concluído", "codigos", saida.CodigosDisponiveis)
 		}
 	}
 

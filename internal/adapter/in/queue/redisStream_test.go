@@ -2,7 +2,10 @@ package queue
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
@@ -46,6 +49,42 @@ func TestLiberarDevolveOMesmoItem(t *testing.T) {
 func TestNovaSemNomes(t *testing.T) {
 	if _, err := Nova(Opcoes{Addr: "localhost:6379"}); err != ErrNomesAusentes {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestNovaLoteRecusaParametroAusente(t *testing.T) {
+	_, err := NovaLote(OpcoesLote{Senha: "segredo-nao-logar"})
+	if !errors.Is(err, ErrParametrosConsumo) {
+		t.Fatalf("err = %v", err)
+	}
+	if err != nil && strings.Contains(err.Error(), "segredo-nao-logar") {
+		t.Fatal("erro contém senha")
+	}
+	_, err = NovaLote(OpcoesLote{
+		Stream:       "lhamalog:stream:logs",
+		Group:        "g",
+		Consumidor:   "c",
+		Idempotencia: "p:",
+		Count:        0,
+		Block:        time.Second,
+		Ociosidade:   time.Second,
+	})
+	if !errors.Is(err, ErrParametrosConsumo) {
+		t.Fatalf("quantidade zero: %v", err)
+	}
+}
+
+func TestNomeDaChaveUsaPrefixoExterno(t *testing.T) {
+	finder := nomeDaChave("finder:log-ingested:", "batch")
+	varredura := nomeDaChave("varredura:", "batch")
+	if finder == varredura {
+		t.Fatal("prefixos diferentes produziram a mesma chave")
+	}
+	if finder != "finder:log-ingested:batch" {
+		t.Fatalf("chave = %s", finder)
+	}
+	if strings.Contains(finder, "finder:codigos") {
+		t.Fatal("a chave do lote usou o conjunto de códigos")
 	}
 }
 
