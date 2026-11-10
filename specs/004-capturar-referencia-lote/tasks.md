@@ -34,8 +34,8 @@ description: "Task list for Capturar referência de lote"
 
 **Purpose**: Manter o módulo Go já existente e apontar o ambiente para o stream do contrato, sem número padrão
 
-- [ ] T001 Confirmar em `go.mod` que a dependência permanece `github.com/redis/go-redis/v9 v9.23.0`. Não executar `go get` e não acrescentar biblioteca
-- [ ] T002 [P] Em `docker-compose.yml` e `.env.example`, trocar o stream usado por este módulo de `fila:logs` para `lhamalog:stream:logs`. Acrescentar os nomes `FINDER_REDIS_CONSUMIDOR`, `FINDER_REDIS_IDEMPOTENCIA`, `FINDER_REDIS_COUNT`, `FINDER_REDIS_BLOCK` e `FINDER_REDIS_PENDENCIA_OCIOSA` sem valor numérico padrão. Não gravar senha. Não reutilizar `finder:codigos` como prefixo da chave desta feature
+- [X] T001 Confirmar em `go.mod` que a dependência permanece `github.com/redis/go-redis/v9 v9.23.0`. Não executar `go get` e não acrescentar biblioteca
+- [X] T002 [P] Em `docker-compose.yml` e `.env.example`, trocar o stream usado por este módulo de `fila:logs` para `lhamalog:stream:logs`. Acrescentar os nomes `FINDER_REDIS_CONSUMIDOR`, `FINDER_REDIS_IDEMPOTENCIA`, `FINDER_REDIS_COUNT`, `FINDER_REDIS_BLOCK` e `FINDER_REDIS_PENDENCIA_OCIOSA` sem valor numérico padrão. Não gravar senha. Não reutilizar `finder:codigos` como prefixo da chave desta feature
 
 ---
 
@@ -45,9 +45,9 @@ description: "Task list for Capturar referência de lote"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Em `internal/config/config.go`, ler stream, grupo, consumidor, prefixo da chave, quantidade por leitura, tempo de bloqueio, ociosidade da pendência e senha. `Carregar` não preenche quantidade, bloqueio, ociosidade, grupo, consumidor nem prefixo. A senha vazia permanece vazia. Expor uma validação que recusa stream vazio ou diferente de `lhamalog:stream:logs`, grupo vazio, consumidor vazio, prefixo vazio, e quantidade, bloqueio ou ociosidade ausentes ou não positivos. `FINDER_WORKERS` continua com o padrão 4 e não é o grau de paralelismo deste consumo
-- [ ] T004 Em `internal/config/config_test.go`, provar que configuração vazia não cria quantidade, bloqueio, ociosidade, grupo, consumidor nem prefixo, e que a validação de T003 aponta cada ausência. Um `.env` temporário pode citar nomes de exemplo; esses nomes não viram padrão de `Carregar`. Não registrar a senha no resultado do teste
-- [ ] T005 [P] Em `internal/adapter/in/queue/redis_integration_test.go`, a prova Redis só executa com `FINDER_REDIS_INTEGRATION=1`. Se a variável está definida e `FINDER_REDIS_ADDR` não responde, o teste falha. Se não está definida, o teste é ignorado. Stream, grupo, consumidor, prefixo, quantidade, bloqueio e ociosidade vêm do ambiente do teste. Não copiar esses valores para o código de produção
+- [X] T003 Em `internal/config/config.go`, ler stream, grupo, consumidor, prefixo da chave, quantidade por leitura, tempo de bloqueio, ociosidade da pendência e senha. `Carregar` não preenche quantidade, bloqueio, ociosidade, grupo, consumidor nem prefixo. A senha vazia permanece vazia. Expor uma validação que recusa stream vazio ou diferente de `lhamalog:stream:logs`, grupo vazio, consumidor vazio, prefixo vazio, e quantidade, bloqueio ou ociosidade ausentes ou não positivos. `FINDER_WORKERS` continua com o padrão 4 e não é o grau de paralelismo deste consumo
+- [X] T004 Em `internal/config/config_test.go`, provar que configuração vazia não cria quantidade, bloqueio, ociosidade, grupo, consumidor nem prefixo, e que a validação de T003 aponta cada ausência. Um `.env` temporário pode citar nomes de exemplo; esses nomes não viram padrão de `Carregar`. Não registrar a senha no resultado do teste
+- [X] T005 [P] Em `internal/adapter/in/queue/redis_integration_test.go`, a prova Redis só executa com `FINDER_REDIS_INTEGRATION=1`. Se a variável está definida e `FINDER_REDIS_ADDR` não responde, o teste falha. Se não está definida, o teste é ignorado. Stream, grupo, consumidor, prefixo, quantidade, bloqueio e ociosidade vêm do ambiente do teste. Não copiar esses valores para o código de produção
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,15 +63,15 @@ description: "Task list for Capturar referência de lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Escrever em `internal/domain/envelope_test.go` o envelope válido de `specs/004-capturar-referencia-lote/data-model.md`: `event` `log.ingested`, `origin` `collector`, `schemaVersion` texto `"1"`, `publishedAt` instante ISO UTC, `signal` `LOGS`, `productId` igual nos dois lados, `idempotencyId` igual a `openobserve.batchId`, faixa com mínimo menor ou igual ao máximo, `recordCount` inteiro positivo. `recordCount` 1 inclui `recordId` preenchido. `recordCount` maior que 1 traz `recordId` nulo. Com `traceId` e sem `traceId` a referência continua válida. `traceId` não deduplica
-- [ ] T007 [P] [US1] Escrever em `internal/application/consumir_test.go` o caso de `specs/004-capturar-referencia-lote/contracts/referencia-lote.md`: ao fim da interpretação a porta de efeito recebe `tenantId` e `productId` do metadata, organização, stream do OpenObserve, `batchId`, a faixa, `recordCount`, `idempotencyId`, a correlação presente e o id da entrada Redis. A contagem de confirmações é zero e nenhuma consulta ao OpenObserve ocorre
+- [X] T006 [P] [US1] Escrever em `internal/domain/envelope_test.go` o envelope válido de `specs/004-capturar-referencia-lote/data-model.md`: `event` `log.ingested`, `origin` `collector`, `schemaVersion` texto `"1"`, `publishedAt` instante ISO UTC, `signal` `LOGS`, `productId` igual nos dois lados, `idempotencyId` igual a `openobserve.batchId`, faixa com mínimo menor ou igual ao máximo, `recordCount` inteiro positivo. `recordCount` 1 inclui `recordId` preenchido. `recordCount` maior que 1 traz `recordId` nulo. Com `traceId` e sem `traceId` a referência continua válida. `traceId` não deduplica
+- [X] T007 [P] [US1] Escrever em `internal/application/consumir_test.go` o caso de `specs/004-capturar-referencia-lote/contracts/referencia-lote.md`: ao fim da interpretação a porta de efeito recebe `tenantId` e `productId` do metadata, organização, stream do OpenObserve, `batchId`, a faixa, `recordCount`, `idempotencyId`, a correlação presente e o id da entrada Redis. A contagem de confirmações é zero e nenhuma consulta ao OpenObserve ocorre
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Criar em `internal/domain/envelope.go` a leitura dos campos de texto do envelope e a referência validada. `metadata` e `body` são JSON em texto. O body não é o conteúdo dos logs. `tenantId` e `productId` entregues são os do metadata. `correlationId` acompanha e não deduplica. Ausência de `traceId`, `receivedAt`, `bytes`, `serviceNames`, `priority`, `criticality`, `maxSeverityNumber` ou `severityCounts` não invalida. Enumeração de prioridade e criticidade não é revalidada. `recordCount`, `bytes` e os agregados descrevem os registros aceitos pelo Collector
-- [ ] T009 [P] [US1] Criar em `internal/application/port/out/efeito.go` a porta que recebe a referência validada e o id da entrada. O resultado desta história é a entrega. A porta não confirma a entrada e não descreve a consulta ao OpenObserve
-- [ ] T010 [US1] Em `internal/adapter/in/queue/redisStream.go`, deixar de tratar a mensagem como um único código. Ler os campos do envelope como texto, preservar o id Redis e não confirmar a entrada válida na interpretação
-- [ ] T011 [US1] Em `internal/application/consumir.go`, montar a referência validada e entregá-la à porta de T009. Não confirmar a entrada. Não abrir o OpenObserve. Não usar `correlationId` nem o id Redis como chave de idempotência
+- [X] T008 [P] [US1] Criar em `internal/domain/envelope.go` a leitura dos campos de texto do envelope e a referência validada. `metadata` e `body` são JSON em texto. O body não é o conteúdo dos logs. `tenantId` e `productId` entregues são os do metadata. `correlationId` acompanha e não deduplica. Ausência de `traceId`, `receivedAt`, `bytes`, `serviceNames`, `priority`, `criticality`, `maxSeverityNumber` ou `severityCounts` não invalida. Enumeração de prioridade e criticidade não é revalidada. `recordCount`, `bytes` e os agregados descrevem os registros aceitos pelo Collector
+- [X] T009 [P] [US1] Criar em `internal/application/port/out/efeito.go` a porta que recebe a referência validada e o id da entrada. O resultado desta história é a entrega. A porta não confirma a entrada e não descreve a consulta ao OpenObserve
+- [X] T010 [US1] Em `internal/adapter/in/queue/redisStream.go`, deixar de tratar a mensagem como um único código. Ler os campos do envelope como texto, preservar o id Redis e não confirmar a entrada válida na interpretação
+- [X] T011 [US1] Em `internal/application/consumir.go`, montar a referência validada e entregá-la à porta de T009. Não confirmar a entrada. Não abrir o OpenObserve. Não usar `correlationId` nem o id Redis como chave de idempotência
 
 **Checkpoint**: User Story 1 is testable. A valid batch reference is delivered and the Redis entry stays unconfirmed
 
@@ -87,15 +87,15 @@ description: "Task list for Capturar referência de lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US2] Estender `internal/domain/envelope_test.go` com JSON inválido, campo necessário ausente, `event` diferente de `log.ingested`, `origin` diferente de `collector`, `schemaVersion` diferente do texto `"1"`, `signal` diferente de `LOGS`, `productId` divergente, `idempotencyId` diferente de `batchId`, mínimo da faixa maior que o máximo, `recordCount` zero ou negativo, lote de um registro sem `recordId` preenchido, lote de vários registros com `recordId` preenchido, e `publishedAt` que não é instante ISO UTC. Schema 2 não é versão aceita
-- [ ] T013 [P] [US2] Estender `internal/application/consumir_test.go` com o contrato de entrada inválida: não há referência válida, a entrada é confirmada uma vez, não é tentada de novo, não permanece pendente e não grava estado concluído. O registro leva o id da entrada, o `idempotencyId` quando legível e o motivo, sem senha, sem metadata bruta, sem body bruto e sem conteúdo de log
-- [ ] T014 [P] [US2] Em `internal/adapter/in/queue/redis_integration_test.go`, publicar uma entrada sintética inválida e conferir que ela sai da pendência, não produz referência válida e não deixa chave concluída
+- [X] T012 [P] [US2] Estender `internal/domain/envelope_test.go` com JSON inválido, campo necessário ausente, `event` diferente de `log.ingested`, `origin` diferente de `collector`, `schemaVersion` diferente do texto `"1"`, `signal` diferente de `LOGS`, `productId` divergente, `idempotencyId` diferente de `batchId`, mínimo da faixa maior que o máximo, `recordCount` zero ou negativo, lote de um registro sem `recordId` preenchido, lote de vários registros com `recordId` preenchido, e `publishedAt` que não é instante ISO UTC. Schema 2 não é versão aceita
+- [X] T013 [P] [US2] Estender `internal/application/consumir_test.go` com o contrato de entrada inválida: não há referência válida, a entrada é confirmada uma vez, não é tentada de novo, não permanece pendente e não grava estado concluído. O registro leva o id da entrada, o `idempotencyId` quando legível e o motivo, sem senha, sem metadata bruta, sem body bruto e sem conteúdo de log
+- [X] T014 [P] [US2] Em `internal/adapter/in/queue/redis_integration_test.go`, publicar uma entrada sintética inválida e conferir que ela sai da pendência, não produz referência válida e não deixa chave concluída
 
 ### Implementation for User Story 2
 
-- [ ] T015 [P] [US2] Em `internal/domain/envelope.go`, devolver o motivo das rejeições de T012 sem incluir o texto bruto de `metadata` ou `body`
-- [ ] T016 [P] [US2] Em `internal/adapter/in/queue/redisStream.go`, confirmar a entrada inválida pelo id Redis. Se a chave desse `idempotencyId` estiver em processamento, removê-la. Não gravar estado concluído. Não criar retry, spool ou DLQ
-- [ ] T017 [US2] Em `internal/application/consumir.go`, encerrar a entrada inválida por esse caminho e registrar o motivo com `log/slog` sem senha e sem conteúdo de log
+- [X] T015 [P] [US2] Em `internal/domain/envelope.go`, devolver o motivo das rejeições de T012 sem incluir o texto bruto de `metadata` ou `body`
+- [X] T016 [P] [US2] Em `internal/adapter/in/queue/redisStream.go`, confirmar a entrada inválida pelo id Redis. Se a chave desse `idempotencyId` estiver em processamento, removê-la. Não gravar estado concluído. Não criar retry, spool ou DLQ
+- [X] T017 [US2] Em `internal/application/consumir.go`, encerrar a entrada inválida por esse caminho e registrar o motivo com `log/slog` sem senha e sem conteúdo de log
 
 **Checkpoint**: User Stories 1 and 2 work. Invalid references are confirmed once and never delivered as valid
 
@@ -111,16 +111,16 @@ description: "Task list for Capturar referência de lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T018 [P] [US3] Escrever em `internal/domain/chave_test.go` os estados de `specs/004-capturar-referencia-lote/data-model.md`: ausente, `em_processamento` sem prazo, e `concluido` com 25 horas contadas uma vez. Passagem repetida para concluído não renova o prazo. Depois de 25 horas a chave não suprime. Remoção da reserva não grava `concluido`
-- [ ] T019 [P] [US3] Estender `internal/application/consumir_test.go`: segunda entrada válida com chave `em_processamento` e ociosidade ainda não autorizada permanece pendente, não inicia outro efeito e não é confirmada. Efeito informado como concluído confirma sem repetir. Queda antes do efeito deixa a contagem de efeitos concluídos inalterada. Queda depois do efeito e antes da confirmação não repete o efeito e a reentrega confirma. O substituto da porta informa o efeito. O teste não descreve a consulta ao OpenObserve
-- [ ] T020 [P] [US3] Em `internal/adapter/in/queue/redis_integration_test.go`, conferir uma chave por `idempotencyId` no prefixo do ambiente, valor `em_processamento` sem prazo de 25 horas, valor `concluido` com prazo de 25 horas lido pelo tempo restante, e duas entradas Redis diferentes com o mesmo identificador sem segundo efeito enquanto a primeira não concluiu
+- [X] T018 [P] [US3] Escrever em `internal/domain/chave_test.go` os estados de `specs/004-capturar-referencia-lote/data-model.md`: ausente, `em_processamento` sem prazo, e `concluido` com 25 horas contadas uma vez. Passagem repetida para concluído não renova o prazo. Depois de 25 horas a chave não suprime. Remoção da reserva não grava `concluido`
+- [X] T019 [P] [US3] Estender `internal/application/consumir_test.go`: segunda entrada válida com chave `em_processamento` e ociosidade ainda não autorizada permanece pendente, não inicia outro efeito e não é confirmada. Efeito informado como concluído confirma sem repetir. Queda antes do efeito deixa a contagem de efeitos concluídos inalterada. Queda depois do efeito e antes da confirmação não repete o efeito e a reentrega confirma. O substituto da porta informa o efeito. O teste não descreve a consulta ao OpenObserve
+- [X] T020 [P] [US3] Em `internal/adapter/in/queue/redis_integration_test.go`, conferir uma chave por `idempotencyId` no prefixo do ambiente, valor `em_processamento` sem prazo de 25 horas, valor `concluido` com prazo de 25 horas lido pelo tempo restante, e duas entradas Redis diferentes com o mesmo identificador sem segundo efeito enquanto a primeira não concluiu
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Criar em `internal/domain/chave.go` a regra da chave: criar `em_processamento` só se ausente e sem prazo; gravar `concluido` e 25 horas só quando o efeito terminou; não renovar o prazo se já estiver concluída; remover a reserva sem gravar `concluido`
-- [ ] T022 [P] [US3] Criar em `internal/application/port/out/chave.go` as operações reservar, concluir, consultar e remover reserva. O prefixo é externo. A chave do Finder não serve à Varredura
-- [ ] T023 [US3] Em `internal/adapter/in/queue/redisStream.go`, gravar a chave sob `FINDER_REDIS_IDEMPOTENCIA`. Não usar o conjunto `FINDER_REDIS_CODIGOS` para esse estado. Enquanto a chave está `em_processamento` e a ociosidade configurada não autoriza reassunção, a outra entrada permanece pendente e não é lida de novo na mesma passagem. Quando a chave passa a `concluido`, confirmar essa entrada sem repetir o efeito
-- [ ] T024 [US3] Em `internal/application/consumir.go`, chamar a porta de efeito só para a entrada autorizada a executar o efeito. Confirmar a entrada válida pelo id Redis somente depois do efeito concluído. Porta ausente ou falha antes desse resultado mantém a entrada pendente e a chave `em_processamento`. Não criar fila, spool nem outro armazenamento intermediário
+- [X] T021 [P] [US3] Criar em `internal/domain/chave.go` a regra da chave: criar `em_processamento` só se ausente e sem prazo; gravar `concluido` e 25 horas só quando o efeito terminou; não renovar o prazo se já estiver concluída; remover a reserva sem gravar `concluido`
+- [X] T022 [P] [US3] Criar em `internal/application/port/out/chave.go` as operações reservar, concluir, consultar e remover reserva. O prefixo é externo. A chave do Finder não serve à Varredura
+- [X] T023 [US3] Em `internal/adapter/in/queue/redisStream.go`, gravar a chave sob `FINDER_REDIS_IDEMPOTENCIA`. Não usar o conjunto `FINDER_REDIS_CODIGOS` para esse estado. Enquanto a chave está `em_processamento` e a ociosidade configurada não autoriza reassunção, a outra entrada permanece pendente e não é lida de novo na mesma passagem. Quando a chave passa a `concluido`, confirmar essa entrada sem repetir o efeito
+- [X] T024 [US3] Em `internal/application/consumir.go`, chamar a porta de efeito só para a entrada autorizada a executar o efeito. Confirmar a entrada válida pelo id Redis somente depois do efeito concluído. Porta ausente ou falha antes desse resultado mantém a entrada pendente e a chave `em_processamento`. Não criar fila, spool nem outro armazenamento intermediário
 
 **Checkpoint**: User Stories 1, 2, and 3 work. A completed effect is not repeated within 25 hours, and an in-progress key does not confirm the second entry
 
@@ -136,13 +136,13 @@ description: "Task list for Capturar referência de lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T025 [P] [US4] Estender `internal/config/config_test.go` com três arranques, cada um sem quantidade, sem bloqueio ou sem ociosidade. Em cada um a validação recusa o consumo e nenhum valor padrão é criado
-- [ ] T026 [P] [US4] Em `internal/adapter/in/queue/redis_integration_test.go`, cobrir os cenários de `specs/004-capturar-referencia-lote/quickstart.md`: entradas já presentes são lidas e a criação não usa `$`; o grupo configurado e um segundo grupo observam a mesma entrada; pendência que atinge a ociosidade informada pode ser reivindicada e não é descartada; Redis indisponível no meio não confirma entrada inacabada. A quantidade da reivindicação é a mesma quantidade da leitura
+- [X] T025 [P] [US4] Estender `internal/config/config_test.go` com três arranques, cada um sem quantidade, sem bloqueio ou sem ociosidade. Em cada um a validação recusa o consumo e nenhum valor padrão é criado
+- [X] T026 [P] [US4] Em `internal/adapter/in/queue/redis_integration_test.go`, cobrir os cenários de `specs/004-capturar-referencia-lote/quickstart.md`: entradas já presentes são lidas e a criação não usa `$`; o grupo configurado e um segundo grupo observam a mesma entrada; pendência que atinge a ociosidade informada pode ser reivindicada e não é descartada; Redis indisponível no meio não confirma entrada inacabada. A quantidade da reivindicação é a mesma quantidade da leitura
 
 ### Implementation for User Story 4
 
-- [ ] T027 [US4] Em `internal/adapter/in/queue/redisStream.go`, criar o grupo em `lhamalog:stream:logs` com id `0` quando ele ainda não existe. Não usar `$`. Não apagar grupo já existente. Ler com a quantidade e o bloqueio informados. A leitura de pendência já deste consumidor não espera o tempo de bloqueio. Reivindicar só depois da ociosidade informada, usando essa mesma quantidade, no lugar da regra de conexão viva com ociosidade zero. Redis indisponível não confirma entrada inacabada
-- [ ] T028 [US4] Em `cmd/finder/main.go`, chamar a validação de T003 antes de abrir a fila. Se ela recusar, encerrar o processo sem ler entrada e sem criar número. Não registrar a senha. Passar a senha do ambiente ao cliente Redis; senha vazia continua sem senha, como o Compose atual. Não alterar `internal/adapter/in/http/health.go`
+- [X] T027 [US4] Em `internal/adapter/in/queue/redisStream.go`, criar o grupo em `lhamalog:stream:logs` com id `0` quando ele ainda não existe. Não usar `$`. Não apagar grupo já existente. Ler com a quantidade e o bloqueio informados. A leitura de pendência já deste consumidor não espera o tempo de bloqueio. Reivindicar só depois da ociosidade informada, usando essa mesma quantidade, no lugar da regra de conexão viva com ociosidade zero. Redis indisponível não confirma entrada inacabada
+- [X] T028 [US4] Em `cmd/finder/main.go`, chamar a validação de T003 antes de abrir a fila. Se ela recusar, encerrar o processo sem ler entrada e sem criar número. Não registrar a senha. Passar a senha do ambiente ao cliente Redis; senha vazia continua sem senha, como o Compose atual. Não alterar `internal/adapter/in/http/health.go`
 
 **Checkpoint**: All user stories work. The group reads existing entries, pending entries can be reclaimed, and missing parameters refuse startup
 
@@ -152,8 +152,9 @@ description: "Task list for Capturar referência de lote"
 
 **Purpose**: Conferir os limites que atravessam as histórias, sem afirmar execução que não ocorreu
 
-- [ ] T029 [P] Não criar cliente de busca em `internal/adapter/out/openobserve/`. A porta em `internal/application/port/out/efeito.go` permanece sem adaptador de consulta
-- [ ] T030 Conferir `specs/004-capturar-referencia-lote/quickstart.md` contra o comportamento implementado. Não escrever resultado de comando que não tenha sido executado nesta tarefa
+- [X] T029 [P] Não criar cliente de busca em `internal/adapter/out/openobserve/`. A porta em `internal/application/port/out/efeito.go` permanece sem adaptador de consulta
+- [X] T030 Conferir `specs/004-capturar-referencia-lote/quickstart.md` contra o comportamento implementado. Não escrever resultado de comando que não tenha sido executado nesta tarefa
+- [X] T031 [P] Em `internal/application/consumir.go`, emitir com `log/slog` uma linha por entrada lida, e em `cmd/finder/main.go` apontar `slog.Default` para o handler JSON que já escreve em `os.Stdout`, para o feedback aparecer no terminal. Leitura sem entrada não escreve linha. Falha de leitura mantém só o `log.Error` já existente em `cmd/finder/main.go`, sem segunda linha. Os desfechos, um por entrada, são: `referência entregue` quando a referência válida foi montada e a entrada segue sem confirmação, inclusive com a porta de efeito ausente ou com o efeito chamado e não concluído; `entrada inválida` na linha que T017 já grava, sem duplicá-la; `efeito concluído` quando a chave passa a concluída e a entrada é confirmada; `confirmada sem repetir efeito` em `confirmarSemEfeito`; `entrada pendente` quando a chave está em processamento e a entrada é adiada. Cada linha leva o id da entrada Redis, o `idempotencyId` quando legível e o desfecho. Não incluir senha, metadata bruta, body bruto nem conteúdo de log. Em `internal/application/consumir_test.go`, provar cada desfecho e que a leitura sem entrada não gera linha. A guarda de T013 continua: o registro não contém senha, metadata bruta, body bruto nem conteúdo de log
 
 ---
 
@@ -192,6 +193,7 @@ description: "Task list for Capturar referência de lote"
 - T021 e T022 podem ser implementados juntos
 - T025 e T026 podem ser escritos juntos
 - T029 pode seguir enquanto T030 confere o quickstart
+- T031 usa arquivos diferentes de T029 e T030 e pode seguir em paralelo com elas. Dentro de T031, o teste em `internal/application/consumir_test.go` vem antes da linha nova em `internal/application/consumir.go`
 
 ---
 
@@ -224,6 +226,7 @@ T009 Criar a porta de efeito em internal/application/port/out/efeito.go
 4. User Story 3: chave, 25 horas e espera da segunda entrada
 5. User Story 4: grupo no início do stream, pendência e recusa sem parâmetro
 6. Polish: busca no OpenObserve continua ausente
+7. T031: cada entrada lida deixa um desfecho visível no stdout do processo
 
 ### Parallel Team Strategy
 

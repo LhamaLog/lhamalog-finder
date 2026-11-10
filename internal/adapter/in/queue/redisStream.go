@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/LhamaLog/lhamalog-finder/internal/application/port/out"
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 	"github.com/redis/go-redis/v9"
 )
@@ -344,3 +345,335 @@ func consumidorLocal() string {
 	}
 	return nome + "-" + strconv.Itoa(os.Getpid())
 }
+
+// ErrParametrosConsumo indica que o consumo de log.ingested não recebeu os parâmetros externos.
+var ErrParametrosConsumo = errors.New("parâmetros de consumo ausentes ou não positivos")
+
+// posicaoInicialGrupo é o início do que o stream ainda guarda. A posição "$" não é usada.
+const posicaoInicialGrupo = "0"
+
+// OpcoesLote liga a leitura de log.ingested. Nenhum número, grupo, consumidor ou prefixo é preenchido aqui.
+type OpcoesLote struct {
+	Addr         string
+	Senha        string
+	Stream       string
+	Group        string
+	Consumidor   string
+	Idempotencia string
+	Count        int64
+	Block        time.Duration
+	Ociosidade   time.Duration
+}
+
+// Lote lê o envelope, guarda a chave do lote e confirma pelo id Redis.
+type Lote struct {
+	rdb        *redis.Client
+	stream     string
+	group      string
+	consumidor string
+	prefixo    string
+	count      int64
+	block      time.Duration
+	ociosidade time.Duration
+	mu         sync.Mutex
+	buffer     []domain.Entrada
+	adiados    map[string]struct{}
+}
+
+var _ out.Entradas = (*Lote)(nil)
+var _ out.ChaveLote = (*Lote)(nil)
+
+// NovaLote abre o Redis e cria o grupo em 0 se ele ainda não existe.
+// Não lê nem confirma entrada na abertura. Não gera consumidor nem número.
+func NovaLote(op OpcoesLote) (*Lote, error) {
+	if op.Stream == "" || op.Group == "" || op.Consumidor == "" || op.Idempotencia == "" || op.Count <= 0 || op.Block <= 0 || op.Ociosidade <= 0 {
+		return nil, ErrParametrosConsumo
+	}
+	if op.Addr == "" {
+		op.Addr = "localhost:6379"
+	}
+	rdb := redis.NewClient(&redis.Options{
+		Addr:       op.Addr,
+		Password:   op.Senha,
+		ClientName: op.Consumidor,
+	})
+	lote := &Lote{
+		rdb:        rdb,
+		stream:     op.Stream,
+		group:      op.Group,
+		consumidor: op.Consumidor,
+		prefixo:    op.Idempotencia,
+		count:      op.Count,
+		block:      op.Block,
+		ociosidade: op.Ociosidade,
+		adiados:    map[string]struct{}{},
+	}
+	if err := lote.garantirGrupo(context.Background()); err != nil {
+		_ = rdb.Close()
+		return nil, err
+	}
+	return lote, nil
+}
+
+// Fechar encerra o cliente Redis.
+func (l *Lote) Fechar() error {
+	if l == nil || l.rdb == nil {
+		return nil
+	}
+	return l.rdb.Close()
+}
+
+// Ler entrega uma entrada deste grupo. A pendência já deste consumidor não espera o bloqueio.
+// Entrada adiada nesta passagem não volta antes da leitura bloqueante seguinte.
+func (l *Lote) Ler(ctx context.Context) (domain.Entrada, bool, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if entrada, ok := l.daFila(); ok {
+		return entrada, true, nil
+	}
+	if err := l.puxarPendentes(ctx); err != nil {
+		return domain.Entrada{}, false, err
+	}
+	if entrada, ok := l.daFila(); ok {
+		return entrada, true, nil
+	}
+	if err := l.reivindicar(ctx); err != nil {
+		return domain.Entrada{}, false, err
+	}
+	if entrada, ok := l.daFila(); ok {
+		return entrada, true, nil
+	}
+	if err := l.puxarNovas(ctx); err != nil {
+		return domain.Entrada{}, false, err
+	}
+	l.adiados = map[string]struct{}{}
+	if entrada, ok := l.daFila(); ok {
+		return entrada, true, nil
+	}
+	return domain.Entrada{}, false, nil
+}
+
+// Confirmar tira a pendência desse id. Não usa idempotencyId.
+func (l *Lote) Confirmar(ctx context.Context, id string) error {
+	if err := l.rdb.XAck(ctx, l.stream, l.group, id).Err(); err != nil {
+		return err
+	}
+	l.mu.Lock()
+	delete(l.adiados, id)
+	l.mu.Unlock()
+	return nil
+}
+
+// Adiar mantém a entrada pendente e fora do restante desta passagem.
+func (l *Lote) Adiar(_ context.Context, id string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.adiados == nil {
+		l.adiados = map[string]struct{}{}
+	}
+	l.adiados[id] = struct{}{}
+	destino := l.buffer[:0]
+	for _, entrada := range l.buffer {
+		if entrada.ID != id {
+			destino = append(destino, entrada)
+		}
+	}
+	l.buffer = destino
+	return nil
+}
+
+// EncerrarInvalida confirma a entrada e remove a reserva em processamento.
+// Não grava o estado concluído.
+func (l *Lote) EncerrarInvalida(ctx context.Context, id, idempotencyID string) error {
+	if idempotencyID != "" {
+		if err := l.rdb.Eval(ctx, scriptRemoverReserva, []string{nomeDaChave(l.prefixo, idempotencyID)}, domain.EstadoEmProcessamento).Err(); err != nil {
+			return err
+		}
+	}
+	return l.Confirmar(ctx, id)
+}
+
+// Reservar cria em_processamento só se a chave não existe. Sem prazo.
+func (l *Lote) Reservar(ctx context.Context, idempotencyID string) (bool, error) {
+	return l.rdb.SetNX(ctx, nomeDaChave(l.prefixo, idempotencyID), domain.EstadoEmProcessamento, 0).Result()
+}
+
+// Concluir grava concluido e 25 horas. Não renova o prazo se a chave já está concluída.
+func (l *Lote) Concluir(ctx context.Context, idempotencyID string) error {
+	segundos := int64(domain.PrazoConcluido / time.Second)
+	return l.rdb.Eval(ctx, scriptConcluirChave, []string{nomeDaChave(l.prefixo, idempotencyID)}, domain.EstadoConcluido, segundos).Err()
+}
+
+// Consultar devolve ausente, em_processamento ou concluido.
+func (l *Lote) Consultar(ctx context.Context, idempotencyID string) (string, error) {
+	valor, err := l.rdb.Get(ctx, nomeDaChave(l.prefixo, idempotencyID)).Result()
+	if err == redis.Nil {
+		return domain.EstadoAusente, nil
+	}
+	if err != nil {
+		return "", err
+	}
+	switch valor {
+	case domain.EstadoEmProcessamento, domain.EstadoConcluido:
+		return valor, nil
+	default:
+		return domain.EstadoAusente, nil
+	}
+}
+
+// RemoverReserva apaga a chave só quando ela está em processamento.
+func (l *Lote) RemoverReserva(ctx context.Context, idempotencyID string) error {
+	return l.rdb.Eval(ctx, scriptRemoverReserva, []string{nomeDaChave(l.prefixo, idempotencyID)}, domain.EstadoEmProcessamento).Err()
+}
+
+func nomeDaChave(prefixo, idempotencyID string) string {
+	return prefixo + idempotencyID
+}
+
+func (l *Lote) garantirGrupo(ctx context.Context) error {
+	if err := l.rdb.Ping(ctx).Err(); err != nil {
+		return err
+	}
+	err := l.rdb.XGroupCreateMkStream(ctx, l.stream, l.group, posicaoInicialGrupo).Err()
+	if err != nil && !strings.Contains(err.Error(), "BUSYGROUP") {
+		return err
+	}
+	return nil
+}
+
+func (l *Lote) daFila() (domain.Entrada, bool) {
+	if len(l.buffer) == 0 {
+		return domain.Entrada{}, false
+	}
+	entrada := l.buffer[0]
+	l.buffer = l.buffer[1:]
+	return entrada, true
+}
+
+func (l *Lote) puxarPendentes(ctx context.Context) error {
+	msgs, err := l.lerGrupo(ctx, "0", -1)
+	if err != nil || len(msgs) == 0 {
+		return err
+	}
+	pendentes, err := l.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
+		Stream:   l.stream,
+		Group:    l.group,
+		Start:    "-",
+		End:      "+",
+		Count:    l.count,
+		Consumer: l.consumidor,
+	}).Result()
+	if err == redis.Nil {
+		pendentes = nil
+		err = nil
+	}
+	if err != nil {
+		return err
+	}
+	ociosidade := map[string]time.Duration{}
+	for _, pendente := range pendentes {
+		ociosidade[pendente.ID] = pendente.Idle
+	}
+	for _, msg := range msgs {
+		if _, adiada := l.adiados[msg.ID]; adiada {
+			continue
+		}
+		l.buffer = append(l.buffer, domain.Entrada{
+			ID:     msg.ID,
+			Campos: camposTexto(msg.Values),
+			Ociosa: ociosidade[msg.ID] >= l.ociosidade,
+		})
+	}
+	return nil
+}
+
+func (l *Lote) reivindicar(ctx context.Context) error {
+	msgs, _, err := l.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
+		Stream:   l.stream,
+		Group:    l.group,
+		Consumer: l.consumidor,
+		MinIdle:  l.ociosidade,
+		Start:    "0-0",
+		Count:    l.count,
+	}).Result()
+	if err == redis.Nil {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	for _, msg := range msgs {
+		if _, adiada := l.adiados[msg.ID]; adiada {
+			continue
+		}
+		l.buffer = append(l.buffer, domain.Entrada{
+			ID:           msg.ID,
+			Campos:       camposTexto(msg.Values),
+			Ociosa:       true,
+			Reivindicada: true,
+		})
+	}
+	return nil
+}
+
+func (l *Lote) puxarNovas(ctx context.Context) error {
+	msgs, err := l.lerGrupo(ctx, ">", l.block)
+	if err != nil || len(msgs) == 0 {
+		return err
+	}
+	for _, msg := range msgs {
+		if _, adiada := l.adiados[msg.ID]; adiada {
+			continue
+		}
+		l.buffer = append(l.buffer, domain.Entrada{
+			ID:     msg.ID,
+			Campos: camposTexto(msg.Values),
+		})
+	}
+	return nil
+}
+
+func (l *Lote) lerGrupo(ctx context.Context, id string, block time.Duration) ([]redis.XMessage, error) {
+	lista, err := l.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
+		Group:    l.group,
+		Consumer: l.consumidor,
+		Streams:  []string{l.stream, id},
+		Count:    l.count,
+		Block:    block,
+	}).Result()
+	if err == redis.Nil || len(lista) == 0 {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return lista[0].Messages, nil
+}
+
+func camposTexto(valores map[string]any) map[string]string {
+	campos := make(map[string]string, len(valores))
+	for chave, valor := range valores {
+		texto, ok := valor.(string)
+		if !ok {
+			continue
+		}
+		campos[chave] = texto
+	}
+	return campos
+}
+
+const scriptConcluirChave = `
+local atual = redis.call('GET', KEYS[1])
+if atual == ARGV[1] then
+  return 0
+end
+redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])
+return 1
+`
+
+const scriptRemoverReserva = `
+if redis.call('GET', KEYS[1]) == ARGV[1] then
+  return redis.call('DEL', KEYS[1])
+end
+return 0
+`
