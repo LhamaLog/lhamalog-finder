@@ -154,6 +154,7 @@ description: "Task list for Capturar referência de lote"
 
 - [X] T029 [P] Não criar cliente de busca em `internal/adapter/out/openobserve/`. A porta em `internal/application/port/out/efeito.go` permanece sem adaptador de consulta
 - [X] T030 Conferir `specs/004-capturar-referencia-lote/quickstart.md` contra o comportamento implementado. Não escrever resultado de comando que não tenha sido executado nesta tarefa
+- [X] T031 [P] Em `internal/application/consumir.go`, emitir com `log/slog` uma linha por entrada lida, e em `cmd/finder/main.go` apontar `slog.Default` para o handler JSON que já escreve em `os.Stdout`, para o feedback aparecer no terminal. Leitura sem entrada não escreve linha. Falha de leitura mantém só o `log.Error` já existente em `cmd/finder/main.go`, sem segunda linha. Os desfechos, um por entrada, são: `referência entregue` quando a referência válida foi montada e a entrada segue sem confirmação, inclusive com a porta de efeito ausente ou com o efeito chamado e não concluído; `entrada inválida` na linha que T017 já grava, sem duplicá-la; `efeito concluído` quando a chave passa a concluída e a entrada é confirmada; `confirmada sem repetir efeito` em `confirmarSemEfeito`; `entrada pendente` quando a chave está em processamento e a entrada é adiada. Cada linha leva o id da entrada Redis, o `idempotencyId` quando legível e o desfecho. Não incluir senha, metadata bruta, body bruto nem conteúdo de log. Em `internal/application/consumir_test.go`, provar cada desfecho e que a leitura sem entrada não gera linha. A guarda de T013 continua: o registro não contém senha, metadata bruta, body bruto nem conteúdo de log
 
 ---
 
@@ -192,6 +193,7 @@ description: "Task list for Capturar referência de lote"
 - T021 e T022 podem ser implementados juntos
 - T025 e T026 podem ser escritos juntos
 - T029 pode seguir enquanto T030 confere o quickstart
+- T031 usa arquivos diferentes de T029 e T030 e pode seguir em paralelo com elas. Dentro de T031, o teste em `internal/application/consumir_test.go` vem antes da linha nova em `internal/application/consumir.go`
 
 ---
 
@@ -224,6 +226,7 @@ T009 Criar a porta de efeito em internal/application/port/out/efeito.go
 4. User Story 3: chave, 25 horas e espera da segunda entrada
 5. User Story 4: grupo no início do stream, pendência e recusa sem parâmetro
 6. Polish: busca no OpenObserve continua ausente
+7. T031: cada entrada lida deixa um desfecho visível no stdout do processo
 
 ### Parallel Team Strategy
 

@@ -20,6 +20,7 @@ var versao = "dev"
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(log)
 	log.Info("[LhamaLog] lhamalog-finder iniciado", "versao", versao)
 
 	if err := config.AplicarArquivoEnv(); err != nil {

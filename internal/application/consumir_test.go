@@ -506,6 +506,192 @@ func TestCorrelationEIdRedisNaoDeduplicam(t *testing.T) {
 	}
 }
 
+func TestFeedbackProcessamentoNoTerminal(t *testing.T) {
+	t.Run("leitura sem entrada", func(t *testing.T) {
+		buf := capturarLog(t)
+		s := &ConsumoReferencia{Fila: &memEntradas{}, Chaves: &memChaves{}}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida != (SaidaLote{}) {
+			t.Fatalf("saída=%+v err=%v", saida, err)
+		}
+		if buf.Len() != 0 {
+			t.Fatalf("leitura vazia gerou linha: %s", buf.String())
+		}
+	})
+
+	t.Run("falha de leitura", func(t *testing.T) {
+		buf := capturarLog(t)
+		s := &ConsumoReferencia{Fila: &memEntradas{falhaLer: errors.New("redis indisponível")}, Chaves: &memChaves{}}
+		saida, err := s.Executar(context.Background())
+		if err == nil || !saida.FalhaLeitura {
+			t.Fatalf("saída=%+v err=%v", saida, err)
+		}
+		if buf.Len() != 0 {
+			t.Fatalf("falha de leitura gerou linha: %s", buf.String())
+		}
+	})
+
+	t.Run("referência entregue sem porta", func(t *testing.T) {
+		buf := capturarLog(t)
+		campos, meta, body := camposComSegredo(t)
+		fila := &memEntradas{porLer: []domain.Entrada{{ID: "1-0", Campos: campos}}}
+		s := &ConsumoReferencia{Fila: fila, Chaves: &memChaves{}, Efeito: nil}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida.Confirmacoes != 0 || saida.Efeitos != 0 {
+			t.Fatalf("saída=%+v err=%v", saida, err)
+		}
+		exigirUmaLinha(t, buf.String(), "referência entregue", "1-0", "batch-1")
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+
+	t.Run("referência entregue efeito não concluído", func(t *testing.T) {
+		buf := capturarLog(t)
+		campos, meta, body := camposComSegredo(t)
+		fila := &memEntradas{porLer: []domain.Entrada{{ID: "1-0", Campos: campos}}}
+		s := &ConsumoReferencia{Fila: fila, Chaves: &memChaves{}, Efeito: &efeitoFake{}}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida.Confirmacoes != 0 || saida.Efeitos != 0 {
+			t.Fatalf("saída=%+v err=%v", saida, err)
+		}
+		exigirUmaLinha(t, buf.String(), "referência entregue", "1-0", "batch-1")
+		if strings.Contains(buf.String(), "efeito concluído") {
+			t.Fatalf("efeito não concluído foi anunciado: %s", buf.String())
+		}
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+
+	t.Run("efeito concluído", func(t *testing.T) {
+		buf := capturarLog(t)
+		campos, meta, body := camposComSegredo(t)
+		fila := &memEntradas{porLer: []domain.Entrada{{ID: "1-0", Campos: campos}}}
+		chaves := &memChaves{}
+		s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: &efeitoFake{concluido: true}}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida.Confirmacoes != 1 || saida.Efeitos != 1 || chaves.estado["batch-1"] != domain.EstadoConcluido {
+			t.Fatalf("saída=%+v estado=%s err=%v", saida, chaves.estado["batch-1"], err)
+		}
+		exigirUmaLinha(t, buf.String(), "efeito concluído", "1-0", "batch-1")
+		if strings.Contains(buf.String(), "referência entregue") {
+			t.Fatalf("efeito concluído também anunciou entrega: %s", buf.String())
+		}
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+
+	t.Run("confirmada sem repetir efeito", func(t *testing.T) {
+		buf := capturarLog(t)
+		campos, meta, body := camposComSegredo(t)
+		fila := &memEntradas{porLer: []domain.Entrada{{ID: "2-0", Campos: campos}}}
+		chaves := &memChaves{estado: map[string]string{"batch-1": domain.EstadoConcluido}}
+		efeito := &efeitoFake{concluido: true}
+		s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida.Confirmacoes != 1 || saida.Efeitos != 0 || efeito.chamadas != 0 {
+			t.Fatalf("saída=%+v chamadas=%d err=%v", saida, efeito.chamadas, err)
+		}
+		exigirUmaLinha(t, buf.String(), "confirmada sem repetir efeito", "2-0", "batch-1")
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+
+	t.Run("entrada pendente", func(t *testing.T) {
+		buf := capturarLog(t)
+		campos, meta, body := camposComSegredo(t)
+		fila := &memEntradas{porLer: []domain.Entrada{{ID: "2-0", Campos: campos}}}
+		chaves := &memChaves{estado: map[string]string{"batch-1": domain.EstadoEmProcessamento}}
+		efeito := &efeitoFake{concluido: true}
+		s := &ConsumoReferencia{Fila: fila, Chaves: chaves, Efeito: efeito}
+		saida, err := s.Executar(context.Background())
+		if err != nil || saida.Confirmacoes != 0 || fila.adiados["2-0"] != 1 || efeito.chamadas != 0 {
+			t.Fatalf("saída=%+v adiados=%v chamadas=%d err=%v", saida, fila.adiados, efeito.chamadas, err)
+		}
+		exigirUmaLinha(t, buf.String(), "entrada pendente", "2-0", "batch-1")
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+
+	t.Run("entrada inválida uma linha", func(t *testing.T) {
+		buf := capturarLog(t)
+		meta := `{"tenantId":"tenant-1","productId":"prod-1","correlationId":"corr-1","senha":"segredo-redis"}`
+		body := `{"signal":"LOGS","mensagem":"CONTEUDO-DE-LOG-SECRETO"}`
+		fila := &memEntradas{porLer: []domain.Entrada{{
+			ID: "9-0",
+			Campos: map[string]string{
+				"idempotencyId": "batch-1",
+				"event":         "trace.ingested",
+				"origin":        "collector",
+				"schemaVersion": "1",
+				"publishedAt":   "2026-11-08T12:00:00Z",
+				"metadata":      meta,
+				"body":          body,
+			},
+		}}}
+		s := &ConsumoReferencia{Fila: fila, Chaves: &memChaves{}, Efeito: &efeitoFake{concluido: true}}
+		saida, err := s.Executar(context.Background())
+		if err != nil || !saida.Invalida || saida.Confirmacoes != 1 {
+			t.Fatalf("saída=%+v err=%v", saida, err)
+		}
+		exigirUmaLinha(t, buf.String(), "entrada inválida", "9-0", "batch-1")
+		exigirSemSegredo(t, buf.String(), meta, body)
+	})
+}
+
+func capturarLog(t *testing.T) *bytes.Buffer {
+	t.Helper()
+	var buf bytes.Buffer
+	anterior := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(anterior) })
+	return &buf
+}
+
+func exigirUmaLinha(t *testing.T, registro, desfecho, id, idem string) {
+	t.Helper()
+	linhas := 0
+	for _, linha := range strings.Split(registro, "\n") {
+		if strings.TrimSpace(linha) == "" {
+			continue
+		}
+		linhas++
+		if !strings.Contains(linha, desfecho) || !strings.Contains(linha, id) || !strings.Contains(linha, idem) {
+			t.Fatalf("linha: %s", linha)
+		}
+	}
+	if linhas != 1 {
+		t.Fatalf("linhas=%d registro=%s", linhas, registro)
+	}
+}
+
+func exigirSemSegredo(t *testing.T, registro, meta, body string) {
+	t.Helper()
+	if strings.Contains(registro, "segredo-redis") || strings.Contains(registro, "CONTEUDO-DE-LOG-SECRETO") || strings.Contains(registro, meta) || strings.Contains(registro, body) {
+		t.Fatalf("registro expõe conteúdo: %s", registro)
+	}
+}
+
+func camposComSegredo(t *testing.T) (map[string]string, string, string) {
+	t.Helper()
+	campos := camposLote(t, 1, "rec-1", "", false)
+	var meta map[string]any
+	if err := json.Unmarshal([]byte(campos["metadata"]), &meta); err != nil {
+		t.Fatal(err)
+	}
+	meta["senha"] = "segredo-redis"
+	mb, err := json.Marshal(meta)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var body map[string]any
+	if err := json.Unmarshal([]byte(campos["body"]), &body); err != nil {
+		t.Fatal(err)
+	}
+	body["mensagem"] = "CONTEUDO-DE-LOG-SECRETO"
+	bb, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	campos["metadata"] = string(mb)
+	campos["body"] = string(bb)
+	return campos, string(mb), string(bb)
+}
+
 type memEntradas struct {
 	porLer         []domain.Entrada
 	cursor         int
@@ -514,6 +700,7 @@ type memEntradas struct {
 	pendentes      map[string]bool
 	encerradas     []parEncerrado
 	falhaConfirmar bool
+	falhaLer       error
 	chaves         *memChaves
 }
 
@@ -523,6 +710,9 @@ type parEncerrado struct {
 }
 
 func (m *memEntradas) Ler(context.Context) (domain.Entrada, bool, error) {
+	if m.falhaLer != nil {
+		return domain.Entrada{}, false, m.falhaLer
+	}
 	for m.cursor < len(m.porLer) {
 		item := m.porLer[m.cursor]
 		m.cursor++

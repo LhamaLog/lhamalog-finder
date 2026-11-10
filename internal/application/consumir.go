@@ -136,7 +136,7 @@ func (s *ConsumoReferencia) encerrarInvalida(ctx context.Context, entrada domain
 	if idem != "" {
 		delete(s.dono, idem)
 	}
-	args := []any{"id", entrada.ID, "motivo", motivo}
+	args := []any{"id", entrada.ID, "desfecho", "entrada inválida", "motivo", motivo}
 	if idem != "" {
 		args = append(args, "idempotencyId", idem)
 	}
@@ -185,15 +185,18 @@ func (s *ConsumoReferencia) retomar(ctx context.Context, entrada domain.Entrada,
 	if err := s.Fila.Adiar(ctx, entrada.ID); err != nil {
 		return SaidaLote{}, err
 	}
+	registrarDesfecho(entrada.ID, ref.IdempotencyID, "entrada pendente")
 	return SaidaLote{}, nil
 }
 
 func (s *ConsumoReferencia) executarEfeito(ctx context.Context, entrada domain.Entrada, ref domain.Referencia) (SaidaLote, error) {
 	if s.Efeito == nil {
+		registrarDesfecho(entrada.ID, ref.IdempotencyID, "referência entregue")
 		return SaidaLote{}, nil
 	}
 	concluido, err := s.Efeito.Executar(ctx, ref)
 	if err != nil || !concluido {
+		registrarDesfecho(entrada.ID, ref.IdempotencyID, "referência entregue")
 		return SaidaLote{}, err
 	}
 	if err := s.Chaves.Concluir(ctx, ref.IdempotencyID); err != nil {
@@ -203,6 +206,7 @@ func (s *ConsumoReferencia) executarEfeito(ctx context.Context, entrada domain.E
 	if err := s.Fila.Confirmar(ctx, entrada.ID); err != nil {
 		return SaidaLote{Efeitos: 1}, err
 	}
+	registrarDesfecho(entrada.ID, ref.IdempotencyID, "efeito concluído")
 	return SaidaLote{Confirmacoes: 1, Efeitos: 1}, nil
 }
 
@@ -211,7 +215,16 @@ func (s *ConsumoReferencia) confirmarSemEfeito(ctx context.Context, id, idem str
 		return SaidaLote{}, err
 	}
 	delete(s.dono, idem)
+	registrarDesfecho(id, idem, "confirmada sem repetir efeito")
 	return SaidaLote{Confirmacoes: 1}, nil
+}
+
+func registrarDesfecho(id, idem, desfecho string) {
+	args := []any{"id", id, "desfecho", desfecho}
+	if idem != "" {
+		args = append(args, "idempotencyId", idem)
+	}
+	slog.Info(desfecho, args...)
 }
 
 func (s *ConsumoReferencia) definirDono(idem, id string) {
