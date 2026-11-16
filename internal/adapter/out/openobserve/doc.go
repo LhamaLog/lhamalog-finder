@@ -1,4 +1,4 @@
-// Package openobserve reserva o adaptador de leitura.
-// Organização, stream, índice, campos e credenciais não foram informados.
-// Este pacote não consulta o armazenamento e não escolhe esses nomes.
+// Package openobserve consulta o stream indicado pela referência.
+// O pacote não escolhe URL, senha, timeout, tamanho de página, lista de cópia,
+// expressão de ordenação nem os nomes dos campos de tenant e produto.
 package openobserve
