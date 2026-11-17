@@ -1,0 +1,20 @@
+COMMAND: go test ./internal/config -run TestConfiguracaoHistoricoSemDefaults
+CWD: /workspace/scratch/lhamalog-validation-l_i7g3n8
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/config [github.com/LhamaLog/lhamalog-finder/internal/config.test]
+internal/config/recorrencia_test.go:6:32: undefined: EnvHistoricoOrganizacao
+internal/config/recorrencia_test.go:6:57: undefined: EnvHistoricoStream
+internal/config/recorrencia_test.go:6:77: undefined: EnvHistoricoUsuario
+internal/config/recorrencia_test.go:6:98: undefined: EnvHistoricoSenha
+internal/config/recorrencia_test.go:7:10: undefined: CarregarHistorico
+internal/config/recorrencia_test.go:7:37: undefined: Historico
+internal/config/recorrencia_test.go:8:11: undefined: EnvHistoricoOrganizacao
+internal/config/recorrencia_test.go:9:11: undefined: EnvHistoricoStream
+internal/config/recorrencia_test.go:10:11: undefined: EnvHistoricoUsuario
+internal/config/recorrencia_test.go:11:11: undefined: EnvHistoricoSenha
+internal/config/recorrencia_test.go:11:11: too many errors
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/config [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.359

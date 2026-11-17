@@ -157,3 +157,11 @@ Consolidação da Fase 0. Cada item cita fonte primária (João, revisão T1, re
 - **Rationale**: Opção A do Especialista §9 alinhada a Finder.mmd `log_signature` (string); hash (**opção B**) **não** escolhido; separador **`|`** fechado pelo João (16/11 12h40).
 - **Alternatives considered**: SHA-256 do texto (**opção B** respostas-etapa3c.md §9) — **rejeitado** (João **008-assinatura A**). Outros separadores (`\t`, `NUL`, etc.) — **rejeitados** (não escolhidos em **DN-008-8 A**).
 - **Fonte**: (fonte: respostas-joao.md, DN-008-8 A / §Etapa 3g (João, 16/11 13h22), DN-008-9 A; origem: §Etapa 3e (João, 16/11 12h40); 008-assinatura A; respostas-etapa3c.md §9; DN-008-1 B)
+
+## Evidência desta execução
+
+DN-008-2: nenhuma migração produtiva é realizada; D2b mantém ressalva de testes. Evolução da 006 (FR-009/D8/T1 rev.) é pré-requisito obrigatório: classificar e entregar ResumoAnalise, sem inserção de ocorrência. A leitura cruzada N3 A usa os tipos comuns 006; nenhuma edição da spec 006 nesta branch.
+
+P-010-2 depende de ADR externa; categorias DN-008-4 B e marcadores estão implementados sem inventar padrões de segurança. DLQ B/DN-008-6 rev.: após três falhas temporárias, aviso Core batchId/motivo; sem DLQ/WebSocket e sem inferência recorrente=false. API Core ADR_051 e query histórica não publicadas.
+
+ADR_035/LLT-216 (008-17 C) e emenda princípio I permanecem externos. A base 007 é JSONL em datasets/labeled-logs/, fora desta implementação. Coordenação 006-10 A: alinhar LLT-200 com as specs 006/008 fora do repo; nenhuma issue modificada.

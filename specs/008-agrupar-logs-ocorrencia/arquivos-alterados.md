@@ -1,0 +1,55 @@
+# Arquivos alterados
+
+Referência: origin/Development `6e8b0fd`. Para a 005, isso inclui a implementação já existente, não reimplementada; as alterações novas de código são cliente.go, integracao_test.go e cliente_regressao_test.go. Documentos 006–010 que aparecem staged na 005 provêm da sincronização com Development.
+
+- `internal/adapter/out/openobserve/recorrencia.go`
+- `internal/adapter/out/openobserve/recorrencia_test.go`
+- `internal/application/agrupar/agrupar_test.go`
+- `internal/application/agrupar/consulta_memoria.go`
+- `internal/application/agrupar/fusao_entre_lotes.go`
+- `internal/application/agrupar/orquestrar.go`
+- `internal/application/agrupar/particionar_lote.go`
+- `internal/application/assinatura/calcular.go`
+- `internal/application/assinatura/normalizar_mensagem.go`
+- `internal/application/assinatura/normalizar_mensagem_test.go`
+- `internal/application/port/out/consulta_ocorrencia.go`
+- `internal/application/port/out/consulta_recorrencia.go`
+- `internal/application/port/out/resumo_analise.go`
+- `internal/application/recorrencia/avaliar.go`
+- `internal/application/recorrencia/avaliar_test.go`
+- `internal/config/recorrencia.go`
+- `internal/config/recorrencia_test.go`
+- `internal/domain/achado_lote.go`
+- `internal/domain/agregacao.go`
+- `internal/domain/assinatura.go`
+- `specs/008-agrupar-logs-ocorrencia/arquivos-alterados.md`
+- `specs/008-agrupar-logs-ocorrencia/contracts/assinatura-log.md`
+- `specs/008-agrupar-logs-ocorrencia/contracts/consulta-ocorrencias-modulo.md`
+- `specs/008-agrupar-logs-ocorrencia/contracts/consulta-recorrencia-openobserve.md`
+- `specs/008-agrupar-logs-ocorrencia/contracts/resumo-analise-agrupado.md`
+- `specs/008-agrupar-logs-ocorrencia/data-model.md`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-race-integracoes-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-race-integracoes.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-unit-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-unit.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-vet-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/aceite-final-vet.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/agrupamento-green-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/agrupamento-green.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/agrupamento-red-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/agrupamento-red.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/assinatura-green.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/assinatura-red.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/config-historico-green-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/config-historico-green.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/config-historico-red-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/config-historico-red.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/memoria-ponteiro-green-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/memoria-ponteiro-green.txt`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/memoria-ponteiro-red-composition.json`
+- `specs/008-agrupar-logs-ocorrencia/evidencias/memoria-ponteiro-red.txt`
+- `specs/008-agrupar-logs-ocorrencia/execucao.md`
+- `specs/008-agrupar-logs-ocorrencia/quickstart.md`
+- `specs/008-agrupar-logs-ocorrencia/rastreabilidade.md`
+- `specs/008-agrupar-logs-ocorrencia/research.md`
+- `specs/008-agrupar-logs-ocorrencia/tasks.md`
