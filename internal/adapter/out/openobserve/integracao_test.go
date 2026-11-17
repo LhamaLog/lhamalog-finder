@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -46,10 +47,10 @@ func TestOpenObserveIntegracao(t *testing.T) {
 		if resultado.Classificacao != domain.ClasseLoteCompleto || !resultado.EfeitoConcluido || len(resultado.Registros) != 1 {
 			t.Fatalf("classe=%s efeito=%v n=%d", resultado.Classificacao, resultado.EfeitoConcluido, len(resultado.Registros))
 		}
-		if len(visto.pedidos) == 0 {
+		if len(visto.snapshot()) == 0 {
 			t.Fatal("consulta não foi observada")
 		}
-		pedido := visto.pedidos[0]
+		pedido := visto.snapshot()[0]
 		if !strings.Contains(pedido.caminho, "/api/"+url.PathEscape(org)+"/_search") {
 			t.Fatalf("caminho=%s", pedido.caminho)
 		}
@@ -85,7 +86,7 @@ func TestOpenObserveIntegracao(t *testing.T) {
 		if resultado.Classificacao != domain.ClasseLoteCompleto || resultado.Encontrado != 2 {
 			t.Fatalf("classe=%s encontrado=%d", resultado.Classificacao, resultado.Encontrado)
 		}
-		if strings.Contains(visto.pedidos[0].sql, "lhamalog_record_id") {
+		if strings.Contains(strings.Split(visto.snapshot()[0].sql, " ORDER BY ")[0], `"lhamalog_record_id" =`) {
 			t.Fatal("lote de vários filtrou recordId")
 		}
 	})
@@ -178,7 +179,7 @@ func TestOpenObserveIntegracao(t *testing.T) {
 		resultado := recuperarVia(t, prova, ref, visto, func(r domain.ResultadoRecuperacao) bool {
 			return r.Classificacao == domain.ClasseLoteCompleto || r.Classificacao == domain.ClasseIsolamento
 		})
-		if len(visto.pedidos) == 0 || !strings.Contains(visto.pedidos[0].sql, prova.CampoTenant) || !strings.Contains(visto.pedidos[0].sql, "tenant-a") {
+		if len(visto.snapshot()) == 0 || !strings.Contains(visto.snapshot()[0].sql, prova.CampoTenant) || !strings.Contains(visto.snapshot()[0].sql, "tenant-a") {
 			t.Fatal("a consulta não filtrou o tenant da referência")
 		}
 		for _, doc := range resultado.Registros {
@@ -208,8 +209,8 @@ func TestOpenObserveIntegracao(t *testing.T) {
 		if resultado.Classificacao != domain.ClasseIndisponibilidade || resultado.EfeitoConcluido || resultado.Registros != nil {
 			t.Fatalf("classe=%s efeito=%v", resultado.Classificacao, resultado.EfeitoConcluido)
 		}
-		if quebra.buscas < 2 {
-			t.Fatalf("buscas=%d", quebra.buscas)
+		if quebra.buscas.Load() < 2 {
+			t.Fatalf("buscas=%d", quebra.buscas.Load())
 		}
 	})
 
@@ -425,12 +426,18 @@ func (c *coletor) registrar(caminho string, corpo []byte) {
 	c.mu.Unlock()
 }
 
+func (c *coletor) snapshot() []pedidoVisto {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return append([]pedidoVisto(nil), c.pedidos...)
+}
+
 type proxyQuebra struct {
 	pagina      int
 	tenant      string
 	produto     string
 	outroTenant bool
-	buscas      int
+	buscas      atomic.Int64
 }
 
 func (p *proxyQuebra) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -438,8 +445,7 @@ func (p *proxyQuebra) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	p.buscas++
-	if p.buscas > 1 {
+	if p.buscas.Add(1) > 1 {
 		hj, ok := w.(http.Hijacker)
 		if !ok {
 			http.Error(w, "indisponível", http.StatusBadGateway)

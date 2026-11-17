@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/adapter/out/openobserve
+CWD: /workspace/lhamalog-specs/005
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	4.667s
+
+EXIT: 0
+SECONDS: 5.608

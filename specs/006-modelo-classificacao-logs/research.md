@@ -1,71 +1,190 @@
 # Research: Modelo de classificação de logs
 
-Decisões desta feature. Cada uma tem fonte na spec, no `go.mod`, no README ou no `docker-compose.yml` lidos em 2026-11-09. Nenhuma preenche URI, banco, coleção ou o catálogo que a spec deixou externos.
+**Feature**: `006-modelo-classificacao-logs` | **Date**: 2026-11-16 (etapa 3h)
 
-Nenhuma gravação foi feita no MongoDB local durante esta escrita.
+Consolidação da Fase 0. Cada item cita fonte primária (João, revisão T1, respostas documentadas ou artefato do repositório).
 
-## Onde a classe é calculada
+---
 
-- **Decision**: A classe de cada log e a classe da ocorrência ficam em `internal/domain`. O caso de uso em `internal/application` percorre os logs presentes, pede a classe e grava uma ocorrência. O adaptador MongoDB não classifica.
-- **Rationale**: A spec separa a classe do lugar da gravação. A prova de palavra inteira, de gravidade e de catálogo precisa rodar sem MongoDB, como `make test` já faz nas features anteriores.
-- **Alternatives considered**: Classificar dentro do adaptador. Rejeitado porque a regra ficaria presa ao driver. Chamar um serviço externo de linguagem. Rejeitado por FR-002.
+## R1 — Taxonomia de classes
 
-## Campo e mensagem já separados
+- **Decision**: Usar **ERROR**, **WARNING**, **INFO** no campo `tipo` do achado; sem spam e sem “não classificado”.
+- **Rationale**: Alinha constituição III (erro/alerta/informação) à ADR_170; decisões 006-6 A e 007-9 A.
+- **Alternatives considered**: Enum ERRO/WARNING/SPAM (ADR_019 / Finder.mmd legado) — **rejeitado** (fonte: respostas-joao.md, 007-9 A; spec.md taxonomia 14/11).
+- **Fonte**: (fonte: respostas-joao.md, 006-6 A / 007-9 A; origem: ADR_170, constituição III)
 
-- **Decision**: A chamada entrega, para cada log presente, o texto do campo de nível e o texto da mensagem. Esta feature não escolhe o nome desses campos no OpenObserve e não consulta o armazenamento.
-- **Rationale**: FR-004 fala no campo e na mensagem, sem nomeá-los. A spec 005 já trata nomes de campo não informados como configuração externa. Inventar `severity` ou `body` escolheria o nome omitido.
-- **Alternatives considered**: Ler `severity_text` e `body` do modelo OpenTelemetry. Rejeitado porque a spec não usa esses nomes. Abrir o OpenObserve de novo. Rejeitado porque a captura já entregou o log e esta feature não redefine essa leitura.
+---
 
-## Palavra inteira
+## R2 — Regra nível + texto + catálogo
 
-- **Decision**: No texto da mensagem, um termo da lista conta quando o trecho é igual ao termo, sem distinção de maiúsculas, e o caractere imediatamente antes e o imediatamente depois não são letra nem dígito. Início e fim do texto contam como borda. "error", "error," e "(error)" contam. "errorless" e "traceback" não contam. O campo de nível é o valor inteiro, com espaços das bordas removidos, comparado à mesma lista. Não há motor de expressão regular.
-- **Rationale**: FR-004 e a resposta A de 2026-11-09. Letra e dígito cobrem o "colado" da spec. Um motor de expressão regular traria sintaxe, expressão inválida e limite de tempo que a spec não definiu.
-- **Alternatives considered**: Fronteira `\b` de expressão regular. Rejeitado pelo motivo acima e porque `\b` não trata letra acentuada como a spec trata "letra". Contar o termo no meio de outra palavra. Rejeitado pela resposta A.
+- **Decision**: Campo de nível e texto da mensagem **juntos**; classe do log = mais grave dos dois; termos só como **palavra inteira**; catálogo **somente** se nível não reconhecível; primeira entrada válida do catálogo; default **INFO** (incluído no `ResumoAnalise`, T7 A).
+- **Rationale**: Spec original 2026-11-09 permanece vigente nos cenários de aceite; T7 A inclui INFO como achado.
+- **Alternatives considered**: Catálogo vence nível — **rejeitado** (sessão 2026-11-09 substituída apenas onde indicado na spec).
+- **Fonte**: (fonte: spec.md, User Story 1 e 3, FR-004–FR-006; respostas-joao.md, T7 A / 006-11 A)
 
-## Gravidade
+---
 
-- **Decision**: A ordem é erro, depois alerta, depois informação. A classe do log é a mais grave entre o campo e as palavras inteiras da mensagem. A classe da ocorrência é a mais grave entre os logs presentes. Log ausente não entra. Catálogo não entra se o campo ou uma palavra inteira já decidiu.
-- **Rationale**: Resposta A da classe da ocorrência e resposta D do campo com o texto, ambas em 2026-11-09. FR-005 reserva o catálogo ao caso sem nível reconhecível.
-- **Alternatives considered**: Primeira palavra da mensagem. Rejeitado porque a resposta D pede a mais grave. Deixar o catálogo vencer o nível. Rejeitado pela resposta Q3 A.
+## R3 — Quem persiste ocorrência e contrato de saída
 
-## Catálogo
+- **Decision**: Finder produz **AchadoAnalise** + **ResumoAnalise** e envia ao **Módulo de Ocorrência**; Módulo cria/atualiza ocorrências; Finder **não** grava MongoDB nem publica evento LLT-201.
+- **Rationale**: T1 REVISTO fecha divergência com ADR_062; sequência Drive (revisao-T1-drive.md §1).
+- **Alternatives considered**: T1 A (Finder grava MongoDB) — **substituída** (fonte: respostas-joao.md, T1 REVISTO).
+- **Fonte**: (fonte: respostas-joao.md, T1 REVISTO / N1 A; origem: ADR_062, revisao-T1-drive.md §2)
 
-- **Decision**: Cada entrada fornecida tem uma classe e um texto. A classe fora de informação, alerta e erro é ignorada. As demais são provadas na ordem, e a primeira que aparece como palavra inteira na mensagem, pela mesma regra acima, decide. Frase com espaço precisa aparecer com esse espaço, e as bordas da frase inteira é que não podem estar coladas a letra ou dígito. Sem correspondência, a classe do log é informação. Esta feature não cria entrada.
-- **Rationale**: FR-005 e FR-006. A clarificação deixou a correspondência interna para o plano. Usar a mesma palavra inteira evita um segundo critério. A ADR_167 cita expressões regulares, mas não fixa a sintaxe nem o que fazer com expressão inválida. O catálogo concreto continua pendente nessa ADR.
-- **Alternatives considered**: Compilar cada entrada como expressão regular. Rejeitado porque a spec não define dialeto, flag nem falha de compilação. Substring solta. Rejeitado porque a resposta A acabou de recusar o termo preso a outra palavra para o nível.
+---
 
-## Uma ocorrência e logs ausentes
+## R4 — Transporte Finder → Módulo Ocorrência
 
-- **Decision**: A chamada traz a lista de logs do apontamento e, em cada um, se está presente. Presente entra na classe. Ausente é ignorado. Com ao menos um presente, há uma inserção. Com nenhum presente, o resultado é log ausente e não há inserção. Se a chamada informa armazenamento inacessível, não há inserção, mesmo que a lista venha junto. Falha de gravação também não deixa ocorrência pronta. Os três motivos saem distintos.
-- **Rationale**: FR-003, FR-008 e a resposta B de 2026-11-09. A classe mais grave só olha os presentes, então um erro que não chegou não pode ser inventado.
-- **Alternatives considered**: Recusar o apontamento inteiro quando falta um log. Rejeitado pela resposta B. Guardar na ocorrência que faltou log. Rejeitado porque essa opção era a C, não a escolhida.
+- **Decision**: **HTTP interno com JWT** (mesmo padrão 009-3 D / ADR_051). Rota, claims, códigos e timeout **não** fechados nesta feature (**DN-009-2**).
+- **Rationale**: N1 A pós-revisão T1; João §Etapa 3: pendência no plan até contrato do Módulo.
+- **Alternatives considered**: Fila Redis Streams (N1 opção B) — **não escolhida**.
+- **Fonte**: (fonte: respostas-joao.md, N1 A / Etapa 3 API Módulo; origem: ADR_051, respostas-etapa3.md §10)
 
-## Gravação
+---
 
-- **Decision**: O adaptador insere um documento por chamada bem-sucedida. Não atualiza o documento anterior do mesmo apontamento. A consulta pela identidade devolve os documentos inseridos. URI, banco e coleção vêm de `FINDER_MONGO_URI`, `FINDER_MONGO_BANCO` e `FINDER_MONGO_COLECAO`. Sem um deles, a chamada não grava e o motivo é configuração ausente, distinto dos três de FR-008. O driver é `go.mongodb.org/mongo-driver/v2`, acrescentado agora. `go.mod` hoje não o tem.
-- **Rationale**: FR-007 e FR-010. O README nomeia esse driver como candidato ainda não adicionado. A imagem local é `mongo:8.0.34` em `docker-compose.yml`. Escolher banco ou coleção no código repetiria o que a spec não nomeou. A constituição não definia a persistência; a resposta Q2 A define a gravação por esta feature.
-- **Alternatives considered**: Upsert pela identidade do apontamento. Rejeitado por FR-010. Adiar o driver e guardar em memória. Rejeitado porque a consulta pedida é a da ocorrência no MongoDB. Usar o banco `lhamalog_collector` do Compose como padrão. Rejeitado porque esse nome é do inicializador local, não da spec.
+## R5 — Grão: achado, ocorrência, upsert
 
-## O que a ocorrência guarda
+- **Decision**: Um **AchadoAnalise** por achado no lote; no Módulo, **uma ocorrência por achado** (T2 C); chave de unicidade no módulo: **assinatura + classe + produto + tenant** (rodada 16/11 00h01). **Upsert** ao criar ocorrência é do **Módulo**, sem efeito no Finder (006-9 A após T1 revisto).
+- **Rationale**: ADR_040/035; 008-15 A + revisão 008-11.
+- **Alternatives considered**: Uma ocorrência por apontamento inteiro — **substituída** por T2 C.
+- **Fonte**: (fonte: respostas-joao.md, T2 C / 008-15 A / 008-11 rodada 00h01 / 006-9 A; origem: ADR_040)
 
-- **Decision**: Classe, identificação das regras, se o catálogo entrou, identidade do apontamento, tenant e produto. O catálogo entrou quando a classe de algum log presente saiu de uma entrada dele. Se a chamada traz identificação do catálogo, ela é guardada. Se não traz, a identificação informa que só as regras de nível desta feature foram usadas. O texto do campo e o texto da mensagem não são gravados nem escritos em falha.
-- **Rationale**: FR-007 e Q2 A. O flag e a frase cobrem os dois lados da mesma frase da spec: dizer se o catálogo entrou, guardar a identificação fornecida, e, sem identificação, informar que só as regras de nível foram usadas.
-- **Alternatives considered**: Gravar a mensagem mascarada. Rejeitado porque o mascaramento é o LLT-202 e a resposta Q2 A exclui o texto. Gravar a classe de cada log. Rejeitado porque a ocorrência tem uma classe.
+---
 
-## Tenant e produto
+## R6 — Assinatura do achado (campos)
 
-- **Decision**: Tenant e produto são os do apontamento recebido. Não são lidos de dentro da mensagem. Se um dos dois vier vazio, não há ocorrência pronta e o motivo é identidade incompleta, distinto de log ausente, de armazenamento inacessível e de falha de gravação.
-- **Rationale**: FR-007 exige os dois na ocorrência. A spec 005 já trata o tenant e o produto da referência como autoridade, não o atributo dentro do log. Esta feature não reabre essa leitura.
-- **Alternatives considered**: Procurar tenant na mensagem. Rejeitado porque a mensagem pode ser de outro tenant e a ocorrência não deve copiar esse texto.
+- **Decision**: Assinatura nesta feature = **nível (classe do log)** + **mensagem normalizada** + **`service.name`** + **host/máquina** (**DN-008-1 B**). **Não** incluir `traceId` nem `correlationId` na assinatura da 006 (risco contrato v1 §4 documentado em spec D5; 008-2 A permanece histórico transversal).
+- **Rationale**: João Etapa 3; ADR_013 (“mesma máquina”); fecha lacuna de campos pendentes ADR_063/074 para o MVP desta feature.
+- **Decision (normalização da mensagem)**: **DN-008-4 B** — trim, case-insensitive, marcadores número/UUID/IP/data/hex; literais **DN-008-5 A**: `<NUM>`, `<UUID>`, `<IP>`, `<DATE>`, `<HEX>` (detalhe **R17**).
+- **Decision (serialização do valor da assinatura)**: **008 assinatura A** — texto com componentes concatenados por separador **`|`** (**DN-008-8 A**); **`|`** literal em componente → **`\|`** (**DN-008-9 A**); escape de **`\`** literal: **pendência** (sem fonte). Canônico na spec **008**. (fonte: respostas-joao.md §Etapa 3e (João, 16/11 12h40), DN-008-8 A; §Etapa 3g (João, 16/11 13h22), DN-008-9 A; respostas-etapa3c.md §9)
+- **Fonte**: (fonte: respostas-joao.md, Etapa 3 DN-008-1 B / §Etapa 3b DN-008-4 B / §Etapa 3c DN-008-5 A; origem: ADR_013, respostas-etapa3.md §4; spec.md FR-007, FR-013)
 
-## Prazo de 2 segundos
+---
 
-- **Decision**: SC-002 é medida da prova, do pedido até a consulta da ocorrência, com a gravação disponível. O código não cria um timeout de 2 segundos.
-- **Rationale**: A spec marca esse número como premissa de observação, não como prazo interno. Criá-lo falharia uma gravação lenta e inventaria um cancelamento.
-- **Alternatives considered**: `context` com 2 segundos em toda chamada. Rejeitado pelo motivo acima.
+## R7 — Lote incompleto e falhas
 
-## Fila e saúde
+- **Decision**: Lote incompleto (**T4 A**) **não** é sucesso; distinguir log ausente, armazenamento inacessível, falha de envio HTTP; reenvio `ResumoAnalise` com mesma chave; confirmação do Módulo antes de concluir varredura (FA-02 Drive) — confirmação HTTP **bloqueada até DN-009-2** para implementação real.
+- **Decision (`assinatura_incompleta` — analyze E2/D1)**: Log contável sem `service.name` ou **host** (DN-008-1 B) → falha distinguishável; sem agrupamento; sem sucesso de lote completo (spec.md FR-007/FR-008; 007-8 A como padrão).
+- **Decision (`produto_ausente_ou_inconsistente` — 008-16 A, analyze2 E2)**: `productId` **ausente** no `log.ingested` v1 ou **inconsistente** entre metadata validada (token) e corpo repetido → **falha crítica permanente**, **sem retry** de processamento do lote (ADR_049); MUST NOT sucesso de varredura; distinto de `identidade_incompleta` (tenant/produto vazio no achado — 007-8 A).
+- **Rationale**: spec 005 + T4 A; revisao-T1-drive.md §2; contrato ingested §4.
+- **Fonte**: (fonte: respostas-joao.md, T4 A / 008-16 A; origem: revisao-T1-drive.md §2, ADR_014, ADR_049, contrato-log-ingested-v1.txt §4)
 
-- **Decision**: `internal/adapter/in/queue` e `GET /health` permanecem. Este caso de uso não é ligado ao consumo da fila.
-- **Rationale**: A spec manda não ler a fila de novo e não confirmar a entrada. Ligar os dois neste plano confirmaria a entrada ou leria o stream, que ficou nas specs anteriores.
-- **Alternatives considered**: Classificar dentro de `consumir`. Rejeitado pelo recorte acima.
+---
+
+## R8 — Versão única das regras
+
+- **Decision**: Versão **única** combinando regras + catálogo + base rotulada (006-3 C) em **AchadoAnalise** e/ou **ResumoAnalise**; ao mudar versão, **só novos logs** (006-4 A).
+- **Rationale**: LLT-199 critério 3; T1 revisto.
+- **Fonte**: (fonte: respostas-joao.md, 006-3 C / 006-4 A; origem: LLT-199, LLT-51)
+
+---
+
+## R9 — Contrato `log.ingested` v1
+
+- **Decision**: Aceitar **apenas** `schemaVersion` `"1"`; `batchId` em `openobserve.batchId` / `idempotencyId`; rejeitar eventos fora do contrato (espelhado em `InterpretarEnvelope`).
+- **Rationale**: T5 D; contrato 08/11 prevalece sobre ADR_146 v2 “schema 2” (spec D3).
+- **Fonte**: (fonte: respostas-joao.md, T5 D; origem: contrato-log-ingested-v1.txt §2–4; `internal/domain/envelope.go`)
+
+---
+
+## R10 — Chave de idempotência do ResumoAnalise
+
+- **Decision**: **`batchId` obrigatório**; compor **`batchId` + `execId`** quando `execId` disponível (**N4 A**, **DN-006-1**). `execId` origem Varredura: `V<uuid>` automático, `M<uuid>` manual (ADR_075); **opcional** (“quando houver”, ADR_146). Enquanto o Finder consome **somente** `log.ingested` v1 **sem** canal que entregue `execId`, chave **somente `batchId`** (**DN-006-1b B**).
+- **Rationale**: Corpo v1 não traz `execId`; João escolheu B na Etapa 3; alinha ADR_070/146 ao pipeline atual.
+- **Fonte**: (fonte: respostas-joao.md, N4 A / Etapa 3 DN-006-1b B; origem: respostas-etapa3.md §3, contrato-log-ingested-v1.txt §§2–5, ADR_075)
+
+---
+
+## R11 — Campos AchadoAnalise / contadores ResumoAnalise
+
+- **Decision (base Drive)**: Campos legados ADR_040 / revisao-T1-drive.md §2 (`titulo`, `resumo`, `numeroLinha`, `camposExtraido`, `dadosSensiveis`, `traceId`, `correlationId`, `hostName`, `moduloId`, `linhas`, `tipo`, `recorrente`).
+- **Decision (escopo mínimo 006 — analyze E3)**: `recorrente` **= `false`** sem consulta entre lotes (**FR-009**; **N2 B** na spec 008). Campos Drive `titulo`/`resumo`/`numeroLinha`/`camposExtraido`: **presença** no payload; derivação mínima **[PENDENTE N3 A]** até ADR.
+- **Decision (`hostName` vs `host` — analyze L1)**: `hostName` no `AchadoAnalise` espelha 1:1 o `host` da assinatura quando disponível (ADR_040; DN-008-1 B).
+- **Decision (contadores)**: ADR_102 com contador de **INFO** **em lugar de** «spam ignorado» (João Etapa 3 opção B; ADR_170 sem SPAM).
+- **Decision (extensão João)**: **assinatura**, **contagem**, **primeira/última ocorrência no lote**, **versão única** (N3 A) — formalização em ADR **pendente**.
+- **Fonte**: (fonte: respostas-joao.md, N3 A / Etapa 3 contadores; origem: ADR_040, ADR_102, ADR_170)
+
+---
+
+## R12 — Catálogo de classificação
+
+- **Decision**: **Não criar** catálogo nesta feature; opcional na entrada; sintaxe/dono **pendente** (006-7 D).
+- **Fonte**: (fonte: respostas-joao.md, 006-7 D; origem: ADR_167)
+
+---
+
+## R13 — Métricas de qualidade (aceite)
+
+- **Decision**: Documentar **precisão, recall e F1 por classe** (006-2 B) com base spec 007. Formato da base: **JSONL** (**007 formato A**); caminho documentado: `datasets/labeled-logs/` na raiz do repositório (**007 caminho C** — pasta **não** criada nesta feature). Gold **por apontamento** (**DN-007-4 A**); **classe prevista do apontamento** = **mais grave** entre as classes previstas dos logs do apontamento (**ERROR > WARNING > INFO** — **007 H2 D**, ADR_170). **Gate formal (SC-007, T047)**: em **cada** classe ERROR, WARNING, INFO — precisão **≥ 95%** (**DN-007-2 B**), recall **≥ 95%** e F1 **≥ 95%** (**DN-006-2 B**, etapa 3e — fonte: respostas-joao.md §Etapa 3c, João 16/11 11h e 11h01; respostas-etapa3c.md §1).
+- **Impacto 006**: gate SC-007 / T047 **desbloqueado** para as três métricas por classe; regra de comparação à base 007 **fechada** (etapa 3g).
+- **Fonte**: (fonte: respostas-joao.md §Etapa 3b/3c, DN-007-2 B / DN-006-2 B / 007 formato A / 007 caminho C; §Etapa 3e (João, 16/11 12h40), 007 H2 D; origem: LLT-197, LLT-199, ADR_170, respostas-etapa3f.md opção D)
+
+---
+
+## R14 — INFO gera ocorrência (divergência Drive)
+
+- **Decision (produto)**: Achados **INFO** entram no `ResumoAnalise`; Módulo deve aceitar (T7 A, 006-11 A).
+- **Fonte**: (fonte: respostas-joao.md, T7 A; origem: revisao-T1-drive.md A.1, ADR_170)
+
+---
+
+## R15 — Consulta ao Módulo e envio (N2 B, DN-008-7)
+
+- **Decision (envio)**: **Um** `ResumoAnalise` **por lote** ao Módulo de Ocorrência (fonte: respostas-etapa3c.md §6; origem: ADR_062, Finder.mmd).
+- **Decision (consulta prévia N2 B)**: **Uma chamada ao Módulo por achado** antes de montar o envio do lote (**DN-008-7 B**). Rota/contrato da consulta **DN-009-2** (sem inventar path).
+- **Decision (entre lotes)**: Agrupamento/recorrência histórica via OpenObserve permanece na spec **008**; FR-009 exclui agrupamento **entre lotes** do mínimo desta feature.
+- **Fonte**: (fonte: respostas-joao.md §Etapa 3c (João, 16/11 11h02), DN-008-7 B; origem: LLT-200, ADR_062, respostas-etapa3c.md §6)
+
+## R15b — Desempenho do ciclo classificar + montar resumo (DN-006-3)
+
+- **Decision**: Meta **≤ 2 s por lote** para classificar todos os logs do lote + montar `ResumoAnalise` (**DN-006-3 B**, **SC-002**). Perfil **DN-006-3-ref**: **VM-A real**, **todos os serviços**, lote **1.000** registros. Não inclui latência de consultas **DN-008-7 B** nem handoff **DN-009-2** (spec.md SC-002).
+- **Fonte**: (fonte: respostas-joao.md §Etapa 3c (João, 16/11 11h02), DN-006-3 B; §Etapa 3e (João, 16/11 12h40), DN-006-3-ref)
+
+---
+
+## R16 — Estado do repositório (implementação)
+
+- **Decision**: Não há pacotes de classificação nem cliente HTTP para Módulo Ocorrência no `internal/` atual; envelope v1 e captura existem (`domain/envelope.go`, `application/capturar.go`). Mongo adapter é só `doc.go`.
+- **Fonte**: (fonte: README.md § Layout; listagem `internal/**/*.go`)
+
+---
+
+## R17 — Normalização da mensagem (DN-008-4 B, DN-008-5 A)
+
+- **Decision**: **DN-008-4 B** — trim; case-insensitive; substituição por categorias número, UUID, IP, data, hex. Literais **DN-008-5 A**: `<NUM>`, `<UUID>`, `<IP>`, `<DATE>`, `<HEX>`. Implementação **canônica única** na spec **008**: **`internal/application/assinatura/normalizar_mensagem.go`** (plan/tasks T016). A spec **006** MUST **importar/delegar** e **MUST NOT** criar cópia paralela (analyze2 **F1**). Casos de borda adicionais: **010-27 A** (spec 010).
+- **Impacto**: testes determinísticos de agrupamento na 006 podem assertar marcadores **DN-008-5 A** via pacote 008.
+- **Fonte**: (fonte: respostas-joao.md §Etapa 3b DN-008-4 B / §Etapa 3c DN-008-5 A; origem: ADR_013, specs/008 plan/tasks T016)
+
+---
+
+## R18 — Falha de consulta OpenObserve (DLQ B, DN-008-3 / DN-008-6 rev. 3h)
+
+- **Decision**: **Não** há DLQ no fluxo `log.ingested` — o contrato v1 **não** herda retry/DLQ do guia da FilaOrdenada (**DN-006-1b B**). Após **3 tentativas** na consulta OpenObserve (recorrência entre lotes, spec **008**), o Finder avisa o **Core** pela **API interna** com **`batchId`** e **motivo**; **sem** DLQ no ingested e **sem** alerta WebSocket pós-DLQ.
+- **Rationale**: João **DLQ B** corrige alcance anterior (etapas 3b–3e: 3 tentativas + DLQ / alerta Core após DLQ — respostas-joao.md Etapa 3; respostas-etapa3g.md §1b).
+- **Alternatives considered**: DLQ no ingested espelhando FilaOrdenada — **rejeitada** (fonte: respostas-joao.md §Etapa 3g, DLQ B; origem: contrato-log-ingested-v1.txt §8, respostas-etapa3g.md §1b).
+- **Escopo 006**: **rastreio** e referências em FR-009 / contratos; runtime e adaptador HTTP → **spec 008**. Rota, payload e evento da API Core: **ADR_051 [PENDENTE]** — MUST NOT inventar.
+- **Fonte**: (fonte: respostas-joao.md §Etapa 3g (João, 16/11 13h22), DLQ B; origem: respostas-etapa3g.md §1b, contrato-log-ingested-v1.txt §8)
+
+---
+
+## Resolução de NEEDS CLARIFICATION
+
+| Item | Status |
+|------|--------|
+| Transporte handoff (N1 A) | **Resolvido** — HTTP+JWT; detalhes HTTP **DN-009-2** |
+| Taxonomia | **Resolvido** — ERROR/WARNING/INFO |
+| Chave batchId | **Resolvido** — Referencia / ingested v1 |
+| Chave execId | **Resolvido** — DN-006-1 + DN-006-1b B (só batchId no pipeline atual) |
+| Campos assinatura | **Resolvido** — DN-008-1 B |
+| Algoritmo normalização | **Resolvido** — **DN-008-4 B** + literais **DN-008-5 A** |
+| Serialização assinatura | **Resolvido** — **008 assinatura A**; separador **`|`**, **DN-008-8 A**; escape **`|`** → **`\|`**, **DN-008-9 A** (spec 008); escape **`\`**: pendência |
+| Falha consulta OpenObserve | **Resolvido (rastreio 006)** — **DN-008-3** / **DN-008-6** rev. 3h: 3×, sem DLQ; aviso Core **batchId** + **motivo**; runtime spec **008**; API **ADR_051 [PENDENTE]** |
+| Consulta Módulo / envio | **Resolvido** — consulta **por achado** (**DN-008-7 B**); envio **por lote** (respostas-etapa3c.md §6); HTTP **DN-009-2** |
+| Desempenho SC-002 | **Resolvido** — meta **2 s/lote** (**DN-006-3 B**); perfil **DN-006-3-ref** (VM-A, 1.000 registros) |
+| Campos ampliados AchadoAnalise | **Pendência N3 ADR** |
+| Catálogo | **Pendência 006-7 D** |
+| API Módulo (rota/JWT/códigos) | **DN-009-2** — bloqueia adaptador HTTP e consulta real |
+| Aceite métrico formal | **Resolvido** — precisão/recall/F1 **≥ 95%/classe** (**DN-007-2 B**, **DN-006-2 B**) |
+| Comparação avaliação × base 007 | **Resolvido** — gold por apontamento; classe prevista = mais grave entre logs (**007 H2 D**, ADR_170) |
+
+Nenhum item **bloqueia o plano inteiro** sob 007-26 A nesta rodada (fonte: respostas-joao.md, Etapa 3/3e/3g).

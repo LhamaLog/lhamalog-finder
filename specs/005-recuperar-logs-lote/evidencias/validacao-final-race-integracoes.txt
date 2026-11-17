@@ -1,0 +1,16 @@
+COMMAND: go test -race -count=1 ./...
+CWD: /workspace/lhamalog-specs/005
+ENV (somente teste): {"FINDER_OPENOBSERVE_INTEGRATION": "1", "FINDER_OO_URL": "http://127.0.0.1:15080", "FINDER_OO_TIMEOUT": "5s", "FINDER_OO_PAGINA": "2", "FINDER_OO_CAMPOS_COPIA": "copia", "FINDER_OO_ORDEM": "lhamalog_record_id ASC, copia ASC", "FINDER_OO_CAMPO_TENANT": "tenant_teste", "FINDER_OO_CAMPO_PRODUTO": "produto_teste", "FINDER_REDIS_INTEGRATION": "1", "FINDER_REDIS_ADDR": "127.0.0.1:16379", "FINDER_REDIS_STREAM": "lhamalog:stream:logs", "FINDER_REDIS_GROUP": "finder-prova", "FINDER_REDIS_CODIGOS": "composto:codigos", "FINDER_REDIS_CONSUMIDOR": "composto", "FINDER_REDIS_IDEMPOTENCIA": "composto:", "FINDER_REDIS_COUNT": "2", "FINDER_REDIS_BLOCK": "200ms", "FINDER_REDIS_PENDENCIA_OCIOSA": "1s"}
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	1.014s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	1.017s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	4.131s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	4.324s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.029s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.014s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	1.056s
+
+EXIT: 0
+SECONDS: 9.849

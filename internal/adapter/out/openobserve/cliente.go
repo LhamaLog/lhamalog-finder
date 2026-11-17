@@ -15,8 +15,6 @@ import (
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
 
-const maxCorpo = 32 << 20
-
 // Cliente envia POST /api/{organization}/_search com net/http.
 // Não escolhe URL, senha, timeout, página, lista, ordem nem nomes de campo.
 type Cliente struct{}
@@ -62,24 +60,19 @@ func (Cliente) Consultar(ctx context.Context, pedido out.PedidoPagina) ([]domain
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
-		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxCorpo))
 		return nil, &out.ErroBusca{Tipo: out.FalhaCredencial}
 	}
 	if resp.StatusCode == http.StatusRequestTimeout || resp.StatusCode == http.StatusGatewayTimeout {
-		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxCorpo))
 		return nil, &out.ErroBusca{Tipo: out.FalhaTimeout}
 	}
 	if resp.StatusCode == http.StatusBadGateway || resp.StatusCode == http.StatusServiceUnavailable {
-		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxCorpo))
 		return nil, &out.ErroBusca{Tipo: out.FalhaIndisponivel}
 	}
 	if resp.StatusCode == http.StatusInternalServerError || resp.StatusCode == http.StatusTooManyRequests {
-		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxCorpo))
 		return nil, &out.ErroBusca{Tipo: out.FalhaPagina}
 	}
-	if resp.StatusCode != http.StatusOK {
-		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxCorpo))
-		return nil, &out.ErroBusca{Tipo: out.FalhaResposta}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, &out.ErroBusca{Tipo: out.FalhaPagina}
 	}
 	return lerHits(resp.Body)
 }
@@ -111,12 +104,12 @@ func tempoEsgotado(err error) bool {
 }
 
 func lerHits(corpo io.Reader) ([]domain.DocumentoFisico, error) {
-	bruto, err := io.ReadAll(io.LimitReader(corpo, maxCorpo+1))
+	bruto, err := io.ReadAll(corpo)
 	if err != nil {
-		return nil, &out.ErroBusca{Tipo: out.FalhaResposta}
-	}
-	if len(bruto) > maxCorpo {
-		return nil, &out.ErroBusca{Tipo: out.FalhaResposta}
+		if tempoEsgotado(err) {
+			return nil, &out.ErroBusca{Tipo: out.FalhaTimeout}
+		}
+		return nil, &out.ErroBusca{Tipo: out.FalhaPagina}
 	}
 	dec := json.NewDecoder(bytes.NewReader(bruto))
 	dec.UseNumber()
@@ -124,7 +117,8 @@ func lerHits(corpo io.Reader) ([]domain.DocumentoFisico, error) {
 	if err := dec.Decode(&raiz); err != nil {
 		return nil, &out.ErroBusca{Tipo: out.FalhaResposta}
 	}
-	if dec.More() {
+	var extra any
+	if err := dec.Decode(&extra); err != io.EOF {
 		return nil, &out.ErroBusca{Tipo: out.FalhaResposta}
 	}
 	hits, ok := raiz["hits"]

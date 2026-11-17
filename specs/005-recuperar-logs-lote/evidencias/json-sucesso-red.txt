@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/adapter/out/openobserve -run TestJSONDeSucessoExigeFimValido
+CWD: /workspace/lhamalog-specs/005
+ENV (somente teste): {}
+--- FAIL: TestJSONDeSucessoExigeFimValido (0.00s)
+    cliente_regressao_test.go:70: JSON com sufixo invalido aceito
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	0.007s
+FAIL
+
+EXIT: 1
+SECONDS: 1.04

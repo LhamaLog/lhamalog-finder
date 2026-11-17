@@ -33,8 +33,8 @@ description: "Task list for Recuperar logs do lote"
 
 **Purpose**: Manter o módulo Go já existente e nomear a configuração do OpenObserve sem valor padrão
 
-- [x] T001 Confirmar em `go.mod` que não entra biblioteca nova. A consulta usa `net/http`. Não executar `go get`. `github.com/redis/go-redis/v9 v9.23.0` permanece e não faz esta consulta
-- [x] T002 [P] Em `.env.example`, acrescentar os nomes `FINDER_OO_URL`, `FINDER_OO_USUARIO`, `FINDER_OO_SENHA`, `FINDER_OO_TIMEOUT`, `FINDER_OO_PAGINA`, `FINDER_OO_CAMPOS_COPIA`, `FINDER_OO_ORDEM`, `FINDER_OO_CAMPO_TENANT` e `FINDER_OO_CAMPO_PRODUTO` sem valor. Não gravar senha. Não definir `localhost:5080`, timeout, tamanho de página nem nome de campo como padrão
+- [X] T001 Confirmar em `go.mod` que não entra biblioteca nova. A consulta usa `net/http`. Não executar `go get`. `github.com/redis/go-redis/v9 v9.23.0` permanece e não faz esta consulta
+- [X] T002 [P] Em `.env.example`, acrescentar os nomes `FINDER_OO_URL`, `FINDER_OO_USUARIO`, `FINDER_OO_SENHA`, `FINDER_OO_TIMEOUT`, `FINDER_OO_PAGINA`, `FINDER_OO_CAMPOS_COPIA`, `FINDER_OO_ORDEM`, `FINDER_OO_CAMPO_TENANT` e `FINDER_OO_CAMPO_PRODUTO` sem valor. Não gravar senha. Não definir `localhost:5080`, timeout, tamanho de página nem nome de campo como padrão
 
 ---
 
@@ -44,11 +44,11 @@ description: "Task list for Recuperar logs do lote"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [x] T003 Em `internal/config/config.go`, ler os nove nomes de T002. `Carregar` não preenche URL, usuário, senha, timeout, tamanho de página, lista de cópia, expressão de ordenação nem nomes de tenant e produto. Lista ausente e lista presente vazia ficam distinguíveis. Senha vazia permanece vazia. Expor a leitura sem registrar a senha
-- [x] T004 Em `internal/config/config_test.go`, provar que configuração vazia não cria URL, usuário, senha, timeout, tamanho de página, lista, ordenação nem nomes de tenant e produto. Provar que `FINDER_OO_CAMPOS_COPIA` definido e vazio é lista presente. Não imprimir a senha no resultado do teste
-- [x] T005 [P] Criar em `internal/domain/recuperacao.go` os tipos da referência de entrada, da configuração de acesso, do documento físico e do resultado, como em `specs/005-recuperar-logs-lote/data-model.md`. O resultado carrega uma classificação, a marca de efeito concluído, o contexto do lote e, quando a contagem foi calculada, a quantidade esperada e a encontrada. As regras de deduplicação, completude e precedência ficam para as histórias
-- [x] T006 [P] Criar em `internal/application/port/out/busca.go` a porta que consulta uma página e devolve `hits` ou informa credencial recusada, resposta inválida, timeout ou indisponibilidade. A porta não confirma a entrada Redis, não oculta campo e não escolhe versão divergente
-- [x] T007 [P] Em `internal/adapter/out/openobserve/integracao_test.go`, a prova só executa com `FINDER_OPENOBSERVE_INTEGRATION=1`. Se a variável está definida e `FINDER_OO_URL` não responde, o teste falha. Se não está definida, o teste é ignorado. URL, credencial, timeout, página, lista, ordenação e nomes de campo vêm do ambiente do teste. Não copiar esses valores para o código de produção. Não usar log de produção
+- [X] T003 Em `internal/config/config.go`, ler os nove nomes de T002. `Carregar` não preenche URL, usuário, senha, timeout, tamanho de página, lista de cópia, expressão de ordenação nem nomes de tenant e produto. Lista ausente e lista presente vazia ficam distinguíveis. Senha vazia permanece vazia. Expor a leitura sem registrar a senha
+- [X] T004 Em `internal/config/config_test.go`, provar que configuração vazia não cria URL, usuário, senha, timeout, tamanho de página, lista, ordenação nem nomes de tenant e produto. Provar que `FINDER_OO_CAMPOS_COPIA` definido e vazio é lista presente. Não imprimir a senha no resultado do teste
+- [X] T005 [P] Criar em `internal/domain/recuperacao.go` os tipos da referência de entrada, da configuração de acesso, do documento físico e do resultado, como em `specs/005-recuperar-logs-lote/data-model.md`. O resultado carrega uma classificação, a marca de efeito concluído, o contexto do lote e, quando a contagem foi calculada, a quantidade esperada e a encontrada. As regras de deduplicação, completude e precedência ficam para as histórias
+- [X] T006 [P] Criar em `internal/application/port/out/busca.go` a porta que consulta uma página e devolve `hits` ou informa credencial recusada, resposta inválida, timeout ou indisponibilidade. A porta não confirma a entrada Redis, não oculta campo e não escolhe versão divergente
+- [X] T007 [P] Em `internal/adapter/out/openobserve/integracao_test.go`, a prova só executa com `FINDER_OPENOBSERVE_INTEGRATION=1`. Se a variável está definida e `FINDER_OO_URL` não responde, o teste falha. Se não está definida, o teste é ignorado. URL, credencial, timeout, página, lista, ordenação e nomes de campo vêm do ambiente do teste. Não copiar esses valores para o código de produção. Não usar log de produção
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,15 +64,15 @@ description: "Task list for Recuperar logs do lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T008 [P] [US1] Escrever em `internal/adapter/out/openobserve/consulta_test.go` a consulta de `specs/005-recuperar-logs-lote/contracts/recuperar-lote.md`: `POST /api/{organization}/_search` com `query.sql`, `query.start_time`, `query.end_time`, `query.from` e `query.size`. `start_time` é `minTimestampMicros`. `end_time` é `maxTimestampMicros + 1`. O SQL usa o stream da referência, não `lhamalog:stream:logs`, e filtra `lhamalog_batch_id`. Sem `recordId`, não filtra `lhamalog_record_id`. Com `recordId`, filtra. `from` da primeira página é 0. Nome de stream e de campo entre aspas duplas. Valor de texto entre aspas simples, com aspas simples interna repetida. Inteiro sem aspas. Valor que não possa ser aplicado assim produz resposta inválida e não troca lote, organização, stream nem faixa
-- [x] T009 [P] [US1] Escrever em `internal/application/recuperar_test.go` o sucesso de uma página curta cuja quantidade distinta é igual a `recordCount`. O resultado traz os registros, `tenantId`, `productId`, organização, stream, `batchId`, `idempotencyId`, `recordCount` e a quantidade distinta. A marca é efeito concluído. A contagem de confirmações Redis é zero
+- [X] T008 [P] [US1] Escrever em `internal/adapter/out/openobserve/consulta_test.go` a consulta de `specs/005-recuperar-logs-lote/contracts/recuperar-lote.md`: `POST /api/{organization}/_search` com `query.sql`, `query.start_time`, `query.end_time`, `query.from` e `query.size`. `start_time` é `minTimestampMicros`. `end_time` é `maxTimestampMicros + 1`. O SQL usa o stream da referência, não `lhamalog:stream:logs`, e filtra `lhamalog_batch_id`. Sem `recordId`, não filtra `lhamalog_record_id`. Com `recordId`, filtra. `from` da primeira página é 0. Nome de stream e de campo entre aspas duplas. Valor de texto entre aspas simples, com aspas simples interna repetida. Inteiro sem aspas. Valor que não possa ser aplicado assim produz resposta inválida e não troca lote, organização, stream nem faixa
+- [X] T009 [P] [US1] Escrever em `internal/application/recuperar_test.go` o sucesso de uma página curta cuja quantidade distinta é igual a `recordCount`. O resultado traz os registros, `tenantId`, `productId`, organização, stream, `batchId`, `idempotencyId`, `recordCount` e a quantidade distinta. A marca é efeito concluído. A contagem de confirmações Redis é zero
 
 ### Implementation for User Story 1
 
-- [x] T010 [P] [US1] Criar em `internal/adapter/out/openobserve/consulta.go` a montagem do corpo de T008, incluindo `ORDER BY` com `FINDER_OO_ORDEM`. Sem a expressão, não montar a consulta. Não gravar `_timestamp` nem `lhamalog_record_id` como ordem do código
-- [x] T011 [P] [US1] Criar em `internal/adapter/out/openobserve/cliente.go` o POST com `net/http`, usuário e senha em HTTP Basic, e o timeout de cada consulta no cliente. Não enviar o campo `timeout` do corpo. Não registrar senha nem `hits` em falha. Substituir o comentário de `internal/adapter/out/openobserve/doc.go` que diz que o pacote não consulta
-- [x] T012 [US1] Criar em `internal/application/recuperar.go` o caso de uso de uma página curta. URL, credencial, timeout, tamanho de página, lista de cópia ou ordenação ausentes: não consultar, não criar padrão e não marcar efeito concluído. Página curta com contagem distinta igual a `recordCount` e sem outra falha: efeito concluído e registros. Não confirmar a entrada Redis
-- [x] T013 [US1] Estender `internal/adapter/out/openobserve/integracao_test.go` com um lote sintético de uma página, de um registro e de vários. Conferir organização, stream, lote, faixa com fim no máximo mais 1 e o filtro de `recordId` só no lote unitário. A entrada Redis não é confirmada
+- [X] T010 [P] [US1] Criar em `internal/adapter/out/openobserve/consulta.go` a montagem do corpo de T008, incluindo `ORDER BY` com `FINDER_OO_ORDEM`. Sem a expressão, não montar a consulta. Não gravar `_timestamp` nem `lhamalog_record_id` como ordem do código
+- [X] T011 [P] [US1] Criar em `internal/adapter/out/openobserve/cliente.go` o POST com `net/http`, usuário e senha em HTTP Basic, e o timeout de cada consulta no cliente. Não enviar o campo `timeout` do corpo. Não registrar senha nem `hits` em falha. Substituir o comentário de `internal/adapter/out/openobserve/doc.go` que diz que o pacote não consulta
+- [X] T012 [US1] Criar em `internal/application/recuperar.go` o caso de uso de uma página curta. URL, credencial, timeout, tamanho de página, lista de cópia ou ordenação ausentes: não consultar, não criar padrão e não marcar efeito concluído. Página curta com contagem distinta igual a `recordCount` e sem outra falha: efeito concluído e registros. Não confirmar a entrada Redis
+- [X] T013 [US1] Estender `internal/adapter/out/openobserve/integracao_test.go` com um lote sintético de uma página, de um registro e de vários. Conferir organização, stream, lote, faixa com fim no máximo mais 1 e o filtro de `recordId` só no lote unitário. A entrada Redis não é confirmada
 
 **Checkpoint**: User Story 1 is testable. A single short page whose distinct count matches returns the records and leaves the Redis entry unconfirmed
 
@@ -88,13 +88,13 @@ description: "Task list for Recuperar logs do lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T014 [P] [US2] Estender `internal/application/recuperar_test.go` e `internal/domain/recuperacao_test.go` com os casos de `specs/005-recuperar-logs-lote/data-model.md`: `from` começa em 0 e a página seguinte soma `size`; página com menos documentos que `size` encerra; página cheia pede a seguinte, inclusive quando a quantidade é múltiplo exato de `size`; não existe máximo de páginas; `size` não é `recordCount`; o mesmo `lhamalog_record_id` com diferença só na lista de cópia vira um registro e o entregue é uma das cópias; diferença fora da lista não escolhe versão; documento sem `lhamalog_record_id` fica fora da contagem; identificador Redis e `correlationId` não deduplicam; lista ausente não consulta e não marca efeito concluído; lista presente vazia torna qualquer diferença conteúdo divergente
+- [X] T014 [P] [US2] Estender `internal/application/recuperar_test.go` e `internal/domain/recuperacao_test.go` com os casos de `specs/005-recuperar-logs-lote/data-model.md`: `from` começa em 0 e a página seguinte soma `size`; página com menos documentos que `size` encerra; página cheia pede a seguinte, inclusive quando a quantidade é múltiplo exato de `size`; não existe máximo de páginas; `size` não é `recordCount`; o mesmo `lhamalog_record_id` com diferença só na lista de cópia vira um registro e o entregue é uma das cópias; diferença fora da lista não escolhe versão; documento sem `lhamalog_record_id` fica fora da contagem; identificador Redis e `correlationId` não deduplicam; lista ausente não consulta e não marca efeito concluído; lista presente vazia torna qualquer diferença conteúdo divergente
 
 ### Implementation for User Story 2
 
-- [x] T015 [US2] Em `internal/domain/recuperacao.go`, deduplicar por `lhamalog_record_id` com a lista de cópia. Diferença restrita à lista: um registro lógico, e o entregue é uma das cópias. Diferença fora da lista: nenhuma versão escolhida. Documento sem identificador: fora da contagem
-- [x] T016 [US2] Em `internal/application/recuperar.go`, repetir a porta de busca enquanto `hits` tiver o comprimento de `size`. Somar `size` a `from`. Não criar teto de páginas. Não parar em `recordCount`. Lista de cópia ausente não consulta
-- [x] T017 [US2] Estender `internal/adapter/out/openobserve/integracao_test.go` com cópias físicas e um identificador lógico que só aparece depois delas, em mais de uma página. Cada identificador aparece uma vez. O identificador que ficaria de fora se a leitura parasse em `recordCount` está no conjunto
+- [X] T015 [US2] Em `internal/domain/recuperacao.go`, deduplicar por `lhamalog_record_id` com a lista de cópia. Diferença restrita à lista: um registro lógico, e o entregue é uma das cópias. Diferença fora da lista: nenhuma versão escolhida. Documento sem identificador: fora da contagem
+- [X] T016 [US2] Em `internal/application/recuperar.go`, repetir a porta de busca enquanto `hits` tiver o comprimento de `size`. Somar `size` a `from`. Não criar teto de páginas. Não parar em `recordCount`. Lista de cópia ausente não consulta
+- [X] T017 [US2] Estender `internal/adapter/out/openobserve/integracao_test.go` com cópias físicas e um identificador lógico que só aparece depois delas, em mais de uma página. Cada identificador aparece uma vez. O identificador que ficaria de fora se a leitura parasse em `recordCount` está no conjunto
 
 **Checkpoint**: User Stories 1 and 2 work. Full pages are followed and physical copies collapse to one logical record
 
@@ -110,12 +110,12 @@ description: "Task list for Recuperar logs do lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T018 [P] [US3] Estender `internal/domain/recuperacao_test.go` com a comparação de `specs/005-recuperar-logs-lote/data-model.md`: quantidade distinta igual a `recordCount` e sem falha é lote completo com efeito concluído; menor é lote incompleto, sem efeito concluído, com as duas quantidades; maior é excesso, com efeito concluído e as duas quantidades; busca sem documentos, `recordCount` positivo e sem falha de acesso é lote incompleto com encontrado 0; a contagem não afirma atraso de visibilidade nem falha de persistência; lote misto completa pela quantidade aceita e não exige o recusado; não há segunda consulta `COUNT(DISTINCT ...)`
+- [X] T018 [P] [US3] Estender `internal/domain/recuperacao_test.go` com a comparação de `specs/005-recuperar-logs-lote/data-model.md`: quantidade distinta igual a `recordCount` e sem falha é lote completo com efeito concluído; menor é lote incompleto, sem efeito concluído, com as duas quantidades; maior é excesso, com efeito concluído e as duas quantidades; busca sem documentos, `recordCount` positivo e sem falha de acesso é lote incompleto com encontrado 0; a contagem não afirma atraso de visibilidade nem falha de persistência; lote misto completa pela quantidade aceita e não exige o recusado; não há segunda consulta `COUNT(DISTINCT ...)`
 
 ### Implementation for User Story 3
 
-- [x] T019 [US3] Em `internal/domain/recuperacao.go`, fechar o lote pela quantidade de identificadores distintos válidos contra `recordCount`. Igualdade só completa se isolamento, presença de identificador e ausência de conteúdo divergente tiverem passado. Informar esperado e encontrado quando a contagem foi calculada. Não emitir a causa da divergência
-- [x] T020 [US3] Estender `internal/adapter/out/openobserve/integracao_test.go` com busca vazia, contagem menor, contagem maior e lote misto sintético. A completude do misto usa só os registros aceitos
+- [X] T019 [US3] Em `internal/domain/recuperacao.go`, fechar o lote pela quantidade de identificadores distintos válidos contra `recordCount`. Igualdade só completa se isolamento, presença de identificador e ausência de conteúdo divergente tiverem passado. Informar esperado e encontrado quando a contagem foi calculada. Não emitir a causa da divergência
+- [X] T020 [US3] Estender `internal/adapter/out/openobserve/integracao_test.go` com busca vazia, contagem menor, contagem maior e lote misto sintético. A completude do misto usa só os registros aceitos
 
 **Checkpoint**: User Stories 1, 2, and 3 work. A batch is complete only when the distinct count matches and no other failure is present
 
@@ -131,12 +131,12 @@ description: "Task list for Recuperar logs do lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T021 [P] [US4] Estender `internal/application/recuperar_test.go` e `internal/adapter/out/openobserve/consulta_test.go` com as regras de `specs/005-recuperar-logs-lote/data-model.md`: os dois nomes presentes filtram pelos valores da referência e cada documento é conferido; falta de um nome não envia a consulta, não entrega documento e classifica isolamento com efeito concluído; documento de outro tenant ou produto impede qualquer documento do lote de sair como válido; credencial sem filtro e sem conferência não entrega sucesso; atributo de dentro do log não substitui `tenantId` nem `productId`; conhecer organização, stream e `batchId` não autoriza
+- [X] T021 [P] [US4] Estender `internal/application/recuperar_test.go` e `internal/adapter/out/openobserve/consulta_test.go` com as regras de `specs/005-recuperar-logs-lote/data-model.md`: os dois nomes presentes filtram pelos valores da referência e cada documento é conferido; falta de um nome não envia a consulta, não entrega documento e classifica isolamento com efeito concluído; documento de outro tenant ou produto impede qualquer documento do lote de sair como válido; credencial sem filtro e sem conferência não entrega sucesso; atributo de dentro do log não substitui `tenantId` nem `productId`; conhecer organização, stream e `batchId` não autoriza
 
 ### Implementation for User Story 4
 
-- [x] T022 [US4] Em `internal/adapter/out/openobserve/consulta.go` e `internal/application/recuperar.go`, filtrar e conferir tenant e produto quando `FINDER_OO_CAMPO_TENANT` e `FINDER_OO_CAMPO_PRODUTO` estão os dois presentes. Se um falta, não consultar e devolver isolamento com efeito concluído. A credencial não substitui os dois controles
-- [x] T023 [US4] Estender `internal/adapter/out/openobserve/integracao_test.go` com dois tenants no mesmo `batchId`. Nenhum documento do outro tenant ou produto sai como resultado válido. A classificação é isolamento
+- [X] T022 [US4] Em `internal/adapter/out/openobserve/consulta.go` e `internal/application/recuperar.go`, filtrar e conferir tenant e produto quando `FINDER_OO_CAMPO_TENANT` e `FINDER_OO_CAMPO_PRODUTO` estão os dois presentes. Se um falta, não consultar e devolver isolamento com efeito concluído. A credencial não substitui os dois controles
+- [X] T023 [US4] Estender `internal/adapter/out/openobserve/integracao_test.go` com dois tenants no mesmo `batchId`. Nenhum documento do outro tenant ou produto sai como resultado válido. A classificação é isolamento
 
 **Checkpoint**: User Stories 1 through 4 work. A document from another tenant is not returned as a valid batch
 
@@ -152,13 +152,13 @@ description: "Task list for Recuperar logs do lote"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T024 [P] [US5] Estender `internal/domain/recuperacao_test.go` e `internal/application/recuperar_test.go` com a precedência de `specs/005-recuperar-logs-lote/data-model.md`, uma só classificação, nesta ordem: falha de autenticação ou autorização; resposta inválida; inconsistência de identidade ou isolamento; documento sem identificador; conteúdo divergente; excesso de registros distintos; lote incompleto. Indisponibilidade, timeout e falha de página só saem quando nenhuma dessas sete ocorreu. Configuração ausente não é essas classes: não consulta e não marca efeito concluído. Página que falha depois de falha que pede correção emite essa falha, com efeito concluído, e o parcial não é lote pronto. Credencial recusada não é falha temporária. O resultado de falha não contém senha nem conteúdo de log
+- [X] T024 [P] [US5] Estender `internal/domain/recuperacao_test.go` e `internal/application/recuperar_test.go` com a precedência de `specs/005-recuperar-logs-lote/data-model.md`, uma só classificação, nesta ordem: falha de autenticação ou autorização; resposta inválida; inconsistência de identidade ou isolamento; documento sem identificador; conteúdo divergente; excesso de registros distintos; lote incompleto. Indisponibilidade, timeout e falha de página só saem quando nenhuma dessas sete ocorreu. Configuração ausente não é essas classes: não consulta e não marca efeito concluído. Página que falha depois de falha que pede correção emite essa falha, com efeito concluído, e o parcial não é lote pronto. Credencial recusada não é falha temporária. O resultado de falha não contém senha nem conteúdo de log
 
 ### Implementation for User Story 5
 
-- [x] T025 [US5] Em `internal/domain/recuperacao.go`, emitir uma classificação pela ordem de T024 e a marca de efeito concluído da tabela de `specs/005-recuperar-logs-lote/data-model.md`. Lote completo e falha que pede correção marcam efeito concluído. Indisponibilidade, timeout, falha de página e lote incompleto, sozinhos, não marcam
-- [x] T026 [US5] Em `internal/adapter/out/openobserve/cliente.go` e `internal/application/recuperar.go`, mapear credencial recusada, corpo que não pode ser interpretado, timeout e armazenamento inalcançável. Autenticação recusada ou resposta inválida encerra a leitura. Falha de documento não encerra sozinha, porque uma página seguinte pode trazer resposta inválida ou isolamento. Não confirmar a entrada Redis
-- [x] T027 [US5] Estender `internal/adapter/out/openobserve/integracao_test.go` com o OpenObserve inalcançável na segunda página. Sem falha que pede correção já vista, a classificação é indisponibilidade ou timeout e o parcial não é lote pronto. Com documento de outro tenant já visto, a classificação é isolamento e o efeito está concluído
+- [X] T025 [US5] Em `internal/domain/recuperacao.go`, emitir uma classificação pela ordem de T024 e a marca de efeito concluído da tabela de `specs/005-recuperar-logs-lote/data-model.md`. Lote completo e falha que pede correção marcam efeito concluído. Indisponibilidade, timeout, falha de página e lote incompleto, sozinhos, não marcam
+- [X] T026 [US5] Em `internal/adapter/out/openobserve/cliente.go` e `internal/application/recuperar.go`, mapear credencial recusada, corpo que não pode ser interpretado, timeout e armazenamento inalcançável. Autenticação recusada ou resposta inválida encerra a leitura. Falha de documento não encerra sozinha, porque uma página seguinte pode trazer resposta inválida ou isolamento. Não confirmar a entrada Redis
+- [X] T027 [US5] Estender `internal/adapter/out/openobserve/integracao_test.go` com o OpenObserve inalcançável na segunda página. Sem falha que pede correção já vista, a classificação é indisponibilidade ou timeout e o parcial não é lote pronto. Com documento de outro tenant já visto, a classificação é isolamento e o efeito está concluído
 
 **Checkpoint**: All user stories work. Failures return one classification and do not present a partial page set as a completed batch
 
@@ -168,9 +168,9 @@ description: "Task list for Recuperar logs do lote"
 
 **Purpose**: Ligar o caso de uso à porta de efeito e conferir o quickstart sem alargar o escopo
 
-- [x] T028 Em `internal/application/port/out/efeito.go`, quando o arquivo existir, delegar a execução a `internal/application/recuperar.go` e devolver a marca de efeito concluído. Se o arquivo ainda não existir, não criar o consumo Redis. Em nenhum caso editar `internal/adapter/in/queue/redisStream.go` para confirmar a entrada
-- [x] T029 [P] Em `internal/adapter/out/openobserve/doc.go`, descrever que o pacote consulta o stream da referência e não escolhe URL, senha, timeout, página, lista de cópia, ordenação nem nomes de tenant e produto
-- [x] T030 Executar a prova de `specs/005-recuperar-logs-lote/quickstart.md`. Registrar o comando observado e a saída. Não afirmar sucesso sem essa saída. Não usar log de produção e não declarar homologação
+- [X] T028 Em `internal/application/port/out/efeito.go`, quando o arquivo existir, delegar a execução a `internal/application/recuperar.go` e devolver a marca de efeito concluído. Se o arquivo ainda não existir, não criar o consumo Redis. Em nenhum caso editar `internal/adapter/in/queue/redisStream.go` para confirmar a entrada
+- [X] T029 [P] Em `internal/adapter/out/openobserve/doc.go`, descrever que o pacote consulta o stream da referência e não escolhe URL, senha, timeout, página, lista de cópia, ordenação nem nomes de tenant e produto
+- [X] T030 Executar a prova de `specs/005-recuperar-logs-lote/quickstart.md`. Registrar o comando observado e a saída. Não afirmar sucesso sem essa saída. Não usar log de produção e não declarar homologação
 
 ---
 
@@ -271,5 +271,5 @@ With multiple developers:
 
 ## Phase 9: Convergence
 
-- [ ] T031 CRITICAL Em `internal/adapter/out/openobserve/cliente.go`, retirar o teto `maxCorpo` de 32 MiB. Corpo maior que esse número não pode virar resposta inválida nem marcar efeito concluído. A leitura não cria tamanho máximo de resposta. per Constitution V (contradicts)
-- [ ] T032 Em `internal/adapter/out/openobserve/cliente.go`, erro ao ler o corpo e status HTTP que não seja sucesso, credencial recusada, timeout ou indisponibilidade não podem sair como resposta inválida. Resposta inválida fica para o JSON de sucesso que não traz `hits` interpretável e para filtro que não pode ser aplicado. Falha de transporte ou status não previsto deixa a entrada pendente, sem efeito concluído. per FR-015 (partial)
+- [X] T031 CRITICAL Em `internal/adapter/out/openobserve/cliente.go`, retirar o teto `maxCorpo` de 32 MiB. Corpo maior que esse número não pode virar resposta inválida nem marcar efeito concluído. A leitura não cria tamanho máximo de resposta. per Constitution V (contradicts)
+- [X] T032 Em `internal/adapter/out/openobserve/cliente.go`, erro ao ler o corpo e status HTTP que não seja sucesso, credencial recusada, timeout ou indisponibilidade não podem sair como resposta inválida. Resposta inválida fica para o JSON de sucesso que não traz `hits` interpretável e para filtro que não pode ser aplicado. Falha de transporte ou status não previsto deixa a entrada pendente, sem efeito concluído. per FR-015 (partial)
