@@ -153,3 +153,9 @@ Consolidação da Fase 0. Cada item cita fonte primária. Nada abaixo foi resolv
 **DN-010-1**, **DN-010-2**, **DN-007-2**, **DN-008-4**, **DN-010-3**, **DN-010-4**, **DN-008-5**, **010 H1**: **respondidas** (etapas 3b/3c/3e/3h) — ver R6, R11, R13 e spec.md Clarifications etapas 3e/3h.
 
 Nenhum item acima **bloqueia** o desenho do contrato interno `validarSeguranca()` e obrigações de saída mascarada (**SC-005** bloqueia aceite **formal**, não o plano).
+
+## Evidência desta execução
+
+R6: paridade de artefato Finder–Sugestão não confirmada; nenhum contato externo enviado. R7: Finder entrega resumo seguro; id+tipo+gravidade no HTTP Módulo→Core é obrigação 009-5 revisto/010-23 do Módulo; LLT-218 e leitura da Ocorrência por Notificação são externos. R8: nenhuma minimização ampla LLT-51, nem mudança ADR_019/ADR_167/SSID_007.1.
+
+R12: precisão ≥95% por classe é gate da 006/007 sobre JSONL em datasets/labeled-logs/; a 010 não cria base nem mede classificação. P-010-27 e P-010-2 ainda bloqueiam o aceite formal. Constituição I e coordenação 006-10 A/LLT-202 permanecem fora desta implementação.

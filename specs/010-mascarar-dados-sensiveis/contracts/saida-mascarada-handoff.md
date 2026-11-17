@@ -80,3 +80,9 @@ Marcador e placeholder MUST seguir FR-006 quando padrão estiver no catálogo. V
 - (fonte: respostas-documentadas.md, 010-9 / 010-20 / 010-22 / 010-24)
 - (fonte: respostas-joao.md §Etapa 3, 009-5 revisto / DN-009-1 A)
 - (origem: ADR_040, ADR_062, ADR_102, ADR_167, LLT-202)
+
+## Evidência desta execução
+
+Somente linhas do contexto seguro alimentam classificação, assinatura e handoff lógico 006→008→009. TotalSensivel alimenta contador lógico de dados sensíveis mascarados, sem fechar semântica JSON N3 A/ADR_102 nem resumo externo de arquivo.
+
+Notificação lê Ocorrência por id, conteudo mascarado (DN-010-1 A); tela/e-mail/Sugestão ficam fora deste repo. O teste fluxo_test da 009 comprova que um sentinel bruto de fixture não chega ao DTO; não comprova catálogo real, tela, e-mail ou LLM.
