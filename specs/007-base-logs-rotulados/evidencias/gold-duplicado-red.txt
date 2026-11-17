@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/labeleddataset -run TestGoldDuplicado
+CWD: /workspace/scratch/lhamalog-validation-kevr8zts
+ENV (somente teste): {}
+--- FAIL: TestGoldDuplicadoNaoPodeEscolherUltimoValor (0.00s)
+    validate_test.go:54: gold duplicado aceito
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset	0.002s
+FAIL
+
+EXIT: 1
+SECONDS: 0.413

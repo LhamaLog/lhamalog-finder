@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/labeleddataset
+CWD: /workspace/scratch/lhamalog-validation-0ijjtgmj
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset	1.185s
+
+EXIT: 0
+SECONDS: 1.875

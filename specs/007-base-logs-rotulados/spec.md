@@ -313,3 +313,11 @@ DN-007-4 — respondida em 2026-11-16 (etapa 3e), ver Clarifications → Session
 ## Questões em aberto
 
 1. **Emenda do princípio I**: constituição × T1 revisto — fora desta pasta (analyze C1; `plan.md` § Pendências).
+
+## Evidência desta execução
+
+Mapeamento físico implementado: arquivos `datasets/labeled-logs/*.jsonl` (JSONL), com os nomes JSON de `CamposEntrada` e `Registro` em `internal/labeleddataset/types.go`. `level_text` → nível; `message_text` → mensagem; `class_label` → gold (um por log ou agregado). Membros de apontamento não admitem class_label, inclusive null; chaves JSON duplicadas são rejeitadas.
+
+Cobertura alvo permanece pendente: não existe conjunto real fornecido nesta execução; não há totais reais nem manifesto de contagens. Fixtures em memória demonstram o mecanismo, não constituem base rotulada. SC-005 mede precisão, recall e F1 ≥95% para CADA classe, apenas em validacao; apontamento é uma unidade, previsão = maior classe entre membros (007 H2 D).
+
+ADR_019, ADR_167 e SSID_007.1 não são alterados nesta pasta. FR-013: não foi introduzido volume máximo de corpus/linha; a prova inclui linha >64 KiB, sem afirmar capacidade infinita de memória.

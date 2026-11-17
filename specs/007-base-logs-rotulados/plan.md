@@ -145,3 +145,7 @@ Itens **fora desta execução** ou que exigem artefato externo (sem criar/editar
 | Tópico | Tratamento | Fonte |
 |--------|------------|-------|
 | Proporção/seed/estratificação do split | Critérios **qualitativos** em `SPLIT.md` (FR-005); **sem** percentuais/seed nas fontes — MUST NOT inventar | 007-20 B; analyze M2; research.md R9 |
+
+## Evidência desta execução
+
+T024/T031/T041/T042/T045 dependem da implementação real da operação ClassificarLog da 006, não apenas do mapeamento T015. Essa implementação é pré-requisito da composição de validação, sem código 006 duplicado nesta branch. N3 A, DN-009-2 e emenda do princípio I permanecem externos e não exigem adaptador HTTP nesta feature.

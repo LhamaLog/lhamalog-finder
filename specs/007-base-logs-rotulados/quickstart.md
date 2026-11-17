@@ -122,3 +122,9 @@ Guia de **validação** (não implementação). Não executa comandos neste docu
 | 007-24 A / FR-013 | Cenário 10 |
 
 (fonte: respostas-joao.md; detalhes em [research.md](../research.md))
+
+## Verificação desta execução
+
+§1–§2: origem e contagens reais bloqueadas; heurísticas de PII e taxonomia são testes de mecanismo. §3–§5: `go test ./internal/labeleddataset/...` usa ClassificarLog real 006, sem Redis/OpenObserve/adapter Módulo. Loader valida todos os registros, sem aceitar gold em member ou chaves repetidas. §6: SPLIT.md e ORIGEM.md declaram MVP somente avaliação; origem/autoria não atestadas. §7: Avaliar(...).ValidarGate() exige precisão/recall/F1 ≥95% em cada classe com suporte; gold de apontamento é comparado à maior predição de seus members (uma unidade). Base real opt-in FINDER_DATASET_INTEGRATION=1 falhou como esperado em base-real-impedimento.txt: base indisponível; não se declara aceite. §8: só-catálogo aguarda 006-7 D. §9: T020 deverá alimentar métricas e substituir sintéticos da 006; coordenação 006-10 A sem editar Jira. §10/FR-013: sem teto de corpus inventado; leitura não usa limite default de Scanner.
+
+Comandos realmente observados e saídas completas: `evidencias/aceite-final-unit.txt`, `aceite-final-race-integracoes.txt` e `aceite-final-vet.txt` (exit 0). Executados em composição temporária dos patches das specs, com manifesto SHA-256. Para reproduzir: compor os pré-requisitos conforme relatório central, usar Go 1.27.2 e fornecer explicitamente os parâmetros de teste de Redis/OpenObserve; credenciais não estão nos relatórios. `make test` falhou no contêiner por certificado ao baixar módulos; o comando Go local com race passou. Não executar `go test ./...` isoladamente numa branch consumidora e interpretar falta de dependências como falha da composição.
