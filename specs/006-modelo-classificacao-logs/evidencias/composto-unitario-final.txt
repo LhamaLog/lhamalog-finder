@@ -1,0 +1,22 @@
+COMMAND: go test -count=1 ./...
+CWD: /workspace/scratch/lhamalog-validation-5ewg6wij
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	0.005s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	0.002s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	0.010s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	0.007s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	0.836s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	0.004s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar	0.005s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/assinatura	0.003s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	0.004s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia	0.003s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	0.004s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	0.004s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset	0.033s
+
+EXIT: 0
+SECONDS: 9.41

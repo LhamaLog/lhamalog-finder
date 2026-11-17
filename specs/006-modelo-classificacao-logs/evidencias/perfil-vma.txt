@@ -1,0 +1,11 @@
+COMMAND: go test -race -count=1 -v ./internal/application -run TestAceiteDesempenhoVMA
+CWD: /workspace/scratch/lhamalog-validation-88v68sh1
+ENV (somente teste): {}
+=== RUN   TestAceiteDesempenhoVMA
+    desempenho_test.go:15: SC-002: requer VM-A real, todos os servicos e lote de 1000; nao executado neste ambiente
+--- SKIP: TestAceiteDesempenhoVMA (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.011s
+
+EXIT: 0
+SECONDS: 1.284

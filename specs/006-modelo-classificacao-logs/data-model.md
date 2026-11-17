@@ -203,3 +203,7 @@ Após **3 tentativas** falhas na consulta OpenObserve (recorrência entre lotes)
 | `domain.LogPronto` / `Registro` | Entrada à classificação (campos OTel até cadeia 003–005) |
 | `domain.Codigo` | Apontamento no OpenObserve |
 | `domain.Chave` | Idempotência **ingested** (≠ chave ResumoAnalise) |
+
+## Evidência desta execução
+
+`AchadoAnalise.linhas` depende da saída 010 e da lista oficial P-010-2, não de texto bruto. `dadosSensiveis` é desconhecido (`*bool` nil) até definição; não é inferido como false pelo valor zero. A implementação reutiliza a partição 008, e a 008 reutiliza os tipos comuns 006. Campos N3 A permanecem exclusivamente lógicos, sem novos nomes de JSON fechados.

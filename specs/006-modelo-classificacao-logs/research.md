@@ -188,3 +188,11 @@ Consolidação da Fase 0. Cada item cita fonte primária (João, revisão T1, re
 | Comparação avaliação × base 007 | **Resolvido** — gold por apontamento; classe prevista = mais grave entre logs (**007 H2 D**, ADR_170) |
 
 Nenhum item **bloqueia o plano inteiro** sob 007-26 A nesta rodada (fonte: respostas-joao.md, Etapa 3/3e/3g).
+
+## Evidência desta execução
+
+006-7 D segue aberto: a lista ordenada é opaca, com predicado injetado; não há regex, arquivo ou dono de catálogo definido. T036 continua bloqueada; T037 opera apenas sobre essa fronteira lógica.
+
+DLQ B / DN-008-3 / DN-008-6 revisados substituem o alcance antigo com DLQ e WebSocket: três falhas temporárias OpenObserve exigem aviso operacional Core (batchId/motivo). Esse aviso não é o evento LLT-201; cliente real exige ADR_051. DN-008-9 A fecha escape de `|`; escape de barra invertida literal continua pendente.
+
+A avaliação offline usa `labeleddataset.Avaliar` e `ValidarGate` da 007, com um par gold/predição por apontamento e maior classe entre membros. Não há base real disponível; não se afirma ≥95%.

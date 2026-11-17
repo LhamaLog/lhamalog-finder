@@ -1,0 +1,8 @@
+COMMAND: go test -race -count=1 ./internal/domain ./internal/config
+CWD: /workspace/lhamalog-specs/006
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	1.020s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.014s
+
+EXIT: 0
+SECONDS: 1.672

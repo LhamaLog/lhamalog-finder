@@ -1,0 +1,7 @@
+COMMAND: go test -race ./internal/application -run TestAnaliseParticoes|TestAnaliseFake
+CWD: /workspace/scratch/lhamalog-validation-wzgml2h0
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.042s
+
+EXIT: 0
+SECONDS: 1.981

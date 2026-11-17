@@ -1,0 +1,24 @@
+COMMAND: go test -count=1 ./internal/domain ./internal/config
+CWD: /workspace/lhamalog-specs/006
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/domain [github.com/LhamaLog/lhamalog-finder/internal/domain.test]
+internal/domain/classificacao_test.go:6:42: undefined: ClasseLog
+internal/domain/classificacao_test.go:7:22: undefined: ERROR
+internal/domain/classificacao_test.go:8:24: undefined: WARNING
+internal/domain/classificacao_test.go:9:21: undefined: INFO
+internal/domain/classificacao_test.go:10:30: undefined: ERROR
+internal/domain/classificacao_test.go:10:57: undefined: INFO
+internal/domain/classificacao_test.go:11:18: undefined: WARNING
+internal/domain/classificacao_test.go:11:47: undefined: ERROR
+internal/domain/classificacao_test.go:11:67: undefined: INFO
+internal/domain/classificacao_test.go:12:21: undefined: ERROR
+internal/domain/classificacao_test.go:12:21: too many errors
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/domain [build failed]
+# github.com/LhamaLog/lhamalog-finder/internal/config [github.com/LhamaLog/lhamalog-finder/internal/config.test]
+internal/config/analise_test.go:5:5: undefined: CarregarAnalise
+internal/config/analise_test.go:6:49: undefined: CarregarAnalise
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/config [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.137

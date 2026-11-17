@@ -1,0 +1,20 @@
+COMMAND: go test -count=1 ./internal/application -run TestAnalis
+CWD: /workspace/scratch/lhamalog-validation-b2kvjqs6
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application [github.com/LhamaLog/lhamalog-finder/internal/application.test]
+internal/application/analisar_lote_test.go:12:93: undefined: domain.ChaveResumo
+internal/application/analisar_lote_test.go:13:67: undefined: domain.IdentidadeAchado
+internal/application/analisar_lote_test.go:13:94: undefined: domain.EstadoOcorrencia
+internal/application/analisar_lote_test.go:14:129: r.Chave undefined (type domain.ResumoAnalise has no field or method Chave)
+internal/application/analisar_lote_test.go:15:34: undefined: entrada.PedidoAnalise
+internal/application/analisar_lote_test.go:16:13: undefined: entrada.PedidoAnalise
+internal/application/analisar_lote_test.go:17:48: undefined: entrada.LogAnalise
+internal/application/analisar_lote_test.go:24:46: undefined: ServicoAnalise
+internal/application/analisar_lote_test.go:32:60: undefined: entrada.PedidoAnalise
+internal/application/analisar_lote_test.go:33:33: undefined: entrada.PedidoAnalise
+internal/application/analisar_lote_test.go:33:33: too many errors
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.381

@@ -1,0 +1,22 @@
+COMMAND: go test -race -count=1 ./...
+CWD: /workspace/scratch/lhamalog-validation-5ewg6wij
+ENV (somente teste): {"FINDER_OPENOBSERVE_INTEGRATION": "1", "FINDER_OO_URL": "http://127.0.0.1:15080", "FINDER_OO_TIMEOUT": "5s", "FINDER_OO_PAGINA": "2", "FINDER_OO_CAMPOS_COPIA": "copia", "FINDER_OO_ORDEM": "lhamalog_record_id ASC, copia ASC", "FINDER_OO_CAMPO_TENANT": "tenant_teste", "FINDER_OO_CAMPO_PRODUTO": "produto_teste", "FINDER_REDIS_INTEGRATION": "1", "FINDER_REDIS_ADDR": "127.0.0.1:16379", "FINDER_REDIS_STREAM": "lhamalog:stream:logs", "FINDER_REDIS_GROUP": "finder-prova", "FINDER_REDIS_CODIGOS": "composto:codigos", "FINDER_REDIS_CONSUMIDOR": "composto", "FINDER_REDIS_IDEMPOTENCIA": "composto:", "FINDER_REDIS_COUNT": "2", "FINDER_REDIS_BLOCK": "200ms", "FINDER_REDIS_PENDENCIA_OCIOSA": "1s"}
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	1.013s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	1.010s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	4.096s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	1.015s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	5.774s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.049s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar	1.008s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/assinatura	1.012s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.011s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia	1.020s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.012s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	1.029s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset	1.221s
+
+EXIT: 0
+SECONDS: 19.507

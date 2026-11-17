@@ -161,3 +161,9 @@ Outras divergências (D1, D5, D12, …): ver [spec.md](./spec.md) § Divergênci
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Princípio I (Finder “em ocorrência” direta) | ADR_062 e T1 REVISTO: separação de módulos; Finder envia análise, Módulo persiste ocorrência | Gravar ocorrência no Finder (T1 A antigo) foi **substituído** pelo João (fonte: respostas-joao.md, T1 REVISTO) |
+
+## Evidência desta execução
+
+Proposta de emenda do princípio I, apenas para discussão fora deste trabalho: “O Finder classifica, mascara, agrupa e entrega ResumoAnalise ao Módulo de Ocorrência; o Módulo valida e persiste ocorrências e avisa o Core.” A constituição permanece inalterada; esta proposta não é uma decisão aprovada.
+
+Os parâmetros do Módulo e a versão estão em `internal/config/analise.go`, isolados de config.go para evitar conflito entre specs. Não há defaults. O wiring do processo depende dos contratos bloqueados. Uma nova entrada recebe snapshot de versão; nenhum resumo passado é reprocessado/alterado pela operação pura.
