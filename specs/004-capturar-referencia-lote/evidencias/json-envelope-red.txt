@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/domain -run TestEnvelopeRejeitaJSONComSufixoInvalido
+CWD: /workspace/lhamalog-specs/004
+ENV (somente teste): {}
+--- FAIL: TestEnvelopeRejeitaJSONComSufixoInvalido (0.00s)
+    envelope_test.go:240: metadata aceitou JSON com sufixo invalido
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/domain	0.001s
+FAIL
+
+EXIT: 1
+SECONDS: 0.446

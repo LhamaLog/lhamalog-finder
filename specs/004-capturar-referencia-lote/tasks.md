@@ -244,3 +244,7 @@ T009 Criar a porta de efeito em internal/application/port/out/efeito.go
 - `internal/adapter/in/http/health.go` não muda de significado
 - Commit ao fim de cada tarefa ou grupo lógico
 - Parar em qualquer checkpoint para validar a história sozinha
+
+## Regressão após auditoria T001–T031
+
+- [X] T032 Após conferir as 31 tarefas marcadas, rejeitar JSON com sufixo inválido em metadata/body (FR-010), exigindo EOF após o objeto em `internal/domain/envelope.go`; escrever antes os testes de domínio e de ACK sem efeito no Redis; registrar comandos/saídas.

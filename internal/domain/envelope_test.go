@@ -231,3 +231,17 @@ func deveJSON(t *testing.T, valor any) []byte {
 	}
 	return bruto
 }
+
+// Regressão encontrada após conferir T001–T031: JSON deve terminar em EOF,
+// e não apenas ter um primeiro objeto legível (FR-007/FR-010).
+func TestEnvelopeRejeitaJSONComSufixoInvalido(t *testing.T) {
+	for _, campo := range []string{"metadata", "body"} {
+		for _, sufixo := range []string{" }", " ]", " {}"} {
+			campos := envelope(t, 1, "rec-1", "", false)
+			campos[campo] += sufixo
+			if _, err := InterpretarEnvelope(campos); err == nil {
+				t.Fatalf("%s aceitou JSON com sufixo invalido", campo)
+			}
+		}
+	}
+}

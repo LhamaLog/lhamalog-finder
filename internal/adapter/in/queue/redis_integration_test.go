@@ -718,3 +718,19 @@ func (e *efeitoIntegracao) Executar(_ context.Context, ref domain.Referencia) (b
 	e.refs = append(e.refs, ref)
 	return e.concluido, nil
 }
+
+func TestJSONInvalidoConfirmadoSemEfeito(t *testing.T) {
+	op := provaLote(t)
+	lote := abrirLote(t, op)
+	campos := camposIntegracao("batch-json-invalido")
+	campos["metadata"] = campos["metadata"].(string) + " }"
+	publicarID(t, op, campos)
+	efeito := &efeitoIntegracao{}
+	s := &application.ConsumoReferencia{Fila: lote, Chaves: lote, Efeito: efeito}
+	ctx, cancel := context.WithTimeout(context.Background(), op.Block+time.Second)
+	defer cancel()
+	r, err := s.Executar(ctx)
+	if err != nil || !r.Invalida || r.Confirmacoes != 1 || len(efeito.refs) != 0 || pendencias(t, op.Addr, op.Stream, op.Group) != 0 {
+		t.Fatal("JSON invalido nao foi rejeitado e confirmado sem efeito")
+	}
+}
