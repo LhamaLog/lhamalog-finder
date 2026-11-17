@@ -112,3 +112,9 @@ Corpo da confirmação (JSON) e códigos exatos: **Pendente DN-009-2** — além
 - (fonte: revisao-T1-drive.md, §1 fluxo; §2 contrato Finder → Módulo)
 - (fonte: respostas-etapa3.md, §3 DN-006-1; §10 API Módulo)
 - (fonte: spec.md, FR-F01–FR-F11, SC-F001–SC-F003, DN-009-2, DN-008-4 B)
+
+## Evidência desta execução
+
+O serializador implementado é um DTO **provisório**, não contrato HTTP publicado: comum 006 conta `info`, DTO 009 emite `informacao` conforme esta spec; conciliação ADR_102/DN-009-2 pendente. Campos N3 A não são serializados. dadosSensiveis=nil é null/desconhecido, sem assumir false. Titulo/resumo/numeroLinha/camposExtraido têm estrutura, sem conteúdo de apresentação inventado.
+
+Snapshot do resumo e chave são copiados no estado Pendente. Reenviar conserva exatamente esse conteúdo e batchId/execId. Confirmação lógica deve anteceder callback de conclusão; não define qual resposta HTTP equivale a aceitação, nem header/corpo da chave (DN-009-2).

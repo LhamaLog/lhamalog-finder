@@ -117,3 +117,9 @@ Aceite **100%** em cenários **atualizada** e **recorrente** (**SC-002**) bloque
 - (fonte: revisao-T1-drive.md, §1 e §4)
 - (fonte: respostas-etapa3.md, §7, §10)
 - (fonte: spec.md, FR-001–FR-012, SC-001–SC-006)
+
+## Evidência desta execução
+
+Revisão de responsabilidade (documental, sem evidência executada downstream): Módulo→Core leva tenant, produto, id da ocorrência, tipo, gravidade e natureza da mudança (009-5 revisto). Core→Notificação usa notificacao-eventos, ADR_146 v1/009-10 B, referencia ocorrência por id; a Notificação lê conteúdo no MongoDB ADR_054 para LLT-218 (DN-009-1 A).
+
+Idempotência Módulo→Core: id da ocorrência + estado; duplicata não pode produzir segundo alerta (009-11 B). Essa chave não é batchId/execId do handoff Finder. Falha 009-18 A desse trecho não define a política do handoff nem o aviso operacional FR-F07. Nenhum desses serviços externos foi executado nesta validação.

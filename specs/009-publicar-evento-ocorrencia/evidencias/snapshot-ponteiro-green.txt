@@ -1,0 +1,7 @@
+COMMAND: go test -race ./internal/application/handoff
+CWD: /workspace/scratch/lhamalog-validation-0q72nxve
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.090s
+
+EXIT: 0
+SECONDS: 2.328

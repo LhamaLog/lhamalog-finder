@@ -191,3 +191,9 @@ Consolidação de decisões das três fontes prioritárias para o plano. Nenhum 
 | — | URL/rota HTTP Core (Módulo → Core) | contracts/pipeline-aviso-referencia.md | Fora do Finder |
 | **ADR_051 [PENDENTE]** | API **Finder → Core** após falha OpenObserve (**batchId**, motivo) | spec.md **FR-F07**; plan.md § Pendências | Cliente HTTP operacional no Finder; **sem** DLQ ingested |
 | — | Escape de **`\`** nos componentes da assinatura | spec.md §Questões em aberto; data-model.md | **DN-008-9 A** cobre só **`|`** → **`\|`**; sem fonte para `\` |
+
+## Evidência desta execução
+
+Revisão R1–R16: classe única ERROR/WARNING/INFO, INFO incluído, batchId e execId opcional, um envio por lote e consulta por achado. DN-008-4/5/8/9 e 008 assinatura A são da implementação canônica 008. DLQ B/DN-008-3/6 rev.: aviso operacional após três falhas OO, sem DLQ/WebSocket; ADR_051 pendente.
+
+D1: título/épico Jira de publicação não autoriza o Finder a publicar evento de ocorrência; prevalece handoff. DN-009-1 A e 009-5 revisto são obrigações downstream. A base JSONL 007 e o gate ≥95% por classe pertencem à avaliação 006/007, não aos SC-F00x. N3 A, DN-009-2, P-010-2/P-010-27 e emenda princípio I continuam pendentes; não há ADR/constituição/issue alterada.

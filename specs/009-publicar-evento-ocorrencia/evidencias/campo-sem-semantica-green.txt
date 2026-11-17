@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/adapter/out/modocorrencia -run TestFlagDeAchado
+CWD: /workspace/scratch/lhamalog-validation-2i5w36g4
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	1.012s
+
+EXIT: 0
+SECONDS: 1.326

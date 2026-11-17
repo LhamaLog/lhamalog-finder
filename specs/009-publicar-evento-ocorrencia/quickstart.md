@@ -158,3 +158,9 @@ Guia de **validação** — não inclui implementação Go. Escopo Finder: [cont
 - [data-model.md](./data-model.md)
 - [research.md](./research.md)
 - [plan.md](./plan.md) — § API do Módulo Ocorrência, § Pendências
+
+## Verificação desta execução
+
+Cenários 1–5: equivalentes lógicos de confirmação, reenvio, assinatura e taxonomia verificados por handoff/entrega_test.go, fluxo_test.go e testes canônicos 008. Cenário 6 (numeração atual): falha OO é testada na política 008 e bloqueia preparação/handoff; cliente Core pendente. Cenário 7: lote incompleto não chama preparador. Cenário 8 (pipeline nova): no ambiente produto conferir tenant/produto/id/tipo/gravidade/natureza no HTTP Módulo→Core; não executado aqui. Cenário 9: cadeia lógica faz uma consulta por achado e um envio; HTTP real pendente. Cenário 10: atualizada/recorrente SC-002 continua bloqueado por 009-22 A. Cenários 11/12: verificar duplicata HTTP sem segundo alerta (chave id+estado) e duplicata notificacao-eventos ADR_146/009-10 B no ambiente externo; não executados. Cenário 13: Notificação lê por id; e-mail não executado. As referências antigas a cenários 6/7/8/9 nas tasks são conciliadas aqui pela finalidade, sem inventar execução externa.
+
+Comandos realmente observados e saídas completas: `evidencias/aceite-final-unit.txt`, `aceite-final-race-integracoes.txt` e `aceite-final-vet.txt` (exit 0). Executados em composição temporária dos patches das specs, com manifesto SHA-256. Para reproduzir: compor os pré-requisitos conforme relatório central, usar Go 1.27.2 e fornecer explicitamente os parâmetros de teste de Redis/OpenObserve; credenciais não estão nos relatórios. `make test` falhou no contêiner por certificado ao baixar módulos; o comando Go local com race passou. Não executar `go test ./...` isoladamente numa branch consumidora e interpretar falta de dependências como falha da composição.

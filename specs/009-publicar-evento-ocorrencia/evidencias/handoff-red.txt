@@ -1,0 +1,18 @@
+COMMAND: go test -count=1 ./internal/application/handoff ./internal/adapter/out/modocorrencia
+CWD: /workspace/scratch/lhamalog-validation-okbniw9y
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application/handoff [github.com/LhamaLog/lhamalog-finder/internal/application/handoff.test]
+internal/application/handoff/entrega_test.go:15:41: undefined: Entrega
+internal/application/handoff/entrega_test.go:16:33: undefined: NovaPendente
+internal/application/handoff/entrega_test.go:22:54: undefined: NovaPendente
+internal/application/handoff/entrega_test.go:23:49: undefined: NovaPendente
+internal/application/handoff/entrega_test.go:24:58: undefined: NovaPendente
+internal/application/handoff/entrega_test.go:29:27: undefined: OrquestradorEntrega
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/handoff [build failed]
+# github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia [github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia.test]
+internal/adapter/out/modocorrencia/serializar_resumo_test.go:9:9: undefined: SerializarResumo
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.283

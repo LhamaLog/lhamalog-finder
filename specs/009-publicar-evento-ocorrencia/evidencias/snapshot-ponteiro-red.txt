@@ -1,0 +1,11 @@
+COMMAND: go test ./internal/application/handoff -run TestSnapshotHandoff
+CWD: /workspace/scratch/lhamalog-validation-7iokmyof
+ENV (somente teste): {}
+--- FAIL: TestSnapshotHandoffIsolaPonteirosDaOrigemEDoAdapter (0.00s)
+    entrega_test.go:129: snapshot alterado: flags=[false false] linhas=[seguro seguro] campos=[seguro seguro]
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	0.003s
+FAIL
+
+EXIT: 1
+SECONDS: 0.947

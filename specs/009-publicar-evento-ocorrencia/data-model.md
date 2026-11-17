@@ -202,3 +202,7 @@ Notificacao --leitura id--> OcorrenciaNegocio (MongoDB compartilhado)
 | Enviar **um** ResumoAnalise por lote | FR-F01, DN-008-7 |
 | Aplicar **DN-008-4 B** / **DN-008-5 A** / **008 assinatura A** (separador fixo **`|`** — **DN-008-8 A**; escape **`|`** → **`\|`** — **DN-008-9 A**) ao compor assinatura | FR-F11 |
 | Falha consulta OpenObserve: até **3 tentativas**; **sem DLQ** ingested (**DLQ B**); depois Finder→Core API (**batchId**, motivo); contrato **[PENDENTE ADR_051]** | FR-F07, DN-008-3, DN-008-6 (rev.) |
+
+## Evidência desta execução
+
+Tipos ResumoAnalise/AchadoAnalise/ChaveResumo são reutilizados da 006. C8 (chave concreta de ocorrência ADR_040) e N3 A seguem pendentes; 009-6 A permanece rastreado no modelo, sem nova decisão. Semântica externa de dadosSensiveis não fechada; nil é desconhecido. Normalização/composição e agrupamento usam exclusivamente a 008; não existe normalizador paralelo no domínio da 009.
