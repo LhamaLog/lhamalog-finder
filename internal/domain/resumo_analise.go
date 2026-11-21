@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-// ResumoAnalise é o contrato lógico de memória. Nomes JSON finais: DN-009-2/N3 A.
+// ResumoAnalise é o contrato lógico em memória. O adaptador 009 define o JSON.
 // Não contém documento bruto OpenObserve, gravidade nem entidade de ocorrência.
 type ResumoAnalise struct {
 	BatchID             string              `json:"batchId"`
@@ -23,7 +23,7 @@ type ContadoresResumo struct {
 	DadosSensiveisMascarados int64 `json:"dadosSensiveisMascarados"`
 }
 
-// Campos N3 A ficam no modelo lógico provisório, sem contrato JSON final.
+// Campos de agrupamento são serializados pelo adaptador 009.
 // Titulo/Resumo/NumeroLinha/CamposExtraido não recebem conteúdo inventado.
 type AchadoAnalise struct {
 	Tipo               ClasseLog         `json:"tipo"`
@@ -44,4 +44,5 @@ type AchadoAnalise struct {
 	UltimaOcorrencia   time.Time         `json:"-"`
 	VersaoRegras       string            `json:"-"`
 	StatusAnterior     string            `json:"-"`
+	RevisaoConsultada  *string           `json:"-"`
 }

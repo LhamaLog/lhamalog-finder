@@ -1,0 +1,18 @@
+COMMAND: go test -count=1 ./internal/adapter/out/openobserve -run TestMapearDocumentoAnalise
+CWD: /workspace/lhamalog-specs/validacoes/composicao-qtdnti7m
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve [github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve.test]
+internal/adapter/out/openobserve/analise_test.go:18:14: undefined: MapearDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:24:13: undefined: MapearDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:30:31: undefined: errDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:31:40: undefined: errDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:32:46: undefined: errIdentidadeAssinatura
+internal/adapter/out/openobserve/analise_test.go:33:49: undefined: errDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:34:24: undefined: errIdentidadeAssinatura
+internal/adapter/out/openobserve/analise_test.go:35:55: undefined: errDocumentoAnalise
+internal/adapter/out/openobserve/analise_test.go:40:13: undefined: MapearDocumentoAnalise
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.388

@@ -12,6 +12,7 @@ type EstadoOcorrencia struct {
 	ContagemAcumulada            int64
 	PrimeiraGlobal, UltimaGlobal time.Time
 	Status                       string
+	Revisao                      string
 }
 type ChaveResumo struct{ BatchID, ExecID string }
 

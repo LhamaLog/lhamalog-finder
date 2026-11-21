@@ -38,11 +38,11 @@ Classificação pura, tipos compartilhados, resumo seguro, contadores, catálogo
 | T028 | Parcial | Modelo e trechos seguros implementados; semântica de apresentação e N3 A não formalizadas |
 | T029 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T030 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
-| T031 | Bloqueada | DN-009-2: cliente HTTP/JWT não publicado |
+| T031 | Concluída | Reutilizar o adaptador de entrega HTTPS/JWT DN-009-2 da spec 009. Cliente e serialização verificados na composição das branches (009 T018/T019). |
 | T032 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T033 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T054 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
-| T055 | Bloqueada | DN-009-2: consulta HTTP por achado |
+| T055 | Concluída | Reutilizar a consulta HTTPS/JWT por achado da spec 009 e representar a revisão opaca consultada no modelo. Verificado na composição das branches (009 T050). |
 | T034 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T035 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T036 | Bloqueada | 006-7 D: sintaxe/artefato do catálogo não definidos |

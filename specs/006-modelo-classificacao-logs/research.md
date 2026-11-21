@@ -196,3 +196,14 @@ Nenhum item **bloqueia o plano inteiro** sob 007-26 A nesta rodada (fonte: respo
 DLQ B / DN-008-3 / DN-008-6 revisados substituem o alcance antigo com DLQ e WebSocket: três falhas temporárias OpenObserve exigem aviso operacional Core (batchId/motivo). Esse aviso não é o evento LLT-201; cliente real exige ADR_051. DN-008-9 A fecha escape de `|`; escape de barra invertida literal continua pendente.
 
 A avaliação offline usa `labeleddataset.Avaliar` e `ValidarGate` da 007, com um par gold/predição por apontamento e maior classe entre membros. Não há base real disponível; não se afirma ≥95%.
+
+### Revisão Drive/Jira de 19/11/2026
+
+- A taxonomia vigente é ERROR, WARNING e INFO. A ADR 170 substitui a alternativa “não classificado” ainda presente no LLT-199. O diagrama v6 descreve classificação por regras e padrões sem LLM. [ADR 170](https://docs.google.com/document/d/12SGFJs3Ue-XG9eRCBrRqVnq9IIYs2uacrCL0tH0dtTU/edit) · [Varredura e Finder, v6](https://docs.google.com/document/d/1XdmrVlWxS5P82wAzETQwZTyTqtXP1HDe/edit) · [LLT-199](https://logviewer2026.atlassian.net/browse/LLT-199)
+- T057 concluída. O mapeamento usa `lhamalog_record_id`, `_timestamp` em microssegundos, `servicename`, `severitytext`, `body`, `traceid` e `host.name` dentro de `resourceattributes`. O campo `host.name` é o atributo OTel indicado no contrato de assinatura da 008. Sua ausência gera `assinatura_incompleta`. O parser não fabrica número de linha, módulo ou host. A severidade textual continua sendo a entrada do classificador da 006. A prioridade de ingestão do Collector tem sua própria regra de severidade numérica. [Contrato do consumidor](https://docs.google.com/document/d/14yLd8WA7pRm6es4okYiOnUjHfZp0T_4uyUnVkFk2tQk/edit) · [Modelo físico citado pelo Drive](https://github.com/LhamaLog/lhamalog-collector/blob/52dd0dce9c334774634034634743849a4324fa08/specs/001-otlp-receiver/data-model.md)
+- O teste inicial falhou pela ausência do mapeador. Testes unitários e integração com OpenObserve 1.1.2 passaram com detector de corridas. O teste de integração escreve um documento sintético com a estrutura do Coletor e recupera pelo serviço 005. [Evidência de integração](evidencias/convergencia-integracao-documento.txt)
+- O catálogo definitivo de classificação (006-7 D), a semântica de apresentação dos achados (N3 A), o contrato HTTP (DN-009-2) e o perfil VM-A continuam pendentes nesta revisão. A ADR 170 fecha a taxonomia e a decisão INFO padrão. Ela não publica o artefato do catálogo.
+
+## Integração DN-009-2 — 20/11/2026
+
+O modelo representa a revisão opaca da consulta e do resumo. A spec 009 implementa o cliente comum. T031/T055 correspondem ao cliente verificado na composição; o teste de desempenho em ambiente de referência e a homologação do Módulo seguem pendentes.
