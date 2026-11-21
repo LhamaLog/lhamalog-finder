@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/application/handoff -run TestEfeitoAnalise|TestFluxoLogico
+CWD: /workspace/lhamalog-specs/validacoes/composicao-rhjya0qf
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.014s
+
+EXIT: 0
+SECONDS: 2.102

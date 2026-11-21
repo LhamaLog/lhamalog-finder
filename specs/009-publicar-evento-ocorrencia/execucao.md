@@ -56,3 +56,17 @@ O teste de cadeia 010→006→008→009 usa serviços de aplicação reais e por
 ## Revisão e reprodução
 
 Ver [rastreabilidade.md](rastreabilidade.md), contratos, quickstart e evidencias. Desenvolvimento sem commit/push/PR. Relatório central em `/workspace/lhamalog-specs/README-execucao.md`.
+
+## Contrato DN-009-2 aprovado em 20/11/2026
+
+| Spec | Tarefas verificadas | Alterações desta etapa | Pendências |
+|---|---|---|---|
+| 004 | T033 | Reivindicação de pendências com `XAUTOCLAIM`, ociosidade preservada e avanço de cursor. Duas regressões verificadas com Redis real. | — |
+| 006 | T031 e T055 | Token opaco no modelo e uso do cliente comum da 009, verificado na composição. | Catálogo oficial, avaliação com a base real da 007 e desempenho em VM-A. |
+| 008 | T021 e T024 | Propagação da revisão e separação da montagem local do recálculo de agrupamento. | Consulta histórica real, integração de aviso ao Core e aceite formal. |
+| 009 | T016, T018, T019, T034 e T050 | DTO N3, cliente HTTPS/JWT, confirmação e reenvio. A integração exercitou também o efeito T052 até o `XACK`. | Servidor do Módulo, configuração de implantação, finalização de Varredura e homologação downstream. |
+| 010 | T042 parcial | Reutilização do cliente 009 verificada na composição. | Catálogo, casos oficiais e integração real do handoff mascarado. |
+
+O fluxo testado conserva a chave no caso de conflito de revisão e de resposta perdida. O cliente conclui após um recibo válido. O servidor de teste simula persistência, sem substituir a homologação do Módulo implantado.
+
+[Contrato aprovado](contracts/proposta-dn-009-2.md) · [Rastreabilidade e critérios](rastreabilidade.md) · [Comandos e saídas](quickstart.md#verificação-do-contrato-dn-009-2)

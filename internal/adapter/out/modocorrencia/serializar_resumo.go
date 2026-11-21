@@ -2,11 +2,12 @@ package modocorrencia
 
 import (
 	"encoding/json"
+	"time"
+
+	"github.com/LhamaLog/lhamalog-finder/internal/application/port/out"
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
 
-// DTO provisório da 009: informacao (ADR_102 pendente), diferente do modelo
-// lógico 006 info. Nenhum cliente HTTP usa este DTO até DN-009-2 fechar.
 type contadoresDTO struct {
 	LinhasProcessadas        int64 `json:"linhasProcessadas"`
 	Erros                    int64 `json:"erros"`
@@ -14,41 +15,88 @@ type contadoresDTO struct {
 	Informacao               int64 `json:"informacao"`
 	DadosSensiveisMascarados int64 `json:"dadosSensiveisMascarados"`
 }
+
 type achadoDTO struct {
-	Tipo           domain.ClasseLog  `json:"tipo"`
-	Titulo         string            `json:"titulo"`
-	Resumo         string            `json:"resumo"`
-	NumeroLinha    int               `json:"numeroLinha"`
-	CamposExtraido map[string]string `json:"camposExtraido"`
-	DadosSensiveis *bool             `json:"dadosSensiveis"`
-	TraceID        string            `json:"traceId,omitempty"`
-	CorrelationID  string            `json:"correlationId,omitempty"`
-	HostName       string            `json:"hostName,omitempty"`
-	ModuloID       string            `json:"moduloId,omitempty"`
-	Linhas         []string          `json:"linhas"`
-	Recorrente     bool              `json:"recorrente"`
+	Tipo               domain.ClasseLog  `json:"tipo"`
+	Assinatura         string            `json:"assinatura"`
+	HostName           string            `json:"hostName"`
+	Contagem           int64             `json:"contagem"`
+	PrimeiraOcorrencia time.Time         `json:"primeiraOcorrencia"`
+	UltimaOcorrencia   time.Time         `json:"ultimaOcorrencia"`
+	Recorrente         bool              `json:"recorrente"`
+	Linhas             []string          `json:"linhas"`
+	RevisaoConsultada  *string           `json:"revisaoConsultada"`
+	Titulo             *string           `json:"titulo"`
+	Resumo             *string           `json:"resumo"`
+	NumeroLinha        *int              `json:"numeroLinha"`
+	CamposExtraido     map[string]string `json:"camposExtraido"`
+	DadosSensiveis     *bool             `json:"dadosSensiveis"`
+	TraceID            string            `json:"traceId,omitempty"`
+	CorrelationID      string            `json:"correlationId,omitempty"`
+	ModuloID           string            `json:"moduloId,omitempty"`
 }
+
 type resumoDTO struct {
-	BatchID             string                     `json:"batchId"`
-	ExecID              string                     `json:"execId,omitempty"`
-	TenantID            string                     `json:"tenantId"`
-	ProductID           string                     `json:"productId"`
-	VersaoRegras        string                     `json:"versaoRegras"`
-	VersaoCatalogo      string                     `json:"versaoCatalogo,omitempty"`
-	IdentificacaoRegras domain.IdentificacaoRegras `json:"identificacaoRegras"`
-	Contadores          contadoresDTO              `json:"contadores"`
-	Achados             []achadoDTO                `json:"achados"`
+	BatchID             string                      `json:"batchId"`
+	ExecID              string                      `json:"execId,omitempty"`
+	TenantID            string                      `json:"tenantId"`
+	ProductID           string                      `json:"productId"`
+	VersaoRegras        string                      `json:"versaoRegras"`
+	VersaoCatalogo      string                      `json:"versaoCatalogo,omitempty"`
+	IdentificacaoRegras *domain.IdentificacaoRegras `json:"identificacaoRegras,omitempty"`
+	Contadores          contadoresDTO               `json:"contadores"`
+	Achados             []achadoDTO                 `json:"achados"`
 }
 
 func SerializarResumo(r domain.ResumoAnalise) ([]byte, error) {
 	if err := domain.ValidarResumoHandoff(r); err != nil {
-		return nil, err
+		return nil, out.ErrModuloRequisicao
 	}
 	c := r.Contadores
-	d := resumoDTO{BatchID: r.BatchID, ExecID: r.ExecID, TenantID: r.TenantID, ProductID: r.ProductID, VersaoRegras: r.VersaoRegras, VersaoCatalogo: r.VersaoCatalogo, IdentificacaoRegras: r.IdentificacaoRegras, Contadores: contadoresDTO{c.LinhasProcessadas, c.Erros, c.Warnings, c.Info, c.DadosSensiveisMascarados}, Achados: []achadoDTO{}}
-	for _, a := range r.Achados {
-		linhas := append([]string{}, a.Linhas...)
-		d.Achados = append(d.Achados, achadoDTO{Tipo: a.Tipo, Titulo: a.Titulo, Resumo: a.Resumo, NumeroLinha: a.NumeroLinha, CamposExtraido: a.CamposExtraido, DadosSensiveis: a.DadosSensiveis, TraceID: a.TraceID, CorrelationID: a.CorrelationID, HostName: a.HostName, ModuloID: a.ModuloID, Linhas: linhas, Recorrente: a.Recorrente})
+	dto := resumoDTO{
+		BatchID: r.BatchID, ExecID: r.ExecID, TenantID: r.TenantID, ProductID: r.ProductID,
+		VersaoRegras: r.VersaoRegras, VersaoCatalogo: r.VersaoCatalogo,
+		Contadores: contadoresDTO{c.LinhasProcessadas, c.Erros, c.Warnings, c.Info, c.DadosSensiveisMascarados},
+		Achados:    make([]achadoDTO, 0, len(r.Achados)),
 	}
-	return json.Marshal(d)
+	if r.IdentificacaoRegras != (domain.IdentificacaoRegras{}) {
+		if r.IdentificacaoRegras.VersaoUnica != r.VersaoRegras {
+			return nil, out.ErrModuloRequisicao
+		}
+		dto.IdentificacaoRegras = &r.IdentificacaoRegras
+	}
+	chaves := make(map[domain.IdentidadeAchado]struct{}, len(r.Achados))
+	for _, a := range r.Achados {
+		if algumVazio(a.Assinatura, a.HostName) || a.Contagem < 1 || a.PrimeiraOcorrencia.IsZero() || a.UltimaOcorrencia.Before(a.PrimeiraOcorrencia) || a.NumeroLinha < 0 ||
+			(a.RevisaoConsultada == nil && a.StatusAnterior != "") || (a.RevisaoConsultada != nil && algumVazio(*a.RevisaoConsultada)) {
+			return nil, out.ErrModuloRequisicao
+		}
+		chave := domain.IdentidadeAchado{Assinatura: a.Assinatura, Classe: a.Tipo, TenantID: r.TenantID, ProductID: r.ProductID}
+		if _, existe := chaves[chave]; existe {
+			return nil, out.ErrModuloRequisicao
+		}
+		chaves[chave] = struct{}{}
+		achado := achadoDTO{
+			Tipo: a.Tipo, Assinatura: a.Assinatura, HostName: a.HostName, Contagem: a.Contagem,
+			PrimeiraOcorrencia: a.PrimeiraOcorrencia.UTC(), UltimaOcorrencia: a.UltimaOcorrencia.UTC(),
+			Recorrente: a.Recorrente, Linhas: append([]string{}, a.Linhas...), RevisaoConsultada: a.RevisaoConsultada,
+			CamposExtraido: a.CamposExtraido, DadosSensiveis: a.DadosSensiveis, TraceID: a.TraceID,
+			CorrelationID: a.CorrelationID, ModuloID: a.ModuloID,
+		}
+		if a.Titulo != "" {
+			achado.Titulo = &a.Titulo
+		}
+		if a.Resumo != "" {
+			achado.Resumo = &a.Resumo
+		}
+		if a.NumeroLinha > 0 {
+			achado.NumeroLinha = &a.NumeroLinha
+		}
+		dto.Achados = append(dto.Achados, achado)
+	}
+	dados, err := json.Marshal(dto)
+	if err != nil {
+		return nil, out.ErrModuloRequisicao
+	}
+	return dados, nil
 }

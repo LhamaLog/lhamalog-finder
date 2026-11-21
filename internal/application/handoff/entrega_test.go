@@ -79,7 +79,7 @@ func TestHandoffRejeitaTaxonomiaEExecIdInvalido(t *testing.T) {
 
 type preparadorTeste struct{ n int }
 
-func (p *preparadorTeste) Preparar(context.Context, entrada.PedidoAnalise) (domain.ResumoAnalise, error) {
+func (p *preparadorTeste) Montar(context.Context, entrada.PedidoAnalise) (domain.ResumoAnalise, error) {
 	p.n++
 	return resumoTeste(), nil
 }
@@ -129,4 +129,8 @@ func TestSnapshotHandoffIsolaPonteirosDaOrigemEDoAdapter(t *testing.T) {
 			t.Fatalf("snapshot alterado: flags=%v linhas=%v campos=%v", m.recebidos, m.linhas, m.campos)
 		}
 	}
+}
+
+func (p *preparadorTeste) Agrupar(_ context.Context, r domain.ResumoAnalise) (domain.ResumoAnalise, error) {
+	return r, nil
 }

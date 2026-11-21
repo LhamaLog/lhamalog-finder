@@ -24,12 +24,12 @@ type moduloFluxo struct {
 func (m *moduloFluxo) ConsultarAchado(context.Context, domain.IdentidadeAchado) ([]domain.EstadoOcorrencia, error) {
 	*m.eventos = append(*m.eventos, "consulta")
 	m.consulta++
-	return []domain.EstadoOcorrencia{{ContagemAcumulada: 5, PrimeiraGlobal: time.Unix(1, 0), UltimaGlobal: time.Unix(2, 0), Status: "FECHADA"}}, nil
+	return []domain.EstadoOcorrencia{{ContagemAcumulada: 5, PrimeiraGlobal: time.Unix(1, 0), UltimaGlobal: time.Unix(2, 0), Status: "FECHADA", Revisao: "rev-5"}}, nil
 }
 func (m *moduloFluxo) Enviar(ctx context.Context, r domain.ResumoAnalise) (bool, error) {
 	*m.eventos = append(*m.eventos, "envio")
 	m.envio++
-	if len(r.Achados) != 1 || r.Achados[0].Contagem != 8 || r.Achados[0].StatusAnterior != "FECHADA" || !r.Achados[0].Recorrente {
+	if len(r.Achados) != 1 || r.Achados[0].Contagem != 8 || r.Achados[0].StatusAnterior != "FECHADA" || !r.Achados[0].Recorrente || r.Achados[0].RevisaoConsultada == nil || *r.Achados[0].RevisaoConsultada != "rev-5" {
 		m.t.Fatal("fusao/recorrencia nao aplicada antes do envio")
 	}
 	b, err := modocorrencia.SerializarResumo(r)

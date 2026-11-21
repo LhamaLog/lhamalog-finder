@@ -22,6 +22,10 @@ func copiarResumo(r domain.ResumoAnalise) domain.ResumoAnalise {
 	r.Achados = append([]domain.AchadoAnalise(nil), r.Achados...)
 	for i := range r.Achados {
 		a := &r.Achados[i]
+		if a.RevisaoConsultada != nil {
+			revisao := *a.RevisaoConsultada
+			a.RevisaoConsultada = &revisao
+		}
 		if a.DadosSensiveis != nil {
 			valor := *a.DadosSensiveis
 			a.DadosSensiveis = &valor
@@ -65,6 +69,13 @@ func (s Entrega) Enviar(ctx context.Context, p *Pendente) (ResultadoEntrega, err
 		return r, errors.New("envio_modulo_indisponivel")
 	}
 	aceito, err := s.Envio.Enviar(ctx, copiarResumo(p.resumo))
+	if err != nil {
+		for _, tipo := range []error{out.ErrRevisaoDesatualizada, out.ErrModuloTemporario, out.ErrModuloRequisicao, out.ErrModuloProtocolo, context.Canceled, context.DeadlineExceeded} {
+			if errors.Is(err, tipo) {
+				return r, tipo
+			}
+		}
+	}
 	if err != nil || !aceito {
 		return r, errors.New("envio_modulo_falhou")
 	}
@@ -82,8 +93,8 @@ func (s Entrega) Enviar(ctx context.Context, p *Pendente) (ResultadoEntrega, err
 	return r, nil
 }
 
-// Reenviar preserva o snapshot e a mesma tupla; não inventa intervalos ou
-// retentativas HTTP (DN-009-2) e não repete classificação/consulta da 008.
+// Reenviar preserva o snapshot e a mesma tupla. Em conflito de revisão,
+// OrquestradorEntrega consulta o estado novamente antes de um novo envio.
 func (s Entrega) Reenviar(ctx context.Context, p *Pendente) (ResultadoEntrega, error) {
 	return s.Enviar(ctx, p)
 }

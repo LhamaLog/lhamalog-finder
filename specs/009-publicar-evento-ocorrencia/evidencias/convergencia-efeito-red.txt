@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/application/handoff -run TestEfeitoAnalise
+CWD: /workspace/lhamalog-specs/validacoes/composicao-05d5q50o
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application/handoff_test [github.com/LhamaLog/lhamalog-finder/internal/application/handoff.test]
+internal/application/handoff/efeito_analise_test.go:72:17: undefined: handoff.EfeitoAnalise
+internal/application/handoff/efeito_analise_test.go:96:15: undefined: handoff.EfeitoAnalise
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/handoff [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.428

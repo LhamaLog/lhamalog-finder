@@ -2,18 +2,18 @@
 
 Interface **destinada a implementação neste repositório**. Esta feature substitui a publicação direta de evento LLT-201 pelo Finder (**FR-F02**, **T1 revisto**).
 
-> **Bloqueio de implementação (DN-009-2):** rota, claims JWT, códigos HTTP, timeout e corpo de confirmação **não** estão definidos (fonte: respostas-joao.md §Etapa 3 — *API Módulo: pendência no plan até o contrato*; origem: respostas-etapa3.md §10). Até o contrato do Módulo Ocorrência, **não** implementar o adaptador HTTP em `internal/adapter/out/modocorrencia/`. O restante (porta, montagem de payload, testes de domínio) pode avançar.
+O cliente do Finder segue o [contrato DN-009-2 aprovado em 20/11/2026](proposta-dn-009-2.md). O [OpenAPI](proposta-dn-009-2.openapi.yaml) define os campos e as respostas. A homologação com a API do Módulo segue pendente.
 
 ## Transporte
 
 | Item | Valor | Fonte |
 |------|-------|-------|
-| Protocolo | HTTP(S) interno, rede privada | N1 A; ADR_141 |
+| Protocolo | HTTPS interno, rede privada | N1 A; ADR_141; DN-009-2 |
 | Autenticação | JWT próprio (padrão ADR_028 / ADR_054) | N1 A; respostas-etapa3.md §10 |
 | Semântica | Entregar `ResumoAnalise` ao fim da análise do lote/arquivo | ADR_062, seq. v6 §2 |
-| Granularidade handoff | **Exatamente uma** chamada por lote — **um** `ResumoAnalise` por lote analisado (**DN-008-7**) | respostas-etapa3c.md §6; ADR_062; spec.md **FR-F01** |
-| URL base / path | **Pendente DN-009-2** | respostas-etapa3.md §10 |
-| Método HTTP exato | **Pendente DN-009-2** | seq. v6 §2 — Drive só diz “envia e confirma” |
+| Granularidade handoff | Um resumo por lote, com a mesma chave em caso de reenvio | DN-008-7; DN-009-2 |
+| URL base / path | Base HTTPS configurada para a implantação | DN-009-2 |
+| Método e rota | `POST /internal/v1/resumos-analise` | DN-009-2 |
 
 ## Corpo (JSON lógico)
 
@@ -46,10 +46,7 @@ Alinhado a [data-model.md](../data-model.md). Exemplo estrutural (campos mínimo
 }
 ```
 
-**Notas**:
-
-- Contador de achados **INFO**: substitui o legado “spam ignorado” (**spam: B**); no exemplo JSON use chave provisória `informacao` até a **ADR_102** publicar o nome canônico (**corrige analyze F3**, fonte: respostas-joao.md §Etapa 3, spam: B; origem: ADR_102).
-- Rótulos exatos dos demais contadores **devem** alinhar à **ADR_102** quando publicada; lista detalhada no Drive permanece **[INFERIDO]** até decisão fechada (revisao-T1-drive.md §2) — não fixar rótulos adicionais aqui (constituição V).
+O contador `informacao` representa a classe `INFO` e a chave `dadosSensiveisMascarados` carrega o total devolvido pelo scanner.
 
 ### AchadoAnalise (`achados[]`)
 
@@ -58,10 +55,12 @@ Alinhado a [data-model.md](../data-model.md). Exemplo estrutural (campos mínimo
 | `tipo` | string | sim | `ERROR` \| `WARNING` \| `INFO` — FR-F08, 009-13 A |
 | `linhas` | string[] | sim | Mascaradas; podem ser vazias (010-16 C) |
 | `recorrente` | boolean | sim | ADR_063; política operacional na spec **008** |
-| Campos Drive | vários | conforme ADR_040 | Finder.mmd |
-| `assinatura`, `contagem`, `primeiraOcorrencia`, `ultimaOcorrencia`, `versaoRegras` | — | **[PENDENTE ADR N3 A]** | respostas-joao.md, N3 A |
+| `assinatura`, `hostName`, `contagem`, `primeiraOcorrencia`, `ultimaOcorrencia` | string, string, inteiro e datas UTC | sim | N3 A, DN-009-2 |
+| `revisaoConsultada` | string ou null | sim | DN-009-2, token do estado ou ausência |
+| `versaoRegras` | string | herdada do resumo | N3 A, DN-009-2 |
+| Campos de apresentação | conforme o esquema OpenAPI | null quando indisponível | DN-009-2 |
 
-Quando presente, **`assinatura`** MUST incorporar **mensagem normalizada** **DN-008-4 B** com literais **DN-008-5 A** (`<NUM>`, `<UUID>`, `<IP>`, `<DATE>`, `<HEX>`) e serialização **008 assinatura A** (texto concatenando partes **DN-008-1 B** com separador fixo **`|`** — **DN-008-8 A**; **`|`** nos componentes → **`\|`** — **DN-008-9 A**; escape de **`\`** nos componentes **[PENDENTE]** sem fonte; dono canônico spec **008**) (**FR-F11**; fonte: respostas-joao.md §Etapa 3b/3c 11h; §Etapa 3e (João, 16/11 12h40), DN-008-8 A; §Etapa 3g, DN-008-9 A; origem: DN-008-1 B).
+A **`assinatura`** MUST incorporar **mensagem normalizada** **DN-008-4 B** com literais **DN-008-5 A** (`<NUM>`, `<UUID>`, `<IP>`, `<DATE>`, `<HEX>`) e serialização **008 assinatura A** (texto concatenando partes **DN-008-1 B** com separador fixo **`|`** — **DN-008-8 A**; **`|`** nos componentes → **`\|`** — **DN-008-9 A**; escape de **`\`** nos componentes **[PENDENTE]** sem fonte; dono canônico spec **008**) (**FR-F11**; fonte: respostas-joao.md §Etapa 3b/3c 11h; §Etapa 3e (João, 16/11 12h40), DN-008-8 A; §Etapa 3g, DN-008-9 A; origem: DN-008-1 B).
 
 **Falha consulta OpenObserve** (não confundir com campos do handoff): até **3 tentativas**; **sem DLQ** no **log.ingested v1** (**DLQ B**); após esgotar, **Finder → Core** por API interna (**`batchId`**, **motivo** — **DN-008-3**/**DN-008-6** rev.); rota/payload/evento **[PENDENTE ADR_051]**; **sem** handoff de sucesso (**FR-F07**; fonte: respostas-joao.md §Etapa 3g (João, 16/11 13h22), DLQ B; origem: respostas-etapa3g.md §1).
 
@@ -70,9 +69,9 @@ Quando presente, **`assinatura`** MUST incorporar **mensagem normalizada** **DN-
 | Item | Valor | Fonte |
 |------|-------|-------|
 | Momento | Antes de montar/enviar o **ResumoAnalise** do lote | N2 B, FR-F09 |
-| Granularidade | **Uma** chamada HTTP ao Módulo **por achado** (assinatura/classe elegível) | **DN-008-7 B** (fonte: respostas-joao.md §Etapa 3c (João, 16/11 11h02); origem: N2 B) |
+| Granularidade | Uma consulta por achado elegível em cada preparação; nova rodada em caso de revisão desatualizada | DN-008-7 B; DN-009-2 |
 | Distinto do handoff | Consultas **não** substituem o **único** POST do resumo por lote (**DN-008-7**) | respostas-etapa3c.md §6 |
-| Path / JWT / corpo | **Pendente DN-009-2** | respostas-etapa3.md §10 |
+| Rota | `POST /internal/v1/ocorrencias/consultas` com Bearer JWT; estado nulo para ausência, revisão opaca quando há estado | DN-009-2 |
 
 ## Idempotência
 
@@ -81,17 +80,15 @@ Quando presente, **`assinatura`** MUST incorporar **mensagem normalizada** **DN-
 | Chave (fluxo atual v1) | **`batchId`** somente | DN-006-1b B (fonte: respostas-joao.md §Etapa 3; origem: contrato 08/11) |
 | Chave (com varredura) | **`batchId` + `execId`** quando houver | N4 A, DN-006-1 |
 | Comportamento Módulo | Segunda entrega mesma chave: **sem** efeito colateral indevido | FR-F06, FA-02, ADR_014 |
-| Transporte da chave | **Pendente DN-009-2** (header dedicado vs corpo) | — |
+| Transporte da chave | `batchId` e `execId` opcional no JSON, no escopo `tenantId`/`productId` | DN-009-2 |
 
 ## Resposta (confirmação)
 
 | Código | Significado | Fonte |
 |--------|-------------|-------|
-| 2xx + confirmação explícita | Handoff aceito; Finder pode concluir varredura | FR-F05, SC-F001 |
-| 4xx | Erro de contrato; **não** concluir varredura | FA-02; detalhes **DN-009-2** |
-| 5xx / timeout | Reenviável com **mesma** chave | FR-F06; retry sugerido 10d-A (recomendação DN-009-2, não decisão) |
-
-Corpo da confirmação (JSON) e códigos exatos: **Pendente DN-009-2** — além de “confirma o recebimento” (seq. v6 §2).
+| `201` ou `200` com recibo correspondente | Aceitação inicial ou repetição confirmada. O recibo deve confirmar a chave completa | FR-F05, SC-F001, DN-009-2 |
+| `409 REVISAO_DESATUALIZADA` | Recalcular uma vez e reenviar com a mesma chave | DN-009-2 |
+| Falha, timeout ou recibo inválido | Manter pendente; falhas temporárias são reenviáveis com a mesma chave | FR-F06, DN-009-2 |
 
 ## Comportamentos proibidos (Finder)
 
@@ -115,6 +112,4 @@ Corpo da confirmação (JSON) e códigos exatos: **Pendente DN-009-2** — além
 
 ## Evidência desta execução
 
-O serializador implementado é um DTO **provisório**, não contrato HTTP publicado: comum 006 conta `info`, DTO 009 emite `informacao` conforme esta spec; conciliação ADR_102/DN-009-2 pendente. Campos N3 A não são serializados. dadosSensiveis=nil é null/desconhecido, sem assumir false. Titulo/resumo/numeroLinha/camposExtraido têm estrutura, sem conteúdo de apresentação inventado.
-
-Snapshot do resumo e chave são copiados no estado Pendente. Reenviar conserva exatamente esse conteúdo e batchId/execId. Confirmação lógica deve anteceder callback de conclusão; não define qual resposta HTTP equivale a aceitação, nem header/corpo da chave (DN-009-2).
+Os testes verificam a serialização e as respostas HTTPS. A integração com Redis comprova que o recibo válido antecede a finalização e o `XACK`, inclusive em reenvio. [Comandos e evidências](../quickstart.md#verificação-do-contrato-dn-009-2)

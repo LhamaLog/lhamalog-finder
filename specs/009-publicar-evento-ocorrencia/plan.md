@@ -6,7 +6,7 @@
 
 ## Summary
 
-Após o T1 revisto (15/11 23h47), o **Finder não publica** o evento lógico da **LLT-201** (nova/atualizada/recorrente). Sua contribuição é o **handoff** **ResumoAnalise** → **Módulo Ocorrência** por **HTTP interno com JWT** (**N1 A**), com idempotência **`batchId`** no fluxo atual **`log.ingested` v1** (**DN-006-1b B**, **T5 D**) ou **`batchId` + `execId`** quando o identificador de varredura estiver disponível (**N4 A**, **DN-006-1**), achados **INFO** incluídos (**T7 A**), confirmação obrigatória antes de concluir a varredura (**FR-F05**, sequência varredura v6 §2) e **proibição** de chamar Core ou stream de notificação (**FR-F02**, **T1 revisto**). O Módulo Ocorrência cria ocorrências, calcula **gravidade**, envia **cada** ocorrência ao Core (**HTTP + JWT**, **009-3 D**) com **id**, **tipo** (classe) e **gravidade** (**009-5 revisto**); o Core publica em **Redis Streams** (`notificacao-eventos`, envelope **ADR_146**) para a Notificação (**009-1 B**), que lê trechos mascarados da Ocorrência pelo **id** no MongoDB compartilhado (**DN-009-1 A**). Este plano documenta handoff Finder, entidades de mensagem e pipeline downstream como **referência de aceite integrado**; a implementação do **adaptador HTTP** Finder → Módulo permanece **bloqueada** até **DN-009-2** (contrato do Módulo), sem bloquear o restante do desenho nem das tarefas de montagem lógica do ResumoAnalise.
+Após o T1 revisto (15/11 23h47), o **Finder não publica** o evento lógico da **LLT-201** (nova/atualizada/recorrente). Sua contribuição é o **handoff** **ResumoAnalise** → **Módulo Ocorrência** por **HTTP interno com JWT** (**N1 A**), com idempotência **`batchId`** no fluxo atual **`log.ingested` v1** (**DN-006-1b B**, **T5 D**) ou **`batchId` + `execId`** quando o identificador de varredura estiver disponível (**N4 A**, **DN-006-1**), achados **INFO** incluídos (**T7 A**), confirmação obrigatória antes de concluir a varredura (**FR-F05**, sequência varredura v6 §2) e **proibição** de chamar Core ou stream de notificação (**FR-F02**, **T1 revisto**). O Módulo Ocorrência cria ocorrências, calcula **gravidade**, envia **cada** ocorrência ao Core (**HTTP + JWT**, **009-3 D**) com **id**, **tipo** (classe) e **gravidade** (**009-5 revisto**); o Core publica em **Redis Streams** (`notificacao-eventos`, envelope **ADR_146**) para a Notificação (**009-1 B**), que lê trechos mascarados da Ocorrência pelo **id** no MongoDB compartilhado (**DN-009-1 A**). Este plano documenta handoff Finder, entidades de mensagem e pipeline downstream como **referência de aceite integrado**. O adaptador HTTP Finder está implementado conforme DN-009-2; a ativação e a homologação dependem dos serviços reais.
 
 Artefatos: [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), [quickstart.md](./quickstart.md).
 
@@ -61,31 +61,13 @@ Artefatos: [research.md](./research.md), [data-model.md](./data-model.md), [cont
 
 ### Revisão pós-Fase 1
 
-[data-model.md](./data-model.md) separa entidades Finder (handoff) vs produto (aviso). [contracts/resumo-analise-handoff.md](./contracts/resumo-analise-handoff.md) é a interface implementável neste repo (**implementação HTTP bloqueada** por **DN-009-2**). [contracts/pipeline-aviso-referencia.md](./contracts/pipeline-aviso-referencia.md) documenta Módulo → Core → Notificação sem inventar URL HTTP Core nem campos além das fontes. Gate mantido.
+[data-model.md](./data-model.md) separa entidades Finder (handoff) vs produto (aviso). [contracts/resumo-analise-handoff.md](./contracts/resumo-analise-handoff.md) é a interface implementável neste repo (cliente implementado conforme DN-009-2). [contracts/pipeline-aviso-referencia.md](./contracts/pipeline-aviso-referencia.md) documenta Módulo → Core → Notificação sem inventar URL HTTP Core nem campos além das fontes. Gate mantido.
 
-## API do Módulo Ocorrência (pendência DN-009-2)
+## API do Módulo Ocorrência (DN-009-2)
 
-Contrato HTTP **Finder → Módulo Ocorrência** (rota/path, claims JWT, códigos de resposta, timeout e semântica 5xx) **não** está definido no Drive nem no Jira além do padrão genérico (fonte: respostas-joao.md §Etapa 3 — *API Módulo: pendência no plan até o contrato*; origem: respostas-etapa3.md §10).
+O [contrato aprovado](contracts/proposta-dn-009-2.md) define consulta por achado e entrega de um `ResumoAnalise` por lote sobre HTTPS com JWT interno. O cliente valida o recibo antes da conclusão e faz um recálculo em caso de revisão desatualizada. O teste integrado usa Redis real e um servidor HTTPS de teste.
 
-**O que as fontes fixam hoje**
-
-| Aspecto | Valor documentado | Fonte |
-|---------|-------------------|-------|
-| Transporte | HTTP(S) interno, rede privada entre módulos | N1 A (fonte: respostas-joao.md, N1 A; origem: ADR_141) |
-| Autenticação | JWT próprio por módulo (não Clerk/M2M) | ADR_028, ADR_054 (respostas-etapa3.md §10) |
-| Granularidade envio | **Exatamente um** **ResumoAnalise** por lote analisado — não HTTP por achado | **DN-008-7** (fonte: respostas-etapa3c.md §6; origem: ADR_062, Finder.mmd) |
-| Granularidade consulta (**N2 B**) | **Uma** consulta ao Módulo **por achado** (assinatura/classe elegível) antes do envio do resumo | **DN-008-7 B** (fonte: respostas-joao.md §Etapa 3c (João, 16/11 11h02); origem: N2 B) |
-| Semântica | Confirmação antes de concluir varredura; idempotência ADR_014 | seq. v6 §2; ADR_014 |
-| Falha publicação (paralelo) | **009-18 A**: tentar de novo e alertar — aplicável ao trecho Módulo→Core; para Finder→Módulo, FA-02 (reenvio mesma chave) | respostas-joao.md, 009-18 A |
-| Rota conhecida (outro uso) | `POST /ocorrencias/{id}/sugestoes` (Sugestão manual) — **não** é handoff ResumoAnalise | ADR_083, ADR_092 (respostas-etapa3.md §10) |
-
-**O que permanece em aberto (DN-009-2)**
-
-- Path, método exato, headers e corpo de confirmação para **POST ResumoAnalise** e para **consulta por achado** (**DN-008-7 B**).
-- Algoritmo/rotacao JWT (**[PENDENTE]** ADR_028).
-- Mapeamento 4xx/5xx/timeout e política de retry além do princípio FA-02 (opções 10a–10d em spec.md §DN-009-2).
-
-**Impacto no plano**: tarefas de **adaptador HTTP** (`internal/adapter/out/modocorrencia/`, cliente JWT, **entrega do resumo** e **consulta por achado**, testes contra URL real) **bloqueadas** até contrato/ADR do Módulo Ocorrência. Tarefas de **modelagem ResumoAnalise**, portas de aplicação, validação de taxonomia, normalizador **FR-F11** e documentação **seguem**.
+Para ativar a cadeia, disponibilizar as rotas no Módulo, configurar JWT e timeouts, ligar o agendamento de reenvio e as portas concretas de histórico, catálogo e finalização, e executar os cenários contra os serviços reais.
 
 ## Project Structure
 
@@ -116,7 +98,7 @@ internal/adapter/in/queue/       # Redis Streams (entrada)
 internal/adapter/in/http/        # health
 internal/adapter/out/openobserve/
 internal/adapter/out/mongo/      # doc.go — stub
-internal/adapter/out/modocorrencia/  # bloqueado por DN-009-2 — adaptador HTTP+JWT (não existe)
+internal/adapter/out/modocorrencia/  # cliente HTTPS com JWT e DTO DN-009-2
 ```
 
 **Structure Decision**: uma porta de saída **ModuloOcorrencia** (entrega + confirmação); **sem** adaptador Core/Notificação no Finder (**FR-F02**; fonte: spec.md, T1 revisto).
@@ -127,8 +109,8 @@ Itens **fora desta execução**, **outro repositório**, ou que exigem artefato 
 
 | ID | Descrição | Fonte | Efeito nesta feature |
 |----|-----------|-------|----------------------|
-| **DN-009-2** | Contrato HTTP Finder → Módulo (rota, JWT, respostas, 5xx/timeout) | respostas-joao.md §Etapa 3; respostas-etapa3.md §10 | **Bloqueia** adaptador HTTP (**FR-F01** wiring real) |
-| **N3 A** | ADR nova: ampliar `AchadoAnalise` | respostas-joao.md, N3 A | Campos [PENDENTE ADR] no contrato handoff |
+| **DN-009-2** | Implementação do servidor e integração em ambiente de produto | contrato aprovado em 20/11/2026 | Cliente testado; homologação pendente |
+| **N3 A** | Publicação da ADR do Módulo | respostas-joao.md, N3 A; contrato DN-009-2 | Campos implementados no DTO Finder |
 | **006-10 A** | Alinhar Jira LLT-201/200 com specs 006/008/009 | respostas-joao.md, 006-10 A | Fora desta pasta |
 | **010-2 A** | Lista de padrões de mascaramento em ADR | respostas-joao.md, 010-2 A | Spec 010 |
 | **010-27 A** | Casos de teste de mascaramento (João) | respostas-joao.md, 010-27 A | Spec 010 |
@@ -147,10 +129,10 @@ Itens **fora desta execução**, **outro repositório**, ou que exigem artefato 
 
 | Área | Liberado para plano/tarefas | Bloqueado até pendência |
 |------|-----------------------------|-------------------------|
-| Modelo lógico ResumoAnalise / AchadoAnalise | Sim (com lacunas **N3 A**) | Campos N3 até ADR |
+| Modelo ResumoAnalise / AchadoAnalise | Campos N3 com revisão e versão herdada | Homologação do servidor |
 | Porta `ModuloOcorrencia` (interface) | Sim | — |
-| Adaptador HTTP+JWT + env vars | Não | **DN-009-2**, **ADR_028** |
-| Agrupamento entre lotes (**N2 B**, **DN-008-7 B**) e normalização (**FR-F11** / **DN-008-4 B** / **DN-008-5 A** / **008 assinatura A** / **DN-008-8 A**) | Desenho, normalizador com marcadores fechados, separador **`|`** e **uma** consulta **por achado** (porta lógica) podem avançar **sem** ADR **N3 A** | Chamadas HTTP reais de consulta e handoff até **DN-009-2**; campo estruturado `assinatura` no payload até ADR **N3 A** |
+| Adaptador HTTPS/JWT | Implementado e testado | Configuração JWT, bootstrap e homologação em ambiente real |
+| Agrupamento entre lotes (N2 B, FR-F11) | Normalizador da 008 e integração de revisão com cliente 009 | Histórico real e aceite formal da 008 |
 | Pipeline Módulo→Core→Notificação (doc) | Sim (referência) | URLs Core |
 
 ## Complexity Tracking

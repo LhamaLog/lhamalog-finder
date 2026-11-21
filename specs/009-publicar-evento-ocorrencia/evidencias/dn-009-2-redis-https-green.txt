@@ -1,0 +1,20 @@
+COMMAND: go test -race -count=1 -v ./internal/application/handoff -run TestHandoffHTTPComRedis|TestHandoffRecalcula
+CWD: /workspace/lhamalog-specs/validacoes/composicao-wlpvfiun
+ENV (somente teste): {"FINDER_OPENOBSERVE_INTEGRATION": "1", "FINDER_OO_URL": "http://127.0.0.1:15080", "FINDER_OO_TIMEOUT": "5s", "FINDER_OO_PAGINA": "2", "FINDER_OO_CAMPOS_COPIA": "copia", "FINDER_OO_ORDEM": "lhamalog_record_id ASC, copia ASC", "FINDER_OO_CAMPO_TENANT": "tenant_teste", "FINDER_OO_CAMPO_PRODUTO": "produto_teste", "FINDER_REDIS_INTEGRATION": "1", "FINDER_REDIS_ADDR": "127.0.0.1:16379", "FINDER_REDIS_STREAM": "lhamalog:stream:logs", "FINDER_REDIS_GROUP": "finder-prova", "FINDER_REDIS_CODIGOS": "dn-009-2:codigos", "FINDER_REDIS_CONSUMIDOR": "dn-009-2", "FINDER_REDIS_IDEMPOTENCIA": "dn-009-2:", "FINDER_REDIS_COUNT": "2", "FINDER_REDIS_BLOCK": "200ms", "FINDER_REDIS_PENDENCIA_OCIOSA": "1s"}
+=== RUN   TestHandoffHTTPComRedisMantemPendenteAteRecibo
+2026/11/20 20:24:11 INFO referência entregue id=1795217051826-0 desfecho="referência entregue" idempotencyId=lote
+2026/11/20 20:24:11 INFO efeito concluído id=1795217051826-0 desfecho="efeito concluído" idempotencyId=lote
+--- PASS: TestHandoffHTTPComRedisMantemPendenteAteRecibo (0.04s)
+=== RUN   TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada
+=== RUN   TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/conflito_resolvido
+=== RUN   TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/conflito_persistente
+=== RUN   TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/falha_indeterminada
+--- PASS: TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada (0.00s)
+    --- PASS: TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/conflito_resolvido (0.00s)
+    --- PASS: TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/conflito_persistente (0.00s)
+    --- PASS: TestHandoffRecalculaUmaVezApenasEmRevisaoDesatualizada/falha_indeterminada (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.084s
+
+EXIT: 0
+SECONDS: 5.615
