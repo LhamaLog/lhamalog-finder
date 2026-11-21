@@ -23,18 +23,22 @@ type Orquestrador struct {
 	Envio       out.EnviarResumo
 }
 
-// Preparar monta a parte local 006/008 e faz a única consulta ao Módulo por achado.
-// A porta de entrega da 009 reutiliza o resumo já preparado, sem repetir consultas.
-func (o Orquestrador) Preparar(ctx context.Context, p entrada.PedidoAnalise) (domain.ResumoAnalise, error) {
+// Montar classifica e mascara o lote uma vez, sem consultar o Módulo.
+func (o Orquestrador) Montar(ctx context.Context, p entrada.PedidoAnalise) (domain.ResumoAnalise, error) {
 	if !p.Completo {
 		return domain.ResumoAnalise{}, errors.New("lote_incompleto")
 	}
-	if o.Montador == nil || o.Consulta == nil {
-		return domain.ResumoAnalise{}, errors.New("consulta_modulo_indisponivel")
+	if o.Montador == nil {
+		return domain.ResumoAnalise{}, errors.New("analise_indisponivel")
 	}
-	r, err := o.Montador.Montar(ctx, p)
-	if err != nil {
-		return domain.ResumoAnalise{}, err
+	return o.Montador.Montar(ctx, p)
+}
+
+// Agrupar calcula totais a partir do resumo local e da revisão consultada.
+// Um conflito pode repetir esta fase sem reclassificar ou mascarar novamente.
+func (o Orquestrador) Agrupar(ctx context.Context, r domain.ResumoAnalise) (domain.ResumoAnalise, error) {
+	if o.Consulta == nil {
+		return domain.ResumoAnalise{}, errors.New("consulta_modulo_indisponivel")
 	}
 	r.Achados = append([]domain.AchadoAnalise(nil), r.Achados...)
 	for i, a := range r.Achados {
@@ -62,6 +66,14 @@ func (o Orquestrador) Preparar(ctx context.Context, p entrada.PedidoAnalise) (do
 	}
 	return r, nil
 }
+func (o Orquestrador) Preparar(ctx context.Context, p entrada.PedidoAnalise) (domain.ResumoAnalise, error) {
+	r, err := o.Montar(ctx, p)
+	if err != nil {
+		return domain.ResumoAnalise{}, err
+	}
+	return o.Agrupar(ctx, r)
+}
+
 func (o Orquestrador) Executar(ctx context.Context, p entrada.PedidoAnalise) (entrada.ResultadoAnalise, error) {
 	r, err := o.Preparar(ctx, p)
 	if err != nil {

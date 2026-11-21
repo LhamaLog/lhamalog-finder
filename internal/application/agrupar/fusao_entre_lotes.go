@@ -10,6 +10,7 @@ func Fundir(a domain.AchadoAnalise, estados []domain.EstadoOcorrencia) (domain.A
 	if len(estados) > 1 {
 		return domain.AchadoAnalise{}, errors.New("multiplas_ocorrencias_para_mesma_chave")
 	}
+	a.RevisaoConsultada = nil
 	if len(estados) == 0 {
 		return a, nil
 	}
@@ -23,6 +24,9 @@ func Fundir(a domain.AchadoAnalise, estados []domain.EstadoOcorrencia) (domain.A
 	}
 	if e.UltimaGlobal.After(a.UltimaOcorrencia) {
 		a.UltimaOcorrencia = e.UltimaGlobal
+	}
+	if e.Revisao != "" {
+		a.RevisaoConsultada = &e.Revisao
 	}
 	a.StatusAnterior = e.Status // Nunca transforma FECHADA em ABERTA: responsabilidade do Módulo.
 	return a, nil

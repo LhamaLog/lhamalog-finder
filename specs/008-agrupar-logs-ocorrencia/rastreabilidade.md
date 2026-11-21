@@ -30,11 +30,11 @@ Normalizador/compositor canônicos, partição isolada por chave, métricas de l
 | T019 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T020 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T049 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
-| T021 | Bloqueada | DN-009-2: consulta HTTP/JWT |
+| T021 | Concluída | Usar a consulta HTTPS/JWT da spec 009 por achado, preservando a revisão opaca para a entrega. Verificado na composição das branches (009 T050). |
 | T022 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T023 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T050 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
-| T024 | Bloqueada | DN-009-2: envio HTTP/JWT |
+| T024 | Concluída | Usar o POST de ResumoAnalise DN-009-2 da spec 009 e permitir recálculo após revisão desatualizada. Verificado na composição das branches (009 T018/T019). |
 | T025 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T026 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T027 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
