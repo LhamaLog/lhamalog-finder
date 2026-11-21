@@ -49,7 +49,7 @@ Tipos e contexto seguro, validação única por lote com transformador opaco, po
 | T038 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T039 | Bloqueada | Artefato ausente e confirmação do time Sugestão não recebida; nenhuma mensagem externa enviada |
 | T040 | Bloqueada | P-010-2/P-010-27 e cadeia 008→009 impedem aceite formal |
-| T042 | Bloqueada | DN-009-2: transporte HTTP de handoff |
+| T042 | Parcial | Cliente 009 verificado na composição; handoff mascarado homologado depende de catálogo, casos oficiais e Módulo real. |
 | T044 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T045 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 

@@ -159,3 +159,7 @@ Nenhum item acima **bloqueia** o desenho do contrato interno `validarSeguranca()
 R6: paridade de artefato Finder–Sugestão não confirmada; nenhum contato externo enviado. R7: Finder entrega resumo seguro; id+tipo+gravidade no HTTP Módulo→Core é obrigação 009-5 revisto/010-23 do Módulo; LLT-218 e leitura da Ocorrência por Notificação são externos. R8: nenhuma minimização ampla LLT-51, nem mudança ADR_019/ADR_167/SSID_007.1.
 
 R12: precisão ≥95% por classe é gate da 006/007 sobre JSONL em datasets/labeled-logs/; a 010 não cria base nem mede classificação. P-010-27 e P-010-2 ainda bloqueiam o aceite formal. Constituição I e coordenação 006-10 A/LLT-202 permanecem fora desta implementação.
+
+### Revisão Drive/Jira de 19/11/2026
+
+A ADR 064 confirma substituição de e-mail, omissão integral da linha de senha/token/secret, retorno do texto seguro e contagem. A ADR 079 requer que Finder e Sugestão compartilhem a política de mascaramento. O LLT-202 pede saída mascarada nos pontos downstream. As fontes consultadas não oferecem a lista final de padrões, placeholder de e-mail, formato do artefato compartilhado ou matriz formal P-010-27. O literal de omissão já está confirmado na spec. As tarefas de leitura, detecção oficial, inicialização e aceite dependem dessas entradas e de uma prova com a Sugestão. [ADR 064](https://docs.google.com/document/d/10SmZvV1pHH7HwLkpfVpEzZ4DaNTcieGIlzrqwPpphr0/edit) · [ADR 079](https://docs.google.com/document/d/1zF5fczTdKtSI8JyZA2pPIr0FzYFvf_v4vycOLmLyuWI/edit) · [LLT-202](https://logviewer2026.atlassian.net/browse/LLT-202)
