@@ -117,6 +117,26 @@ Sem GitHub Actions: rode `make test` localmente antes de cada push.
 
 Com o processo no ar, `GET /health` responde `{"status":"UP"}`.
 
+## Recuperação do lote no OpenObserve
+
+O Finder usa a organização, o stream e os identificadores da referência recebida para consultar o lote. A configuração abaixo é lida do ambiente ou do arquivo `.env`. Os valores são definidos pelo ambiente de execução.
+
+| Variável | Uso |
+|---|---|
+| `FINDER_OO_URL` | URL base do OpenObserve, com esquema HTTP ou HTTPS |
+| `FINDER_OO_USUARIO` | Usuário da autenticação Basic |
+| `FINDER_OO_SENHA` | Senha da autenticação Basic |
+| `FINDER_OO_TIMEOUT` | Prazo positivo por consulta, em formato de duração Go |
+| `FINDER_OO_PAGINA` | Quantidade positiva de documentos físicos por página |
+| `FINDER_OO_CAMPOS_COPIA` | Lista de campos de cópia física separados por vírgula. Ausente impede a consulta. Presente e vazia compara o conteúdo completo |
+| `FINDER_OO_ORDEM` | Expressão SQL de ordenação estável para todas as páginas do lote |
+| `FINDER_OO_CAMPO_TENANT` | Nome do campo confiável de tenant no topo do documento armazenado |
+| `FINDER_OO_CAMPO_PRODUTO` | Nome do campo confiável de produto no topo do documento armazenado |
+
+A recuperação filtra lote, tenant e produto, pagina até uma página curta e deduplica por `lhamalog_record_id`. O resultado só disponibiliza registros quando a contagem distinta fecha e nenhuma falha de maior precedência foi encontrada. As regras e a configuração da prova sintética estão em [specs/005-recuperar-logs-lote](specs/005-recuperar-logs-lote/quickstart.md).
+
+No processo atual, a porta `ServicoRecuperacao.Executar` informa apenas `EfeitoConcluido` ao consumo Redis. O consumo confirma lotes completos e falhas que pedem correção. Os registros recuperados ficam disponíveis em `Recuperar`, mas esse caminho de execução ainda não os encaminha à classificação ou à publicação de resumo. O contrato e os limites desse recorte estão em [contracts/recuperar-lote.md](specs/005-recuperar-logs-lote/contracts/recuperar-lote.md).
+
 ## Log de inicialização
 
 Ao iniciar, o Finder registra esta linha via `slog` (JSON):

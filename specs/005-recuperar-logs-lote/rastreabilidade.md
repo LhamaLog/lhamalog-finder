@@ -4,6 +4,8 @@ A implementação e a sincronização anterior com `Development` foram publicada
 
 [tasks.md](tasks.md) mantém a descrição e a sequência das tarefas. [X] significa trabalho verificado, não aceite de produto. Tarefas parciais/bloqueadas continuam [ ]. Destinos documentais originalmente em checklists são registrados neste arquivo, preservando os artefatos dos revisores. Nenhuma issue Jira foi alterada.
 
+“Validada pré-existente” nas linhas históricas abaixo se refere ao código encontrado na branch da feature durante sua preparação. A comparação com Development é a lista de arquivos de arquivos-alterados.md e o diff da PR #8.
+
 | Tarefa | Estado | Evidência / pendência |
 |---|---|---|
 | T001 | Validada pré-existente | Código existente conferido; sem reimplementação. |
@@ -34,8 +36,8 @@ A implementação e a sincronização anterior com `Development` foram publicada
 | T026 | Validada pré-existente | Código existente conferido; sem reimplementação. |
 | T027 | Validada pré-existente | Código existente conferido; sem reimplementação. |
 | T028 | Validada pré-existente | Código existente conferido; sem reimplementação. |
-| T029 | Validada pré-existente | Código existente conferido; sem reimplementação. |
-| T030 | Validada pré-existente | Código existente conferido; sem reimplementação. |
+| T029 | Verificada na branch da feature | O comentário de pacote em internal/adapter/out/openobserve/doc.go descreve a consulta e os parâmetros externos. Esse código integra o diff da PR #8 contra Development. |
+| T030 | Executada na revisão de 21/11/2026 | Prova sintética com OpenObserve 1.1.2 e Redis 8.2.10 reais. Suíte completa com race, exit 0, sem skips. Comando e ambiente em execucao.md; saída em evidencias/revisao-2026-11-21-race.txt. |
 | T031 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 | T032 | Concluída | Implementação/registro verificado; provas e arquivos abaixo. |
 
