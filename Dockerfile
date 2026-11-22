@@ -1,5 +1,5 @@
-# Go 1.27.0 fica na imagem: o projeto roda sem a linguagem instalada na máquina.
-FROM golang:1.27.0
+# Go 1.27.4 fica na imagem: o projeto roda sem a linguagem instalada na máquina.
+FROM golang:1.27.4
 
 WORKDIR /src
 

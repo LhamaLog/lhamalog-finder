@@ -38,10 +38,10 @@ services:
       retries: 10
       start_period: 15s
 
-  # Toolchain Go 1.27.0 para testes e vet, sem instalar Go na máquina.
+  # Toolchain Go 1.27.4 para testes e vet, sem instalar Go na máquina.
   # Não sobe com `docker compose up`; use `docker compose run --rm gotools ...`.
   gotools:
-    image: golang:1.27.0
+    image: golang:1.27.4
     working_dir: /src
     volumes:
       - .:/src

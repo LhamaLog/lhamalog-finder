@@ -9,12 +9,13 @@ import (
 )
 
 type catalogoTeste struct {
-	versao string
-	err    error
+	versao      string
+	err         error
+	transformar func(string) (domain.LinhaLogMascarada, int, error)
 }
 
 func (c catalogoTeste) Carregar(context.Context) (domain.CatalogoSeguranca, error) {
-	return domain.CatalogoSeguranca{Versao: c.versao}, c.err
+	return domain.CatalogoSeguranca{Versao: c.versao, Transformar: c.transformar}, c.err
 }
 func TestBootstrapSegurancaExigeVersaoCombinada(t *testing.T) {
 	for _, v := range []string{"", "outra"} {
@@ -22,7 +23,10 @@ func TestBootstrapSegurancaExigeVersaoCombinada(t *testing.T) {
 			t.Fatal("versao divergente aceita")
 		}
 	}
-	if _, err := InicializarSeguranca(context.Background(), catalogoTeste{versao: "combinada"}, "combinada"); err != nil {
+	transformar := func(string) (domain.LinhaLogMascarada, int, error) {
+		return domain.LinhaLogMascarada{Texto: domain.MarcadorOmisso, LinhaRemovida: true}, 1, nil
+	}
+	if _, err := InicializarSeguranca(context.Background(), catalogoTeste{versao: "combinada", transformar: transformar}, "combinada"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := InicializarSeguranca(context.Background(), catalogoTeste{err: errors.New("privado")}, "combinada"); err == nil || err.Error() == "privado" {
