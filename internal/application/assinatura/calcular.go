@@ -12,7 +12,8 @@ var ErrEscapePendente = errors.New("escape_barra_invertida_pendente")
 // Sem regra para barra invertida literal, esse caminho permanece bloqueado;
 // não tenta parse simétrico nem escolhe um escape sem fonte.
 func Calcular(nivel, mensagem, servico, host string) (string, error) {
-	if strings.TrimSpace(nivel) == "" || strings.TrimSpace(servico) == "" || strings.TrimSpace(host) == "" {
+	// O nivel e opcional na entrada (spec 006); sua ausencia preserva o componente vazio.
+	if strings.TrimSpace(servico) == "" || strings.TrimSpace(host) == "" {
 		return "", ErrIncompleta
 	}
 	partes := []string{nivel, NormalizarMensagem(mensagem), servico, host}
