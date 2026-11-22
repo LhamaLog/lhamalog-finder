@@ -31,16 +31,10 @@ func ValidateRegistro(r Registro) error {
 			return ErrRegistro
 		}
 	case "apontamento":
-		if len(r.Members) == 0 || strings.TrimSpace(r.Documentacao) == "" || strings.TrimSpace(r.BatchID) == "" {
+		if len(r.Members) == 0 || strings.TrimSpace(r.Documentacao) == "" || strings.TrimSpace(r.BatchID) == "" || strings.TrimSpace(r.TenantID) == "" || strings.TrimSpace(r.ProductID) == "" {
 			return ErrRegistro
 		}
 		tenant, produto := r.TenantID, r.ProductID
-		if tenant == "" {
-			tenant = r.Members[0].TenantID
-		}
-		if produto == "" {
-			produto = r.Members[0].ProductID
-		}
 		for _, m := range r.Members {
 			if m.ItemType != "log" || !camposValidos(m) || m.TenantID != tenant || m.ProductID != produto {
 				return ErrRegistro

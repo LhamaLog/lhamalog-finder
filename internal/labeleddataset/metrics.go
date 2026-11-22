@@ -15,12 +15,12 @@ type Relatorio struct {
 }
 
 // Avaliar conta um par gold/predição por log OU por apontamento, só em validacao.
-func Avaliar(registros []Registro) (Relatorio, error) {
+func Avaliar(registros []Registro, documentacao ...DocumentacaoConjunto) (Relatorio, error) {
+	if err := ValidarConjunto(registros, documentacao...); err != nil {
+		return Relatorio{}, err
+	}
 	r := Relatorio{Classes: map[ClassLabel]MetricasClasse{domain.ERROR: {}, domain.WARNING: {}, domain.INFO: {}}}
 	for _, item := range registros {
-		if err := ValidateRegistro(item); err != nil {
-			return Relatorio{}, err
-		}
 		if item.Split != "validacao" {
 			continue
 		}

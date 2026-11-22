@@ -14,8 +14,9 @@ import (
 var ErrBaseIndisponivel = errors.New("base_real_rotulada_indisponivel")
 
 // LoadConjunto valida cada registro JSONL. ReadString evita teto artificial de 64KiB.
-// Erros trazem número da linha, nunca mensagem/PII da entrada.
-func LoadConjunto(reader io.Reader) ([]Registro, error) {
+// Erros de registro trazem número da linha, nunca mensagem/PII da entrada.
+// Conflitos de rótulos são verificados no conjunto completo.
+func LoadConjunto(reader io.Reader, documentacao ...DocumentacaoConjunto) ([]Registro, error) {
 	br := bufio.NewReader(reader)
 	var registros []Registro
 	for linha := 1; ; linha++ {
@@ -46,9 +47,12 @@ func LoadConjunto(reader io.Reader) ([]Registro, error) {
 			break
 		}
 	}
+	if err := ValidarConjunto(registros, documentacao...); err != nil {
+		return nil, err
+	}
 	return registros, nil
 }
-func LoadDiretorio(dir string) ([]Registro, error) {
+func LoadDiretorio(dir string, documentacao ...DocumentacaoConjunto) ([]Registro, error) {
 	nomes, err := filepath.Glob(filepath.Join(dir, "*.jsonl"))
 	if err != nil || len(nomes) == 0 {
 		return nil, ErrBaseIndisponivel
@@ -59,7 +63,7 @@ func LoadDiretorio(dir string) ([]Registro, error) {
 		if e != nil {
 			return nil, ErrBaseIndisponivel
 		}
-		r, e := LoadConjunto(f)
+		r, e := LoadConjunto(f, documentacao...)
 		f.Close()
 		if e != nil {
 			return nil, e
@@ -69,13 +73,16 @@ func LoadDiretorio(dir string) ([]Registro, error) {
 	if len(registros) == 0 {
 		return nil, ErrBaseIndisponivel
 	}
+	if err := ValidarConjunto(registros, documentacao...); err != nil {
+		return nil, err
+	}
 	return registros, nil
 }
-func IterRegistros(r []Registro, visitar func(Registro) error) error {
+func IterRegistros(r []Registro, visitar func(Registro) error, documentacao ...DocumentacaoConjunto) error {
+	if err := ValidarConjunto(r, documentacao...); err != nil {
+		return err
+	}
 	for _, item := range r {
-		if err := ValidateRegistro(item); err != nil {
-			return err
-		}
 		if err := visitar(item); err != nil {
 			return err
 		}
@@ -106,7 +113,7 @@ func validarChavesJSON(texto string) error {
 					return err
 				}
 				nome, ok := chave.(string)
-				if !ok || vistos[nome] {
+				if !ok || vistos[nome] || !chaveCanonica(nome) {
 					return ErrRegistro
 				}
 				vistos[nome] = true
@@ -140,4 +147,15 @@ func validarChavesJSON(texto string) error {
 		return ErrRegistro
 	}
 	return nil
+}
+
+// encoding/json aceita aliases sem distinguir caixa; o contrato usa nomes exatos.
+// DisallowUnknownFields continua responsável por rejeitar campos fora do contexto,
+// como class_label em members, mesmo quando o valor é null.
+func chaveCanonica(nome string) bool {
+	switch nome {
+	case "itemType", "level_text", "message_text", "lhamalog_batch_id", "lhamalog_record_id", "tenantId", "productId", "split", "notas", "class_label", "members", "documentacao":
+		return true
+	}
+	return false
 }
