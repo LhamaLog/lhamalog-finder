@@ -24,6 +24,15 @@ services:
       FINDER_REDIS_COUNT: ${FINDER_REDIS_COUNT:-}
       FINDER_REDIS_BLOCK: ${FINDER_REDIS_BLOCK:-}
       FINDER_REDIS_PENDENCIA_OCIOSA: ${FINDER_REDIS_PENDENCIA_OCIOSA:-}
+      FINDER_OO_URL: ${FINDER_OO_URL:-}
+      FINDER_OO_USUARIO: ${FINDER_OO_USUARIO:-}
+      FINDER_OO_SENHA: ${FINDER_OO_SENHA:-}
+      FINDER_OO_TIMEOUT: ${FINDER_OO_TIMEOUT:-}
+      FINDER_OO_PAGINA: ${FINDER_OO_PAGINA:-}
+      FINDER_OO_CAMPOS_COPIA:
+      FINDER_OO_ORDEM: ${FINDER_OO_ORDEM:-}
+      FINDER_OO_CAMPO_TENANT: ${FINDER_OO_CAMPO_TENANT:-}
+      FINDER_OO_CAMPO_PRODUTO: ${FINDER_OO_CAMPO_PRODUTO:-}
     depends_on:
       mongo:
         condition: service_started
@@ -38,10 +47,10 @@ services:
       retries: 10
       start_period: 15s
 
-  # Toolchain Go 1.27.0 para testes e vet, sem instalar Go na máquina.
+  # Toolchain Go 1.27.4 para testes e vet, sem instalar Go na máquina.
   # Não sobe com `docker compose up`; use `docker compose run --rm gotools ...`.
   gotools:
-    image: golang:1.27.0
+    image: golang:1.27.4
     working_dir: /src
     volumes:
       - .:/src

@@ -551,13 +551,10 @@ func (l *Lote) daFila() (domain.Entrada, bool) {
 }
 
 func (l *Lote) puxarPendentes(ctx context.Context) error {
-	msgs, err := l.lerGrupo(ctx, "0", -1)
-	if err != nil || len(msgs) == 0 {
-		return err
-	}
 	pendentes, err := l.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
 		Stream:   l.stream,
 		Group:    l.group,
+		Idle:     l.ociosidade,
 		Start:    "-",
 		End:      "+",
 		Count:    l.count,
@@ -570,18 +567,32 @@ func (l *Lote) puxarPendentes(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	ociosidade := map[string]time.Duration{}
+	ids := make([]string, 0, len(pendentes))
 	for _, pendente := range pendentes {
-		ociosidade[pendente.ID] = pendente.Idle
+		if _, adiada := l.adiados[pendente.ID]; !adiada {
+			ids = append(ids, pendente.ID)
+		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	// Ler com XREADGROUP 0 renovaria o idle antes de decidir a retomada.
+	// XCLAIM só devolve as entradas ainda ociosas no momento da operação.
+	msgs, err := l.rdb.XClaim(ctx, &redis.XClaimArgs{
+		Stream:   l.stream,
+		Group:    l.group,
+		Consumer: l.consumidor,
+		MinIdle:  l.ociosidade,
+		Messages: ids,
+	}).Result()
+	if err != nil && err != redis.Nil {
+		return err
 	}
 	for _, msg := range msgs {
-		if _, adiada := l.adiados[msg.ID]; adiada {
-			continue
-		}
 		l.buffer = append(l.buffer, domain.Entrada{
 			ID:     msg.ID,
 			Campos: camposTexto(msg.Values),
-			Ociosa: ociosidade[msg.ID] >= l.ociosidade,
+			Ociosa: true,
 		})
 	}
 	return nil
