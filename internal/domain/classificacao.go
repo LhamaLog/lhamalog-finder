@@ -2,29 +2,8 @@ package domain
 
 import (
 	"strings"
-	"time"
 	"unicode"
 )
-
-// RegraClassificacao é um predicado opaco fornecido pelo chamador.
-// Não define sintaxe de padrão nem lê/cria catálogo (006-7 D permanece aberta).
-type RegraClassificacao struct {
-	Classe      ClasseLog
-	Corresponde func(string) bool
-}
-type ResultadoClassificacao struct {
-	Classe        ClasseLog
-	CatalogoUsado bool
-}
-type LogClassificado struct {
-	Apontamento                                           Codigo
-	Classe                                                ClasseLog
-	TenantID, ProductID                                   string
-	CatalogoUsado                                         bool
-	ServiceName, Host, NivelCampo, Mensagem, VersaoRegras string
-	TraceID, ModuloID                                     string
-	Timestamp                                             time.Time
-}
 
 // ClassificarLog é pura: nenhuma porta/rede/LLM. Nível e palavras inteiras
 // na mensagem pós-segurança decidem juntos; catálogo somente sem sinal reconhecido.
