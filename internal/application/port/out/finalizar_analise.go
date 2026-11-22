@@ -6,7 +6,7 @@ import (
 )
 
 // FinalizarAnalise é o marco lógico finishScan da sequência; só após confirmação.
-// O bootstrap real aguarda o contrato externo e o ciclo completo de varredura.
+// DF-FINDER-2026-11-22: v1 conclui a chave Redis; contexto V/M real usa HTTPS.
 type FinalizarAnalise interface {
 	ConcluirAnalise(context.Context, domain.ChaveResumo) error
 }

@@ -13,7 +13,7 @@ type PedidoRecorrencia struct {
 
 // ConsultarHistorico deve devolver os últimos lotes, do mais recente ao antigo,
 // incluindo os lotes sem equivalência para aplicar a janela de 500 lotes distintos.
-// Query HTTP/índice/ordenação operacional permanecem pendentes.
+// O adaptador aplica DF-FINDER-2026-11-22 e mantém snapshot por referência.
 type ConsultaHistorico interface {
 	ConsultarHistorico(context.Context, PedidoRecorrencia) ([]domain.EvidenciaRecorrencia, error)
 }

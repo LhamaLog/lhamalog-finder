@@ -11,7 +11,9 @@ import (
 	"os/signal"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue"
+	"github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve"
 	"github.com/LhamaLog/lhamalog-finder/internal/application"
+	"github.com/LhamaLog/lhamalog-finder/internal/bootstrap"
 	"github.com/LhamaLog/lhamalog-finder/internal/config"
 )
 
@@ -32,6 +34,10 @@ func main() {
 		log.Error("consumo recusado", "erro", err)
 		os.Exit(1)
 	}
+	if _, err := config.InicializarSeguranca(context.Background()); err != nil {
+		log.Error("seguranca recusada", "erro", err)
+		os.Exit(1)
+	}
 	lote, err := queue.NovaLote(queue.OpcoesLote{
 		Addr:         cfg.RedisAddr,
 		Senha:        cfg.RedisSenha,
@@ -48,6 +54,11 @@ func main() {
 		os.Exit(1)
 	}
 	defer lote.Fechar()
+	pipeline, err := bootstrap.Novo(context.Background(), cfg, lote, bootstrap.Opcoes{})
+	if err != nil {
+		log.Error("pipeline recusado", "erro", err)
+		os.Exit(1)
+	}
 
 	ouvinte, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
@@ -61,11 +72,21 @@ func main() {
 		}
 	}()
 
-	// A porta de efeito fica ausente: esta feature não consulta o OpenObserve.
+	// A recuperação informa o efeito. A confirmação da entrada continua nesta primeira tarefa.
 	// FINDER_WORKERS não define o paralelismo desta leitura.
-	consumo := &application.ConsumoReferencia{Fila: lote, Chaves: lote}
+	consumo := &application.ConsumoReferencia{
+		Fila:   lote,
+		Chaves: lote,
+		Efeito: &application.ServicoRecuperacao{
+			Busca:  openobserve.Cliente{},
+			Acesso: cfg.Acesso(),
+		},
+	}
 	ctx, parar := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer parar()
+
+	// O consumo começa somente com a análise e a entrega completas conectadas.
+	consumo.Efeito = pipeline
 
 	for {
 		_, err := consumo.Executar(ctx)
