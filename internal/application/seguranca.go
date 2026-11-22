@@ -23,7 +23,7 @@ func (f ValidacaoSegurancaFunc) ValidarSeguranca(ctx context.Context, s []string
 type Seguranca struct{ Catalogo domain.CatalogoSeguranca }
 
 // InicializarSeguranca é a barreira anterior à prontidão do pipeline.
-// O bootstrap do processo aguarda o adaptador/artefato P-010-2; não o simula.
+// O bootstrap carrega e valida o artefato antes de abrir fila e prontidão.
 func InicializarSeguranca(ctx context.Context, fonte out.CatalogoPadroes, esperada string) (Seguranca, error) {
 	if fonte == nil {
 		return Seguranca{}, ErrCatalogoSeguranca

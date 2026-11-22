@@ -21,8 +21,7 @@ type ContextoLoteMascarado struct {
 	FalhaSeguranca              bool
 }
 
-// CatalogoSeguranca é a fronteira opaca do artefato. A ADR P-010-2 deve
-// definir regex, motor, placeholder e serialização; este tipo não os escolhe.
+// CatalogoSeguranca é a fronteira opaca do artefato DF-FINDER-2026-11-22.
 // Transformar recebe uma linha e retorna o texto e o total aplicado pelo catálogo.
 type CatalogoSeguranca struct {
 	Versao      string

@@ -5,7 +5,7 @@ import (
 	"github.com/LhamaLog/lhamalog-finder/internal/domain"
 )
 
-// CatalogoPadroes lê o artefato versionado. Adaptador de arquivo bloqueado P-010-2.
+// CatalogoPadroes lê o artefato imutável e executável da versão distribuída.
 type CatalogoPadroes interface {
 	Carregar(context.Context) (domain.CatalogoSeguranca, error)
 }

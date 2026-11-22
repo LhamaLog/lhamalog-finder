@@ -1,0 +1,122 @@
+[
+  {
+    "entrada": "processado sem dados pessoais",
+    "saida": "processado sem dados pessoais",
+    "total": 0,
+    "removida": false
+  },
+  {
+    "entrada": "contato ana+tag@example.invalid",
+    "saida": "contato [email omitido]",
+    "total": 1,
+    "removida": false
+  },
+  {
+    "entrada": "ação contato álvaro@exemplo.invalid",
+    "saida": "ação contato [email omitido]",
+    "total": 1,
+    "removida": false
+  },
+  {
+    "entrada": "é@exemplo.invalid",
+    "saida": "[email omitido]",
+    "total": 1,
+    "removida": false
+  },
+  {
+    "entrada": "a@example.invalid b@example.invalid",
+    "saida": "[email omitido] [email omitido]",
+    "total": 2,
+    "removida": false
+  },
+  {
+    "entrada": "senha@exemplo.invalid",
+    "saida": "[email omitido]",
+    "total": 1,
+    "removida": false
+  },
+  {
+    "entrada": "{\"email\":\"a@example.invalid\"}",
+    "saida": "{\"email\":\"[email omitido]\"}",
+    "total": 1,
+    "removida": false
+  },
+  {
+    "entrada": "senha=valor",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "PASSWORD=valor; senha=outro",
+    "saida": "log com senha omitido",
+    "total": 2,
+    "removida": true
+  },
+  {
+    "entrada": "{\"apiKey\":\"valor\"}",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "Authorization: Bearer valor",
+    "saida": "log com senha omitido",
+    "total": 2,
+    "removida": true
+  },
+  {
+    "entrada": "client_secret=valor",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "access-token=valor refresh_token=outro idToken=x",
+    "saida": "log com senha omitido",
+    "total": 3,
+    "removida": true
+  },
+  {
+    "entrada": "DATABASE_PASSWORD=valor",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "token=x contato a@example.invalid",
+    "saida": "log com senha omitido",
+    "total": 2,
+    "removida": true
+  },
+  {
+    "entrada": "bearer expirado",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "falha no passwordless",
+    "saida": "falha no passwordless",
+    "total": 0,
+    "removida": false
+  },
+  {
+    "entrada": "api-key e segredo",
+    "saida": "log com senha omitido",
+    "total": 2,
+    "removida": true
+  },
+  {
+    "entrada": "aviso: senha não informada",
+    "saida": "log com senha omitido",
+    "total": 1,
+    "removida": true
+  },
+  {
+    "entrada": "path C:\\logs\\app | item 7",
+    "saida": "path C:\\logs\\app | item 7",
+    "total": 0,
+    "removida": false
+  }
+]
