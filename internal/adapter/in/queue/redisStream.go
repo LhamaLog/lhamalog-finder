@@ -378,6 +378,7 @@ type Lote struct {
 	mu         sync.Mutex
 	buffer     []domain.Entrada
 	adiados    map[string]struct{}
+	cursor     string
 }
 
 var _ out.Entradas = (*Lote)(nil)
@@ -599,12 +600,16 @@ func (l *Lote) puxarPendentes(ctx context.Context) error {
 }
 
 func (l *Lote) reivindicar(ctx context.Context) error {
-	msgs, _, err := l.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
+	inicio := l.cursor
+	if inicio == "" {
+		inicio = "0-0"
+	}
+	msgs, proximo, err := l.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 		Stream:   l.stream,
 		Group:    l.group,
 		Consumer: l.consumidor,
 		MinIdle:  l.ociosidade,
-		Start:    "0-0",
+		Start:    inicio,
 		Count:    l.count,
 	}).Result()
 	if err == redis.Nil {
@@ -613,6 +618,9 @@ func (l *Lote) reivindicar(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// Uma página vazia pode ter continuação. Preservar o cursor evita
+	// repetir um prefixo ativo; 0-0 inicia outra passagem na próxima leitura.
+	l.cursor = proximo
 	for _, msg := range msgs {
 		if _, adiada := l.adiados[msg.ID]; adiada {
 			continue
