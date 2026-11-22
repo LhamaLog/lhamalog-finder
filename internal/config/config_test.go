@@ -258,3 +258,92 @@ func ausentar(t *testing.T, chaves ...string) func() {
 		}
 	}
 }
+
+func TestCarregarOpenObserveNaoCriaPadrao(t *testing.T) {
+	ausentarOpenObserve(t)
+	c := Carregar()
+	if c.OOURL != "" || c.OOUsuario != "" || c.OOSenha != "" || c.OOTimeout != 0 || c.OOPagina != 0 || c.OOOrdem != "" || c.OOCampoTenant != "" || c.OOCampoProduto != "" {
+		t.Fatal("leitura criou URL, credencial, timeout, página, ordem ou nome de campo")
+	}
+	if c.OOCamposCopiaPresente || c.OOCamposCopia != nil {
+		t.Fatal("lista ausente foi tratada como presente")
+	}
+	acesso := c.Acesso()
+	if acesso.CamposCopia != nil || acesso.URL != "" || acesso.Timeout != 0 || acesso.TamanhoPagina != 0 {
+		t.Fatal("acesso ganhou padrão")
+	}
+}
+
+func TestCarregarListaCopiaVaziaEstaPresente(t *testing.T) {
+	ausentarOpenObserve(t)
+	t.Setenv("FINDER_OO_CAMPOS_COPIA", "")
+	c := Carregar()
+	if !c.OOCamposCopiaPresente || c.OOCamposCopia == nil || len(c.OOCamposCopia) != 0 {
+		t.Fatal("lista definida e vazia não ficou presente")
+	}
+	acesso := c.Acesso()
+	if acesso.CamposCopia == nil || len(*acesso.CamposCopia) != 0 {
+		t.Fatal("acesso não preservou a lista presente vazia")
+	}
+}
+
+func TestCarregarOpenObserveInformadoNaoRegistraSenha(t *testing.T) {
+	ausentarOpenObserve(t)
+	senha := "segredo-oo-nao-logar"
+	t.Setenv("FINDER_OO_URL", "http://oo.local")
+	t.Setenv("FINDER_OO_USUARIO", "usuario-oo")
+	t.Setenv("FINDER_OO_SENHA", senha)
+	t.Setenv("FINDER_OO_TIMEOUT", "2s")
+	t.Setenv("FINDER_OO_PAGINA", "3")
+	t.Setenv("FINDER_OO_CAMPOS_COPIA", "copia_a, copia_b")
+	t.Setenv("FINDER_OO_ORDEM", "campo_ordem")
+	t.Setenv("FINDER_OO_CAMPO_TENANT", "tenant_campo")
+	t.Setenv("FINDER_OO_CAMPO_PRODUTO", "produto_campo")
+	c := Carregar()
+	if c.OOURL != "http://oo.local" || c.OOUsuario != "usuario-oo" || c.OOTimeout != 2*time.Second || c.OOPagina != 3 {
+		t.Fatal("parâmetros informados do OpenObserve não foram lidos")
+	}
+	if c.OOOrdem != "campo_ordem" || c.OOCampoTenant != "tenant_campo" || c.OOCampoProduto != "produto_campo" {
+		t.Fatal("ordem ou nomes de campo não foram lidos")
+	}
+	if len(c.OOCamposCopia) != 2 || c.OOCamposCopia[0] != "copia_a" || c.OOCamposCopia[1] != "copia_b" {
+		t.Fatal("lista de cópia não foi lida")
+	}
+	if c.OOSenha != senha {
+		t.Fatal("senha informada não foi lida")
+	}
+	if c.OOURL == "http://localhost:5080" || c.OOPagina == 0 || c.OOTimeout == 0 {
+		t.Fatal("leitura trocou o valor informado")
+	}
+}
+
+func TestCarregarOpenObserveRecusaNaoPositivo(t *testing.T) {
+	ausentarOpenObserve(t)
+	t.Setenv("FINDER_OO_TIMEOUT", "0s")
+	t.Setenv("FINDER_OO_PAGINA", "-1")
+	t.Setenv("FINDER_OO_SENHA", "")
+	c := Carregar()
+	if c.OOTimeout != 0 || c.OOPagina != 0 || c.OOSenha != "" {
+		t.Fatal("timeout, página ou senha vazia ganharam valor")
+	}
+}
+
+func ausentarOpenObserve(t *testing.T) {
+	t.Helper()
+	for _, chave := range []string{
+		"FINDER_OO_URL",
+		"FINDER_OO_USUARIO",
+		"FINDER_OO_SENHA",
+		"FINDER_OO_TIMEOUT",
+		"FINDER_OO_PAGINA",
+		"FINDER_OO_CAMPOS_COPIA",
+		"FINDER_OO_ORDEM",
+		"FINDER_OO_CAMPO_TENANT",
+		"FINDER_OO_CAMPO_PRODUTO",
+	} {
+		t.Setenv(chave, "")
+		if err := os.Unsetenv(chave); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
