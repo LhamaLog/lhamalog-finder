@@ -1,7 +1,7 @@
 # Execução da spec 005
 
 Referência: Development `6e8b0fd`. Branch: `LLT-270-implementar-recuperacao-dos-logs-no-open-observe-pela-referencia-do-lote`.
-Sem commit, push ou PR; nenhuma mudança nas specs 001–003.
+Estado publicado: PR #8, aberta para `Development`, com HEAD inicial desta revisão em `735e556d7b8f6981362cf93ffcc60b6f7856efdc`. Esse commit de merge registra a implementação e a sincronização anterior com `Development` (`6e8b0fd`). O plano abaixo descreve a execução anterior à publicação.
 
 ## Plano anterior à implementação
 
@@ -38,7 +38,7 @@ Branch existente preservada, comparada com Development (2 commits exclusivos Dev
 
 Tarefas: **32/32 verificadas**, 0 parciais e 0 bloqueadas. IDs, critérios, arquivos e testes em [rastreabilidade.md](rastreabilidade.md). Os checklists continuam com o mesmo estado inicial.
 
-`go test -race -count=1 ./...` na própria branch com Redis/OpenObserve reais: exit 0, validacao-final-race-integracoes.txt. unit.txt e race.txt também passaram. Merge continua **sem commit**, HEAD original 5f82490 preservado e MERGE_HEAD Development 6e8b0fd; sincronização de conteúdo concluída, registro da ancestralidade depende do futuro commit autorizado.
+`go test -race -count=1 ./...` na própria branch com Redis/OpenObserve reais: exit 0, validacao-final-race-integracoes.txt. unit.txt e race.txt também passaram na execução registrada nesses arquivos. A sincronização foi posteriormente publicada no commit `735e556`, com pais `5f82490` e `6e8b0fd`. Não há operação de merge em andamento na revisão de 21/11/2026.
 
 ## Cobertura do aceite e pendências
 
@@ -56,4 +56,22 @@ OpenObserve v1.1.2 real para os cenários de recuperação; falhas de transporte
 
 ## Revisão e reprodução
 
-Ver [rastreabilidade.md](rastreabilidade.md), contratos, quickstart e evidencias. Desenvolvimento sem commit/push/PR. Relatório central em `/workspace/lhamalog-specs/README-execucao.md`.
+Ver [rastreabilidade.md](rastreabilidade.md), contratos, quickstart e evidencias. A PR publicada é [#8](https://github.com/LhamaLog/lhamalog-finder/pull/8). As evidências antigas descrevem suas próprias execuções e não atestam automaticamente commits posteriores.
+
+## Revisão de 21/11/2026
+
+Requisitos conferidos na LLT-270 do Jira e no [Contrato do Consumidor v1 no Drive](https://docs.google.com/document/d/14yLd8WA7pRm6es4okYiOnUjHfZp0T_4uyUnVkFk2tQk/edit), seção 7. A [ADR_168](https://docs.google.com/document/d/1cq0KUW2gWsIq6Mv54SZhXcWIoHlKCqwqUG5XHD3rVFs/edit) mantém o isolamento por tenant no OpenObserve. A revisão corrigiu os registros desatualizados de publicação e a lista de arquivos do diff.
+
+| Verificação executada | Resultado |
+|---|---|
+| `go test -count=1 ./...`, Go 1.27.0 Windows/amd64 | Exit 0; integrações opt-in desativadas nessa execução |
+| `go vet ./...` e `go build ./...`, Go 1.27.0 Windows/amd64 | Exit 0 |
+| `go test -race -count=1 -v ./...`, imagem `golang:1.27.0` Linux/amd64 | Exit 0, sem testes ignorados; Redis 8.2.10 e OpenObserve 1.1.2 reais em contêineres exclusivos de teste |
+| `gofmt` nos arquivos Go alterados pela PR | Sem diferença de conteúdo no Git |
+| `git diff --check` | Exit 0 |
+
+Saída da execução com integrações em [evidencias/revisao-2026-11-21-race.txt](evidencias/revisao-2026-11-21-race.txt). A primeira tentativa de race nativo falhou pela ausência de suporte 64 bits no GCC instalado. A primeira tentativa no contêiner deixou de fornecer parâmetros obrigatórios do Redis; a execução final forneceu consumidor, prefixo, count, block e ociosidade e passou integralmente.
+
+A prova usa a própria branch da PR #8. O HEAD `3b26753` da PR #7 não é ancestral desta branch e suas correções não foram importadas. A validação exercita a recuperação desta PR sobre a base existente e não atesta a composição futura das duas entregas.
+
+Na consulta anterior ao push, a PR estava aberta, integrável, sem reviews ou comentários no GitHub, sem check runs e sem regras de proteção ou rulesets. A revisão pelo Discord será solicitada para o novo HEAD após a confirmação do push.

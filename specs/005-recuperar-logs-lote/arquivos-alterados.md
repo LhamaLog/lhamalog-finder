@@ -1,8 +1,9 @@
 # Arquivos alterados
 
-Referência: origin/Development `6e8b0fd`. Para a 005, isso inclui a implementação já existente, não reimplementada; as alterações novas de código são cliente.go, integracao_test.go e cliente_regressao_test.go. Documentos 006–010 que aparecem staged na 005 provêm da sincronização com Development.
+Referência: origin/Development `6e8b0fd`. A relação abaixo descreve o diff da PR #8 nessa base e inclui a implementação original da LLT-270. O commit `735e556` publicou a sincronização anterior com Development. Os documentos 006–010 já pertencem à base e ficam fora do diff da PR.
 
 - `.env.example`
+- `.specify/feature.json`
 - `cmd/finder/main.go`
 - `internal/adapter/out/openobserve/cliente.go`
 - `internal/adapter/out/openobserve/cliente_regressao_test.go`

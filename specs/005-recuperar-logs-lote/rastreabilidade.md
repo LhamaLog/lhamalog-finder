@@ -1,6 +1,6 @@
 # Rastreabilidade e estado das tarefas
 
-Branch existente preservada, comparada com Development (2 commits exclusivos Development / 1 da LLT-270). Merge sem commit e sem conflitos incorporou a referência. T031 remove o teto de 32 MiB; T032 separa falha de leitura/status de JSON de sucesso inválido. Corrigidos sufixo JSON e problemas observados nos testes de integração (assert de filtro e acesso concorrente ao coletor).
+A implementação e a sincronização anterior com `Development` foram publicadas no commit `735e556`, da PR #8. Seus pais são `5f82490` (implementação inicial da LLT-270) e `6e8b0fd` (Development). T031 remove o teto de 32 MiB; T032 separa falha de leitura/status de JSON de sucesso inválido. Corrigidos sufixo JSON e problemas observados nos testes de integração (assert de filtro e acesso concorrente ao coletor).
 
 [tasks.md](tasks.md) mantém a descrição e a sequência das tarefas. [X] significa trabalho verificado, não aceite de produto. Tarefas parciais/bloqueadas continuam [ ]. Destinos documentais originalmente em checklists são registrados neste arquivo, preservando os artefatos dos revisores. Nenhuma issue Jira foi alterada.
 
