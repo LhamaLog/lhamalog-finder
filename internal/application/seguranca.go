@@ -35,6 +35,9 @@ func InicializarSeguranca(ctx context.Context, fonte out.CatalogoPadroes, espera
 	if esperada == "" || cat.Versao == "" || cat.Versao != esperada {
 		return Seguranca{}, ErrVersaoCatalogo
 	}
+	if cat.Transformar == nil {
+		return Seguranca{}, ErrCatalogoSeguranca
+	}
 	return Seguranca{Catalogo: cat}, nil
 }
 func (s Seguranca) ValidarSeguranca(ctx context.Context, linhas []string) domain.ResultadoValidarSeguranca {

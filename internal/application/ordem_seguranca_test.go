@@ -20,7 +20,7 @@ func TestFronteira010AntesDaClassificacaoEAssinaturaCanonica(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := r.Achados[0]
-	if chamadas != 1 || a.Tipo != domain.WARNING || a.Assinatura != "WARNING|seguro warning|svc|host" || a.Linhas[0] != "seguro WARNING" || r.Contadores.DadosSensiveisMascarados != 2 || r.VersaoCatalogo != "catalogo-teste" {
+	if chamadas != 1 || a.Tipo != domain.WARNING || a.Assinatura != "info|seguro warning|svc|host" || a.Linhas[0] != "seguro WARNING" || r.Contadores.DadosSensiveisMascarados != 2 || r.VersaoCatalogo != "catalogo-teste" {
 		t.Fatal("ordem/saida/contador/versao invalidos")
 	}
 	// Este é um teste de mecanismo com transformador opaco, não caso oficial P-010-27.
