@@ -5,7 +5,7 @@ import "github.com/LhamaLog/lhamalog-finder/internal/domain"
 const JanelaLotes = 500
 
 // Avaliar segue quickstart 008 §7: >=3 lotes distintos, mesma máquina/chave.
-// A porta entrega ordem recente→antiga; o adaptador operacional ainda está bloqueado.
+// A porta entrega lote corrente e os demais em ordem recente→antiga.
 func Avaliar(historico []domain.EvidenciaRecorrencia, chave domain.IdentidadeAchado, host string) bool {
 	janela := map[string]bool{}
 	equivalentes := map[string]bool{}

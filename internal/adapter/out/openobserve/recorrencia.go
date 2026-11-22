@@ -49,7 +49,7 @@ func (s Recorrencia) ConsultarRecorrencia(ctx context.Context, p out.PedidoRecor
 		}
 	}
 	// Nenhum ACK, DLQ, WebSocket ou recorrente=false por degradação.
-	// O cliente HTTP Core permanece bloqueado ADR_051; esta é só a porta semântica.
+	// DF-FINDER-2026-11-22 define o cliente HTTPS Core e seu recibo.
 	if s.Aviso == nil {
 		return domain.MarcaRecorrente{}, ErrAvisoCorePendente
 	}
