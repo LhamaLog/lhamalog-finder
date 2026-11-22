@@ -17,6 +17,18 @@ var ErrBaseIndisponivel = errors.New("base_real_rotulada_indisponivel")
 // Erros de registro trazem número da linha, nunca mensagem/PII da entrada.
 // Conflitos de rótulos são verificados no conjunto completo.
 func LoadConjunto(reader io.Reader, documentacao ...DocumentacaoConjunto) ([]Registro, error) {
+	registros, err := decodificarRegistros(reader)
+	if err != nil {
+		return nil, err
+	}
+	if err := ValidarConjunto(registros, documentacao...); err != nil {
+		return nil, err
+	}
+	return registros, nil
+}
+
+// A validação de conflitos pertence à coleção completa, não a cada arquivo.
+func decodificarRegistros(reader io.Reader) ([]Registro, error) {
 	br := bufio.NewReader(reader)
 	var registros []Registro
 	for linha := 1; ; linha++ {
@@ -47,9 +59,6 @@ func LoadConjunto(reader io.Reader, documentacao ...DocumentacaoConjunto) ([]Reg
 			break
 		}
 	}
-	if err := ValidarConjunto(registros, documentacao...); err != nil {
-		return nil, err
-	}
 	return registros, nil
 }
 func LoadDiretorio(dir string, documentacao ...DocumentacaoConjunto) ([]Registro, error) {
@@ -63,7 +72,7 @@ func LoadDiretorio(dir string, documentacao ...DocumentacaoConjunto) ([]Registro
 		if e != nil {
 			return nil, ErrBaseIndisponivel
 		}
-		r, e := LoadConjunto(f, documentacao...)
+		r, e := decodificarRegistros(f)
 		f.Close()
 		if e != nil {
 			return nil, e

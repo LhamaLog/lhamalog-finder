@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1",
+  "versao": "finder-2026-11-22.1",
+  "origemDrive": "https://docs.google.com/document/d/1kEB2O1pRtc81L5biCE2hXYv9GN6SECwVcQu_O0enTGA/edit",
+  "tipoOrigem": "captura-controlada-redis",
+  "autoria": "engenharia-finder-codex",
+  "metodoRotulagem": "severidade-emitida-na-origem",
+  "usoMVP": "avaliacao",
+  "minimoPorClasse": 1010,
+  "registros": 3030,
+  "contagens": {
+    "ERROR": 1010,
+    "WARNING": 1010,
+    "INFO": 1010
+  },
+  "arquivos": [
+    {
+      "nome": "logs.jsonl",
+      "sha256": "0a3f6bb4915db4d997ccfb97c11ca9cf697f0bb03f60b5dbaa2ac2b6feebd3f3",
+      "registros": 3000
+    },
+    {
+      "nome": "apontamentos.jsonl",
+      "sha256": "00c584d20ca8f0268b52a93ffd9967c1148b6a74da31bae8af6ecdf32c3940c2",
+      "registros": 30
+    }
+  ],
+  "captura": {
+    "arquivo": "proveniencia/captura.jsonl.gz",
+    "sha256": "05fe80e0a314b70b31c091de7b5fa36f62ede1289dfcc7546661d029ca3fd2fc",
+    "codigoSha256LF": "e3d3baa2244adf857945f96897166f9a04eb3b68c8cbe4088bfe6d5df16a08bf",
+    "eventos": 3060,
+    "porClasse": 1020,
+    "inicio": "2026-11-22T23:01:17.119677265Z",
+    "fim": "2026-11-22T23:01:21.045517529Z",
+    "goVersion": "go1.27.4",
+    "redisVersion": "8.2.10"
+  },
+  "particoes": [
+    {
+      "nome": "validacao",
+      "estado": "ativa",
+      "criterio": "sessao-controlada-unica"
+    },
+    {
+      "nome": "treino",
+      "estado": "reservada",
+      "criterio": "novas-origens-disjuntas"
+    },
+    {
+      "nome": "teste",
+      "estado": "reservada",
+      "criterio": "novas-sessoes-independentes"
+    }
+  ]
+}
