@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/application -run TestBootstrapSeguranca|TestMontarContexto|TestValidarSeguranca
+CWD: /workspace/lhamalog-specs/010
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.011s
+
+EXIT: 0
+SECONDS: 1.795

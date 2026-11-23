@@ -56,3 +56,7 @@ Até a ADR fechar, implementação MAY usar comportamento **documentado** na ADR
 - (fonte: respostas-joao.md, 010-2 A / 010-18 A / 010-19 A; §Etapa 3c, João 16/11 11h, DN-010-3 B / DN-010-4 C; respostas-etapa3c.md §§7–8)
 - (fonte: respostas-documentadas.md, 010-1 / 010-18)
 - (origem: ADR_064 [PENDENTE], ADR_079, ADR_145)
+
+## Evidência desta execução
+
+Existe porta e factory InicializarSeguranca com versão explícita: ausência, erro e divergência rejeitam a construção; mensagens de erro não repetem conteúdo privado. O artefato é opaco e injetado. Não existe loader de arquivo ou wiring de readiness/processo sem caminho/formato P-010-2/DN-010-4 C. Logo, o teste da factory não prova que o processo de produção recusou subir. T046/SC-006 permanecem parciais. Paridade com Sugestão (Java) não foi confirmada.

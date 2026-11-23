@@ -33,6 +33,10 @@ func main() {
 		log.Error("consumo recusado", "erro", err)
 		os.Exit(1)
 	}
+	if _, err := config.InicializarSeguranca(context.Background()); err != nil {
+		log.Error("seguranca recusada", "erro", err)
+		os.Exit(1)
+	}
 	lote, err := queue.NovaLote(queue.OpcoesLote{
 		Addr:         cfg.RedisAddr,
 		Senha:        cfg.RedisSenha,
