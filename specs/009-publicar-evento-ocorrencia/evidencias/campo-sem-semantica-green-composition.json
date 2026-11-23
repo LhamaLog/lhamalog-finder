@@ -1,0 +1,397 @@
+[
+  {
+    "spec": "005",
+    "file": "cmd/finder/main.go",
+    "sha256": "17265e8c5e57263297fd265d225dcf9c618824c3c8afc5f48a1bfb5f36de518d"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/cliente.go",
+    "sha256": "e2e183046016da377ea0e4d63683a8b01b98169d71984599815d78ebc901824f"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/cliente_regressao_test.go",
+    "sha256": "485940f17d6a4a0023aed9f176a6aaacce2f4103afb7683487ba8e51e81fe82e"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/cliente_test.go",
+    "sha256": "afc7ba460244ddfb9f5ad0c1bcf9984225eced7c85449483746cc70c720bd78d"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/consulta.go",
+    "sha256": "b4516bea463fa755ccf206daa5fc3dc1f31261953bd92f27d5198ed368fa932b"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/consulta_test.go",
+    "sha256": "e2347574e9062a5d15e36a1c5fd2ca80ccc807c6162b0c210afce733f84e41e2"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/doc.go",
+    "sha256": "7e13dc1f2c774389c104e6331b5a2f06caa7cb0d76a189db4a82d994dccf8aa2"
+  },
+  {
+    "spec": "005",
+    "file": "internal/adapter/out/openobserve/integracao_test.go",
+    "sha256": "6b3c1a1f9a763b0a1264e0efbdbc8fe7542677a0a099983768a0e70574822635"
+  },
+  {
+    "spec": "005",
+    "file": "internal/application/port/out/busca.go",
+    "sha256": "e1766606182ad3b56e64210f26cc2d4c96d4ae1865e14bb9ca5bc06c8ccf6f4a"
+  },
+  {
+    "spec": "005",
+    "file": "internal/application/port/out/efeito.go",
+    "sha256": "717aa5c9f7e9352146d9423d74aa1d223a4062c4f8bf8129b8945bed363cce70"
+  },
+  {
+    "spec": "005",
+    "file": "internal/application/recuperar.go",
+    "sha256": "fff9ed6900199e5b60e0556ba752220423cfce332f5b08780dfa330e5861f746"
+  },
+  {
+    "spec": "005",
+    "file": "internal/application/recuperar_test.go",
+    "sha256": "e0ed8beaf94c29a5bbf8dbb95738076e54e0dc2603b82fd08a3efc2c19e8d295"
+  },
+  {
+    "spec": "005",
+    "file": "internal/config/config.go",
+    "sha256": "c9e329f01e5c05d299aede8e16748a203b0900bfbc2abac438222bf94235a290"
+  },
+  {
+    "spec": "005",
+    "file": "internal/config/config_test.go",
+    "sha256": "4082de15daf9e64857e30464f9e63dbfa03d9f7f0a92cb5bd8954706c0c834a0"
+  },
+  {
+    "spec": "005",
+    "file": "internal/domain/recuperacao.go",
+    "sha256": "b18aa544fb277077f816ab838dcd7ff5dd42c5704c985dfe9942a479978acae3"
+  },
+  {
+    "spec": "005",
+    "file": "internal/domain/recuperacao_test.go",
+    "sha256": "e046a9f5b94dcc7c0f6544495b24ba41e018744ebb07d9d9001bbe62f63c9f7d"
+  },
+  {
+    "spec": "008",
+    "file": "internal/adapter/out/openobserve/recorrencia.go",
+    "sha256": "1d19ee7bd016422dc22371bc182e0f31a2f23d7c87a5b2891ea5363117ed99ae"
+  },
+  {
+    "spec": "008",
+    "file": "internal/adapter/out/openobserve/recorrencia_test.go",
+    "sha256": "177195bb71ebe0ecf2b221799ab756fd766a81ae36c4a96a99686a3e0da23faa"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/agrupar/agrupar_test.go",
+    "sha256": "96571bbca7f0988555bc785b014c0d4507d7538518c1793c0b842f6a444aac44"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/agrupar/consulta_memoria.go",
+    "sha256": "86ac768ca4a69ed4615d0da09e487825f64402dc050815919e63d24a14e723c6"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/agrupar/fusao_entre_lotes.go",
+    "sha256": "c70e08c61604076a339328b560dc9fa1d2904235c9cbb9e26f6897528038dfbb"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/agrupar/orquestrar.go",
+    "sha256": "0f3730a47e920ba4ad37c2d40a143b0f870b848222496ce8bc80e8d99a838052"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/agrupar/particionar_lote.go",
+    "sha256": "2b7830e2414e53942c8a8a9a39fa60f4d56775c59ad95c861317498431c5c2c1"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/assinatura/calcular.go",
+    "sha256": "069dbb65f7dbe3277075afe8ee179e0c4ff69043cff119176ab8cbe1322b5d04"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/assinatura/normalizar_mensagem.go",
+    "sha256": "947f1a608ed1108e8bcf7780536803ae47ac402dcf14167cd9bc8c7f0fe1ff3c"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/assinatura/normalizar_mensagem_test.go",
+    "sha256": "57d3c3a6c654feda8ed19f511c9fa3d0db8929dc1c5ce7a05947bc8a23e260c0"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/port/out/consulta_ocorrencia.go",
+    "sha256": "b3f6eeca4bcea356351f4faeb1420708aed6c9ea8b44fb8821001a0a481d4272"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/port/out/consulta_recorrencia.go",
+    "sha256": "3d24c360a41461763cb69596cb553fc5d35638e9c7278489dd2c5dd7290312d0"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/port/out/resumo_analise.go",
+    "sha256": "61dff3997a4e9852bf8c375de1159251343d177e2de10381acdb193bfc4077de"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/recorrencia/avaliar.go",
+    "sha256": "333f7fa6828d9d98a318a678a37696e8d42d1a2cb01934d0a9bbe31774ae8652"
+  },
+  {
+    "spec": "008",
+    "file": "internal/application/recorrencia/avaliar_test.go",
+    "sha256": "3abcf422cb19b069f91decb703786cea838eb0cf7ec5db4dd5bd4ab8db51d586"
+  },
+  {
+    "spec": "008",
+    "file": "internal/domain/achado_lote.go",
+    "sha256": "14c7777ee143cb66e8bdd6774520e072517503bee48602d68639bbc8b10ddbd0"
+  },
+  {
+    "spec": "008",
+    "file": "internal/domain/agregacao.go",
+    "sha256": "31b8266c7a3dc6a73ca6718f3ffdde60d503fae07a72275b1886c5a04d192a5d"
+  },
+  {
+    "spec": "008",
+    "file": "internal/domain/assinatura.go",
+    "sha256": "46c53054bc8875818f70574a08a70df79d9b3582604d78405bb1b147bdf3b111"
+  },
+  {
+    "spec": "010",
+    "file": "internal/application/ordem_seguranca_test.go",
+    "sha256": "6f460c32a7b4d2ef87a9cb3ec5082035a17245abbebcf9bf1fecdeca146105aa"
+  },
+  {
+    "spec": "010",
+    "file": "internal/application/port/out/catalogo_padroes.go",
+    "sha256": "af46b4d75e5dbef7640127a025fd5a0e4154077d425683e13771c66c2e90bfca"
+  },
+  {
+    "spec": "010",
+    "file": "internal/application/seguranca.go",
+    "sha256": "af0c88b903501091c638c1c535a1f14a1bc1d6b746170a4b13398872baa35148"
+  },
+  {
+    "spec": "010",
+    "file": "internal/application/seguranca_test.go",
+    "sha256": "ac1c1af6823980913fec6844f7c0ad5b8924668cb437e954e3c4ea6d88fbdd48"
+  },
+  {
+    "spec": "010",
+    "file": "internal/domain/seguranca.go",
+    "sha256": "2392a8b0b5f2ee9ce210d1bac37ca2e1371a49454688ee461b5331efbe1b5f9f"
+  },
+  {
+    "spec": "006",
+    "file": "internal/adapter/out/modocorrencia/doc.go",
+    "sha256": "47e751e82ef3b7c3c99b7f5f944dbb83a13ad6b357ab228d99107d136f88c629"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/analisar_lote.go",
+    "sha256": "bee4fccfd0606cbe95a4ec790e15c796500540ce8930cdcd71ce8b24948d7556"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/analisar_lote_test.go",
+    "sha256": "373407aae5cadd98fdb5b5064d25006210e45f8d554444ad2509e02ed22f481f"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/classificar_log.go",
+    "sha256": "7cbd44f424a35af0976de282edf0a106910ba9756a87c15b694ac6a677828dbd"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/desempenho_test.go",
+    "sha256": "7ce9ed29a2b1ee2064865d4128682f7a67657d19b2b4fa4be2c209c4e6f94e8a"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/port/in/analisar_lote.go",
+    "sha256": "afa900032ddbde35a1ba5f58d7fcc198202714c3385868595873649bf8348626"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/port/out/assinatura.go",
+    "sha256": "0c68a5f0dad469c13ebbda487854a69904db5b0631c3ddfd40d85d9053a74daf"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/port/out/consultar_achado_modulo.go",
+    "sha256": "83ab9da42c44761ba6086d4203747d636ae24526fe24c12d42a969bfc1e00da9"
+  },
+  {
+    "spec": "006",
+    "file": "internal/application/port/out/enviar_resumo.go",
+    "sha256": "eb5edcfaea6591558d68ea636814c350ab1596c83389bc2207a119cc785ba3a4"
+  },
+  {
+    "spec": "006",
+    "file": "internal/config/analise.go",
+    "sha256": "3062fd466a9d4495b3fb345a2ede423a2593e9809a87e2fc0e0f82844ab0a20e"
+  },
+  {
+    "spec": "006",
+    "file": "internal/config/analise_test.go",
+    "sha256": "ee306dd3330a92f12074313641a1b17f010955584fe9854d88067c51411e33e5"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/achado.go",
+    "sha256": "50fca7a505821aca1e602cc3adc305ae7c356fd2e7f17e250fe4222c6af76a4a"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/assinatura_classificacao.go",
+    "sha256": "1a8cc2b1401004f1b4624702259b06f7421bea7a36ffa5005723bf2356f69c59"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/classe_log.go",
+    "sha256": "7952cd2a170080cd1662f052c44144858d9a871fd2ceda5ccae980824e4a5c68"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/classificacao.go",
+    "sha256": "27cbe634c5463cca24c3f93eb878dc70faceeaa92b46e1a1c6e1036baf69d070"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/classificacao_test.go",
+    "sha256": "d7c039fcc562d8733e2635c59deec8d89fd88ab10e6ebed08a87bfb07ec786db"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/consulta_achado.go",
+    "sha256": "1585034008f554514c53c5fbc9a1aa5db7c3a29a3818823257f520d64d677188"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/falha_analise.go",
+    "sha256": "5cae2a5799d9dcf1b085598ce1e377ce032aa856652ee12ee31b6f9dfe4ef608"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/resumo_analise.go",
+    "sha256": "ca373552a840622b89807a3faac7806f34bdc82861a4682c3eab28082cafae13"
+  },
+  {
+    "spec": "006",
+    "file": "internal/domain/versao_regras.go",
+    "sha256": "4c3100d73ff79eb1cf160ea76613417f49673c3f0e7f2fecb66e9569efd650d6"
+  },
+  {
+    "spec": "007",
+    "file": "datasets/labeled-logs/README.md",
+    "sha256": "f48e0318a64828a116bcc7b4875986509ec38cc65564442555b17014a7aac3bb"
+  },
+  {
+    "spec": "007",
+    "file": "datasets/labeled-logs/SPLIT.md",
+    "sha256": "3d9e3b9a54f96fc9c011ade497460d9e70bb3822477e2a1743c71f76decb39de"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/doc.go",
+    "sha256": "d1f2679c5e69d844ebff2a893a0376a37eed8ded9d4b79147b6597c3b197d259"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/load.go",
+    "sha256": "25b975adfca5819deb22eff76397ee20ae592536c5d9aa42b2cd7a79b3135716"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/map_to_classifier.go",
+    "sha256": "e281cb16b8eda94ff1d2778a25fabd171db53faa4448d1385e7c8286512d4421"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/metrics.go",
+    "sha256": "abe97fa0bfce4c894a175f416943a40ef7bab6bdab5e8612a6114adadb1fbe0e"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/metrics_test.go",
+    "sha256": "014302c212742baea45f18ffd78dabf578dd79fad4ed2b5cbf273ebd62d502f7"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/types.go",
+    "sha256": "75eb59c165823f009dfe22f1444466ddfdb7c637a23cb91d5fbefa868aa30f43"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/validate.go",
+    "sha256": "88a4d9401b7989aa43a3513fb05cebb7597a9aaa82bea446734407a01a7c2e67"
+  },
+  {
+    "spec": "007",
+    "file": "internal/labeleddataset/validate_test.go",
+    "sha256": "605dc269d7cb5ea7a05dfc0ded4f5b969396777576c88be329b5ea06b45f41b8"
+  },
+  {
+    "spec": "009",
+    "file": "internal/adapter/out/modocorrencia/serializar_resumo.go",
+    "sha256": "1dfd441d590a294f254d551326c29265679cb354a39ac2c8841337dbc8fd4183"
+  },
+  {
+    "spec": "009",
+    "file": "internal/adapter/out/modocorrencia/serializar_resumo_test.go",
+    "sha256": "5ac28178ca8fd9003109dfe796f57e42cc22a2dbb8ec2eb5f4983987dc15795c"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/handoff/entrega.go",
+    "sha256": "74b709ef5240603cc2e85e8af6465b875bfa87fd03fb3b94d643c16ac8fd9738"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/handoff/entrega_test.go",
+    "sha256": "0cfff6a83a6ac6bd1e8fbc3f72ed354d273f34a4853f23ee9bbd7060497b924e"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/handoff/fluxo_test.go",
+    "sha256": "ecac81d7d1b4bb5f7eede439e94be7d86d6fbdaaf7d9e1fa0af8b7f2e3a0b366"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/handoff/orquestrar_entrega.go",
+    "sha256": "082ae3fa1d7867b177c1dc55ba40c9ea6405d12e730ee6a70f782f8f0a15bec7"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/port/out/finalizar_analise.go",
+    "sha256": "d93e1141f09f1f90372a9579d6e1e5bbae0a2fba8e1702621319d8f9c4a8a897"
+  },
+  {
+    "spec": "009",
+    "file": "internal/application/port/out/modulo_ocorrencia.go",
+    "sha256": "347d277423801c4721e7468924a677ac1c7be971388cb3b28da6b11d959204a3"
+  },
+  {
+    "spec": "009",
+    "file": "internal/domain/confirmacao_handoff.go",
+    "sha256": "8e0666cce037f5d978635702ba1b20f508bacd5b9d96b998180e445818362e53"
+  },
+  {
+    "spec": "009",
+    "file": "internal/domain/idempotencia_handoff.go",
+    "sha256": "1dc0d31101623e711598bb15791cd240164857cbbbd7e4b3c52924ee7ccf99b3"
+  }
+]

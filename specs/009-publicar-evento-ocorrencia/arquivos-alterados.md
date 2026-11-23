@@ -1,0 +1,43 @@
+# Arquivos alterados
+
+Referência: origin/Development `6e8b0fd`. Para a 005, isso inclui a implementação já existente, não reimplementada; as alterações novas de código são cliente.go, integracao_test.go e cliente_regressao_test.go. Documentos 006–010 que aparecem staged na 005 provêm da sincronização com Development.
+
+- `internal/adapter/out/modocorrencia/serializar_resumo.go`
+- `internal/adapter/out/modocorrencia/serializar_resumo_test.go`
+- `internal/application/handoff/entrega.go`
+- `internal/application/handoff/entrega_test.go`
+- `internal/application/handoff/fluxo_test.go`
+- `internal/application/handoff/orquestrar_entrega.go`
+- `internal/application/port/out/finalizar_analise.go`
+- `internal/application/port/out/modulo_ocorrencia.go`
+- `internal/domain/confirmacao_handoff.go`
+- `internal/domain/idempotencia_handoff.go`
+- `specs/009-publicar-evento-ocorrencia/arquivos-alterados.md`
+- `specs/009-publicar-evento-ocorrencia/contracts/pipeline-aviso-referencia.md`
+- `specs/009-publicar-evento-ocorrencia/contracts/resumo-analise-handoff.md`
+- `specs/009-publicar-evento-ocorrencia/data-model.md`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-race-integracoes-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-race-integracoes.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-unit-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-unit.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-vet-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/aceite-final-vet.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/campo-sem-semantica-green-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/campo-sem-semantica-green.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/campo-sem-semantica-red-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/campo-sem-semantica-red.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/fluxo-logico-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/fluxo-logico.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/handoff-green-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/handoff-green.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/handoff-red-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/handoff-red.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/snapshot-ponteiro-green-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/snapshot-ponteiro-green.txt`
+- `specs/009-publicar-evento-ocorrencia/evidencias/snapshot-ponteiro-red-composition.json`
+- `specs/009-publicar-evento-ocorrencia/evidencias/snapshot-ponteiro-red.txt`
+- `specs/009-publicar-evento-ocorrencia/execucao.md`
+- `specs/009-publicar-evento-ocorrencia/quickstart.md`
+- `specs/009-publicar-evento-ocorrencia/rastreabilidade.md`
+- `specs/009-publicar-evento-ocorrencia/research.md`
+- `specs/009-publicar-evento-ocorrencia/tasks.md`

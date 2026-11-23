@@ -1,0 +1,19 @@
+COMMAND: go test -count=1 ./internal/adapter/out/modocorrencia ./internal/application/handoff
+CWD: /workspace/lhamalog-specs/validacoes/composicao-xo3fnsur
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia [github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia.test]
+internal/adapter/out/modocorrencia/cliente_test.go:20:54: undefined: Cliente
+internal/adapter/out/modocorrencia/cliente_test.go:24:12: undefined: NovoCliente
+internal/adapter/out/modocorrencia/cliente_test.go:24:24: undefined: OpcoesCliente
+internal/adapter/out/modocorrencia/cliente_test.go:124:86: undefined: out.ErrRevisaoDesatualizada
+internal/adapter/out/modocorrencia/cliente_test.go:128:83: undefined: ErrModuloTemporario
+internal/adapter/out/modocorrencia/cliente_test.go:152:82: undefined: ErrModuloTemporario
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia [build failed]
+# github.com/LhamaLog/lhamalog-finder/internal/application/handoff_test [github.com/LhamaLog/lhamalog-finder/internal/application/handoff.test]
+internal/application/handoff/revisao_test.go:41:38: undefined: out.ErrRevisaoDesatualizada
+internal/application/handoff/revisao_test.go:42:40: undefined: out.ErrRevisaoDesatualizada
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/handoff [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.797

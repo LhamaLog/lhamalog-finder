@@ -1,0 +1,10 @@
+COMMAND: go test -race -count=1 -v ./internal/application/handoff -run TestFluxoLogico
+CWD: /workspace/scratch/lhamalog-validation-88v68sh1
+ENV (somente teste): {}
+=== RUN   TestFluxoLogico010006008009
+--- PASS: TestFluxoLogico010006008009 (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.011s
+
+EXIT: 0
+SECONDS: 1.732

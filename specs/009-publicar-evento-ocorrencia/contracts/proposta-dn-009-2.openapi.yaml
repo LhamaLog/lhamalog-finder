@@ -1,0 +1,320 @@
+openapi: 3.1.0
+info:
+  title: Finder — entrega ao Módulo de Ocorrência
+  version: 1.0.0
+  description: Contrato aprovado DN-009-2 e N3 A entre Finder e Módulo de Ocorrência.
+security:
+  - jwtInterno: []
+paths:
+  /internal/v1/ocorrencias/consultas:
+    post:
+      operationId: consultarOcorrenciaPorAchado
+      summary: Consultar o estado de uma ocorrência pela identidade do achado
+      description: Consulta somente leitura. Requer autorização para o tenant e o produto informados.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsultaAchado' }
+            example:
+              tenantId: tenant-sintetico
+              productId: produto-sintetico
+              tipo: WARNING
+              assinatura: 'WARNING|fila com atraso|coletor|host-sintetico'
+      responses:
+        '200':
+          description: Resultado da consulta, com estado nulo se a ocorrência não existir.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResultadoConsulta' }
+              examples:
+                ausente:
+                  value: { estado: null }
+                existente:
+                  value:
+                    estado:
+                      contagemAcumulada: 10
+                      primeiraOcorrencia: '2026-11-19T15:00:00Z'
+                      ultimaOcorrencia: '2026-11-19T15:05:00Z'
+                      status: ABERTA
+                      revisao: revisao-sintetica-10
+        '400': { $ref: '#/components/responses/RequisicaoInvalida' }
+        '401': { $ref: '#/components/responses/AutenticacaoInvalida' }
+        '403': { $ref: '#/components/responses/AcessoNegado' }
+        '422': { $ref: '#/components/responses/DadosInvalidos' }
+        '429': { $ref: '#/components/responses/Temporaria' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+        '503': { $ref: '#/components/responses/Temporaria' }
+        default: { $ref: '#/components/responses/Erro' }
+  /internal/v1/resumos-analise:
+    post:
+      operationId: entregarResumoAnalise
+      summary: Entregar um resumo por lote com confirmação durável
+      description: >-
+        Idempotência no escopo tenantId e productId, pela chave batchId e execId opcional.
+        Uma chave já aceita devolve o recibo original antes da verificação das revisões.
+        Para uma chave nova, todas as revisões devem corresponder antes da escrita dos achados e do recibo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResumoAnalise' }
+            example:
+              tenantId: tenant-sintetico
+              productId: produto-sintetico
+              batchId: lote-sintetico
+              versaoRegras: regras-teste-v1
+              contadores:
+                linhasProcessadas: 3
+                erros: 0
+                warnings: 3
+                informacao: 0
+                dadosSensiveisMascarados: 0
+              achados:
+                - tipo: WARNING
+                  assinatura: 'WARNING|fila com atraso|coletor|host-sintetico'
+                  hostName: host-sintetico
+                  contagem: 13
+                  primeiraOcorrencia: '2026-11-19T15:00:00Z'
+                  ultimaOcorrencia: '2026-11-20T15:05:00Z'
+                  recorrente: false
+                  linhas: ['fila com atraso']
+                  revisaoConsultada: revisao-sintetica-10
+                  titulo: null
+                  resumo: null
+                  numeroLinha: null
+                  camposExtraido: null
+                  dadosSensiveis: false
+      responses:
+        '201':
+          description: Primeiro registro persistido com recibo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Confirmacao' }
+              example:
+                aceito: true
+                reciboId: recibo-sintetico
+                tenantId: tenant-sintetico
+                productId: produto-sintetico
+                batchId: lote-sintetico
+                repeticao: false
+        '200':
+          description: Chave já aceita. O recibo é o mesmo da primeira entrega.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Confirmacao' }
+              example:
+                aceito: true
+                reciboId: recibo-sintetico
+                tenantId: tenant-sintetico
+                productId: produto-sintetico
+                batchId: lote-sintetico
+                repeticao: true
+        '400': { $ref: '#/components/responses/RequisicaoInvalida' }
+        '401': { $ref: '#/components/responses/AutenticacaoInvalida' }
+        '403': { $ref: '#/components/responses/AcessoNegado' }
+        '409':
+          description: Revisão desatualizada ou primeira entrega concorrente em andamento.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Erro'
+                  - properties:
+                      codigo:
+                        enum: [REVISAO_DESATUALIZADA, ENTREGA_EM_ANDAMENTO]
+              examples:
+                revisao:
+                  value: { codigo: REVISAO_DESATUALIZADA }
+                concorrente:
+                  value: { codigo: ENTREGA_EM_ANDAMENTO }
+        '422': { $ref: '#/components/responses/DadosInvalidos' }
+        '429': { $ref: '#/components/responses/Temporaria' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+        '503': { $ref: '#/components/responses/Temporaria' }
+        default: { $ref: '#/components/responses/Erro' }
+components:
+  securitySchemes:
+    jwtInterno:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT próprio de serviço, em rede privada por HTTPS. Emissor, audiência, identidade e chaves vêm da configuração.
+  responses:
+    Erro:
+      description: Falha sem confirmação de entrega.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    RequisicaoInvalida:
+      description: Corpo JSON ou formato da requisição inválido.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    AutenticacaoInvalida:
+      description: JWT ausente, inválido ou expirado.
+      headers:
+        WWW-Authenticate:
+          schema: { type: string }
+          example: Bearer
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    AcessoNegado:
+      description: Serviço sem autorização para a operação ou identidade informada.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    DadosInvalidos:
+      description: JSON legível com campos ou invariantes do contrato inválidos.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    ErroInterno:
+      description: Falha interna ou violação de integridade sem recibo nesta resposta.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    Temporaria:
+      description: Serviço ocupado ou temporariamente indisponível.
+      headers:
+        Retry-After:
+          description: Quando disponível, informa a espera em segundos ou como data HTTP.
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+  schemas:
+    Identificador:
+      type: string
+      minLength: 1
+    ExecId:
+      type: string
+      pattern: '^[VM][0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    Classe:
+      type: string
+      enum: [ERROR, WARNING, INFO]
+    InstanteUTC:
+      type: string
+      format: date-time
+      pattern: 'Z$'
+    ConsultaAchado:
+      type: object
+      additionalProperties: false
+      required: [tenantId, productId, assinatura, tipo]
+      properties:
+        tenantId: { $ref: '#/components/schemas/Identificador' }
+        productId: { $ref: '#/components/schemas/Identificador' }
+        assinatura: { $ref: '#/components/schemas/Identificador' }
+        tipo: { $ref: '#/components/schemas/Classe' }
+    ResultadoConsulta:
+      type: object
+      additionalProperties: false
+      required: [estado]
+      properties:
+        estado:
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/EstadoOcorrencia'
+    EstadoOcorrencia:
+      type: object
+      additionalProperties: false
+      required: [contagemAcumulada, primeiraOcorrencia, ultimaOcorrencia, status, revisao]
+      properties:
+        contagemAcumulada: { type: integer, format: int64, minimum: 1 }
+        primeiraOcorrencia: { $ref: '#/components/schemas/InstanteUTC' }
+        ultimaOcorrencia: { $ref: '#/components/schemas/InstanteUTC' }
+        status: { type: string, enum: [ABERTA, EM_ANALISE, FECHADA] }
+        revisao: { $ref: '#/components/schemas/Identificador' }
+    ResumoAnalise:
+      type: object
+      additionalProperties: false
+      required: [tenantId, productId, batchId, versaoRegras, contadores, achados]
+      properties:
+        tenantId: { $ref: '#/components/schemas/Identificador' }
+        productId: { $ref: '#/components/schemas/Identificador' }
+        batchId: { $ref: '#/components/schemas/Identificador' }
+        execId: { $ref: '#/components/schemas/ExecId' }
+        versaoRegras: { $ref: '#/components/schemas/Identificador' }
+        versaoCatalogo: { $ref: '#/components/schemas/Identificador' }
+        identificacaoRegras: { $ref: '#/components/schemas/IdentificacaoRegras' }
+        contadores: { $ref: '#/components/schemas/Contadores' }
+        achados:
+          type: array
+          items: { $ref: '#/components/schemas/AchadoAnalise' }
+    IdentificacaoRegras:
+      type: object
+      additionalProperties: false
+      required: [versaoUnica, somenteNivel, catalogoEntrou]
+      properties:
+        versaoUnica:
+          $ref: '#/components/schemas/Identificador'
+          description: Deve ser igual a versaoRegras do resumo.
+        somenteNivel: { type: boolean }
+        catalogoEntrou: { type: boolean }
+    Contadores:
+      type: object
+      additionalProperties: false
+      description: Contadores do lote. O total processado é a soma de erros, warnings e informacao.
+      required: [linhasProcessadas, erros, warnings, informacao, dadosSensiveisMascarados]
+      properties:
+        linhasProcessadas: { type: integer, format: int64, minimum: 0 }
+        erros: { type: integer, format: int64, minimum: 0 }
+        warnings: { type: integer, format: int64, minimum: 0 }
+        informacao: { type: integer, format: int64, minimum: 0 }
+        dadosSensiveisMascarados: { type: integer, format: int64, minimum: 0 }
+    AchadoAnalise:
+      type: object
+      additionalProperties: false
+      required: [tipo, assinatura, hostName, contagem, primeiraOcorrencia, ultimaOcorrencia, recorrente, linhas, revisaoConsultada, titulo, resumo, numeroLinha, camposExtraido, dadosSensiveis]
+      properties:
+        tipo: { $ref: '#/components/schemas/Classe' }
+        assinatura: { $ref: '#/components/schemas/Identificador' }
+        hostName: { $ref: '#/components/schemas/Identificador' }
+        contagem:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Total após incorporar o lote à contagem da ocorrência consultada.
+        primeiraOcorrencia: { $ref: '#/components/schemas/InstanteUTC' }
+        ultimaOcorrencia: { $ref: '#/components/schemas/InstanteUTC' }
+        recorrente: { type: boolean }
+        linhas:
+          type: array
+          items: { type: string }
+          description: Apenas trechos que passaram pelo scanner. Pode ser vazio.
+        revisaoConsultada:
+          type: [string, 'null']
+          minLength: 1
+          description: Revisão opaca da consulta ou nulo se a consulta informou ausência.
+        titulo: { type: [string, 'null'] }
+        resumo: { type: [string, 'null'] }
+        numeroLinha: { type: [integer, 'null'], minimum: 1 }
+        camposExtraido:
+          type: [object, 'null']
+          additionalProperties: { type: string }
+        dadosSensiveis: { type: [boolean, 'null'] }
+        traceId: { $ref: '#/components/schemas/Identificador' }
+        correlationId: { $ref: '#/components/schemas/Identificador' }
+        moduloId: { $ref: '#/components/schemas/Identificador' }
+    Confirmacao:
+      type: object
+      additionalProperties: false
+      required: [aceito, reciboId, tenantId, productId, batchId, repeticao]
+      properties:
+        aceito: { type: boolean, const: true }
+        reciboId: { $ref: '#/components/schemas/Identificador' }
+        tenantId: { $ref: '#/components/schemas/Identificador' }
+        productId: { $ref: '#/components/schemas/Identificador' }
+        batchId: { $ref: '#/components/schemas/Identificador' }
+        execId: { $ref: '#/components/schemas/ExecId' }
+        repeticao: { type: boolean }
+    Erro:
+      type: object
+      additionalProperties: false
+      required: [codigo]
+      properties:
+        codigo:
+          type: string
+          pattern: '^[A-Z][A-Z0-9_]*$'
+          description: Código operacional estável. O erro não inclui credenciais, assinatura ou conteúdo de logs.

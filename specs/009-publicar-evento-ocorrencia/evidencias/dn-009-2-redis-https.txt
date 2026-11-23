@@ -1,0 +1,92 @@
+COMMAND: go test -race -count=1 -v ./internal/application/handoff -run TestHandoffHTTPComRedis
+CWD: /workspace/lhamalog-specs/validacoes/composicao-nilcd11s
+ENV (somente teste): {"FINDER_OPENOBSERVE_INTEGRATION": "1", "FINDER_OO_URL": "http://127.0.0.1:15080", "FINDER_OO_TIMEOUT": "5s", "FINDER_OO_PAGINA": "2", "FINDER_OO_CAMPOS_COPIA": "copia", "FINDER_OO_ORDEM": "lhamalog_record_id ASC, copia ASC", "FINDER_OO_CAMPO_TENANT": "tenant_teste", "FINDER_OO_CAMPO_PRODUTO": "produto_teste", "FINDER_REDIS_INTEGRATION": "1", "FINDER_REDIS_ADDR": "127.0.0.1:16379", "FINDER_REDIS_STREAM": "lhamalog:stream:logs", "FINDER_REDIS_GROUP": "finder-prova", "FINDER_REDIS_CODIGOS": "dn-009-2:codigos", "FINDER_REDIS_CONSUMIDOR": "dn-009-2", "FINDER_REDIS_IDEMPOTENCIA": "dn-009-2:", "FINDER_REDIS_COUNT": "2", "FINDER_REDIS_BLOCK": "200ms", "FINDER_REDIS_PENDENCIA_OCIOSA": "1s"}
+=== RUN   TestHandoffHTTPComRedisMantemPendenteAteRecibo
+2026/11/20 20:13:55 INFO referência entregue id=1795216435098-0 desfecho="referência entregue" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:55 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:56 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:57 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:58 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:13:59 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:00 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:01 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+2026/11/20 20:14:02 INFO entrada pendente id=1795216435098-0 desfecho="entrada pendente" idempotencyId=lote
+    redis_http_integracao_test.go:150: recibo não encerrou a entrada: {Confirmacoes:0 Efeitos:0 Invalida:false FalhaLeitura:false}
+--- FAIL: TestHandoffHTTPComRedisMantemPendenteAteRecibo (8.01s)
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	8.021s
+FAIL
+
+EXIT: 1
+SECONDS: 12.215

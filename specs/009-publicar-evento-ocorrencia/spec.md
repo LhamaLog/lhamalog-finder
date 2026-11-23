@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-14
 
-**Status**: Draft (clarificado em 2026-11-16 etapas 3b–3h; aguarda spec `008-agrupar-logs-ocorrencia` para aceite formal dos cenários **atualizada** e **recorrente**; plan Finder **bloqueado** em **DN-009-2** até contrato do Módulo — rotas/consulta ao Módulo inclusas)
+**Status** · Draft · Cliente Finder DN-009-2 implementado · Aceite integrado depende da spec 008 e da API do Módulo
 
 **Input**: Jira **LLT-201**; Epic Finder — IA própria de classificação e agregação; Feature **Agregação em ocorrências (E07.F3)**; item **E07.F3.2**; contexto em `contexto-LLT-103.md` §2.3 e §3; clarificações João e Drive 15–16/11/2026.
 
@@ -93,6 +93,10 @@
 - Ajuste: **DLQ B** — **não** existe **DLQ** no fluxo **log.ingested v1**; as políticas retry/DLQ do guia (**FilaOrdenada**) **não** se aplicam ao ingested (fonte: respostas-joao.md §Etapa 3g (João, 16/11 13h22), DLQ B; origem: respostas-etapa3g.md §1b, contrato log.ingested v1, DN-006-1b B).
 - Ajuste: **DN-008-3** / **DN-008-6** (alcance revisto) — falha transitória na **consulta ao OpenObserve**: até **3 tentativas**; após esgotar, o Finder avisa o **Core** pela **API interna** com **`batchId`** e **motivo**; **sem** DLQ nem alerta via consumidor DLQ / **WebSocket** pós-DLQ (substitui leitura §Etapa 3c 11h). Rota, payload e evento da API do Core: **[PENDENTE]** (**ADR_051 [PENDENTE]**). (fonte: respostas-joao.md §Etapa 3g (João, 16/11 13h22), DLQ B; origem: respostas-etapa3g.md §1, DN-008-3/008-6)
 - Ajuste: **DN-008-9 A** — um caractere **`|`** literal **dentro** de um componente da assinatura é serializado como **`\|`** (barra invertida + pipe); dono canônico spec **008**; esta feature **reutiliza** (**FR-F11**). (fonte: respostas-joao.md §Etapa 3g (João, 16/11 13h22), DN-008-9 A; origem: DN-008-8 A, 008 assinatura A)
+
+### Session 2026-11-20
+
+- O usuário aprovou a implementação de DN-009-2 e N3 A. O contrato define consulta por achado, entrega idempotente por lote, recibo explícito e revisão opaca para concorrência. O adaptador Finder foi verificado com servidor de teste. A homologação do Módulo e o aceite SC-002 permanecem em aberto. [Contrato aprovado](contracts/proposta-dn-009-2.md)
 
 ## Responsabilidades por componente (delimitação de escopo)
 
@@ -277,7 +281,7 @@ Reentregas do mesmo fato não produzem efeito duplicado indevido no Core (**009-
 
 ### DN-009-2 — Contrato HTTP Finder → Módulo Ocorrência (rota, JWT, respostas, 5xx/timeout)
 
-O João registrou **pendência no plan até o contrato**. O Drive fixa apenas API interna, JWT próprio e rede privada (**ADR_028**, **ADR_054**, **ADR_141**); não há rota, claims, códigos nem timeout para o handoff **ResumoAnalise** nem para a **consulta por achado** (**DN-008-7 B**, **FR-F09**) (**respostas-etapa3.md §10**). O grão do envio (**um ResumoAnalise por lote**, **DN-008-7**) e da consulta (**por achado**) já está fechado; faltam path, JWT e semântica HTTP.
+As questões abaixo registram as alternativas antes da aprovação. A decisão de 20/11/2026 define as duas rotas HTTPS, o corpo com chave de lote, os recibos `201` e `200` e um recálculo por revisão desatualizada. [Contrato aprovado](contracts/proposta-dn-009-2.md)
 
 | Opção | Descrição | Prós | Contras |
 |-------|-----------|------|---------|
@@ -289,9 +293,7 @@ O João registrou **pendência no plan até o contrato**. O Drive fixa apenas AP
 | **10d-A** | 5xx/timeout: mesma regra **009-18 A** (3 tentativas + DLQ) | Consistente com falha de publicação | Sem alerta Core extra |
 | **10d-B** | 10d-A + **alerta ao Core** | Operação visível | Decisão nova sem João |
 
-**Recomendação (não decisão):** **10a-A** + **10c-A** + **10d-A**, coerentes com **DN-008-7** (handoff por lote), consultas **DN-008-7 B** (contrato distinto ou sub-rota no mesmo serviço) e **N1 A**; **10b** e detalhes de path exigem ADR do Módulo (**10a-C**).
-
-**Impacto no Finder:** implementação do adaptador HTTP (**FR-F01**, **FR-F05**) **bloqueada** até fechar **DN-009-2** (contrato publicado fora deste repo).
+O cliente Finder está implementado. A ativação depende da API do Módulo, da configuração JWT do ambiente e das demais integrações de produção.
 
 ## Decisões tomadas (com fonte)
 
@@ -372,10 +374,10 @@ O João registrou **pendência no plan até o contrato**. O Drive fixa apenas AP
 ## Questões em aberto (remanescentes)
 
 1. **Chave concreta** da ocorrência (C8, ADR_040 **[PENDENTE]**) — id opaco já permitido (**009-6 A**).
-2. **DN-009-2** — contrato HTTP Finder → Módulo Ocorrência (rota, JWT, respostas, 5xx/timeout) para **POST ResumoAnalise** (**DN-008-7**) e **consulta por achado** (**DN-008-7 B**); **bloqueia plan** até contrato/ADR do Módulo.
+2. **DN-009-2** — implementar o servidor do Módulo, configurar o JWT e homologar a integração com o Finder. O cliente segue o [contrato aprovado](contracts/proposta-dn-009-2.md).
 3. **API Finder → Core** após falha OpenObserve esgotada (**DN-008-3**/**DN-008-6**): rota, payload e evento **[PENDENTE]** (**ADR_051 [PENDENTE]**); **não** inventar contrato nesta feature.
 4. **Commit de alinhamento** do Coletor ao contrato v1 (**T5 D**, contrato §12) — fato pendente, não decisão de design da 009.
-5. **Formato exato** dos novos campos **AchadoAnalise** (**N3 A**) — aguarda ADR nova (semântica de **assinatura**/**mensagem normalizada** alinhada a **DN-008-4 B** / spec **008**).
+5. **N3 A** — os campos de transporte são definidos pelo OpenAPI aprovado. A publicação e a conciliação da ADR do Módulo seguem externas a este repositório.
 6. ~~**Separador fixo** da serialização **008 assinatura A**~~ — **DN-008-8 A**: literal **`|`** propagado para reuso; dono canônico spec **008** (ver Clarifications etapa 3g).
 7. **Escape de `\`** nos componentes da assinatura (**DN-008-9**) — **[PENDENTE]** sem fonte; vale apenas **`|`** → **`\|`** (**DN-008-9 A**).
 8. **Dono canônico** dos marcadores **DN-008-5 A** — documentados na spec **008**; 009 só reutiliza (**FR-F11**).

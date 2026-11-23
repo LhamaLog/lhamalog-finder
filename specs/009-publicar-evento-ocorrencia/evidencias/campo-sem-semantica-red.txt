@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/adapter/out/modocorrencia -run TestFlagDeAchado
+CWD: /workspace/scratch/lhamalog-validation-w_5jcsuv
+ENV (somente teste): {}
+--- FAIL: TestFlagDeAchadoSemSemanticaNaoAfirmaAusenciaDeSensivel (0.00s)
+    serializar_resumo_test.go:37: campo sem semantica formal afirmou resultado
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	0.002s
+FAIL
+
+EXIT: 1
+SECONDS: 0.212

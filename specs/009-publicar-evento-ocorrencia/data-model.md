@@ -41,7 +41,7 @@ Handoff ao fim da análise do arquivo/lote (**ADR_062**, revisao-T1-drive.md §2
 
 **Granularidade**: **exatamente um** payload por lote analisado (**DN-008-7**; fonte: respostas-etapa3c.md §6; origem: ADR_062). **MUST NOT** enviar HTTP separado por achado no handoff do resumo (**FR-F01**).
 
-**Relação com código**: montado após análise do lote (e consultas **N2 B**, quando aplicável); entrega via porta `ModuloOcorrencia` — implementação HTTP **bloqueada** por **DN-009-2**.
+**Relação com código**: montado após análise do lote (e consultas **N2 B**, quando aplicável); entrega pela porta `ModuloOcorrencia` e pelo cliente HTTPS DN-009-2.
 
 ---
 
@@ -54,16 +54,17 @@ Handoff ao fim da análise do arquivo/lote (**ADR_062**, revisao-T1-drive.md §2
 | `recorrente` | sim | Booleano de marca recorrente no achado; semântica operacional na spec **008** | ADR_063 |
 | Campos Drive | conforme ADR | `titulo`, `resumo`, `numeroLinha`, `traceId`, `correlationId`, … | Finder.mmd, ADR_040 |
 
-### Campos N3 A — [PENDENTE ADR]
+### Campos N3 A e revisão DN-009-2
 
 | Campo | Descrição | Fonte |
 |-------|-----------|-------|
 | `assinatura` | Chave de agrupamento; valor = texto concatenando partes **DN-008-1 B** com separador fixo **`|`** (**008 assinatura A**; **DN-008-8 A**); **`|`** nos componentes → **`\|`** (**DN-008-9 A**); escape de **`\`** **[PENDENTE]**; dono canônico spec **008** | N3 A; DN-008-1 B; 008 assinatura A; DN-008-8 A; DN-008-9 A (fonte: respostas-joao.md §Etapa 3c 11h; §Etapa 3e DN-008-8 A; §Etapa 3g DN-008-9 A) |
 | `contagem` | Após fusão entre lotes | N3 A, N2 B |
 | `primeiraOcorrencia` / `ultimaOcorrencia` | Extremos temporais | N3 A, 008-14 A |
-| `versaoRegras` | Por achado se não só no resumo | N3 A |
+| `versaoRegras` | No resumo, herdada por todos os achados | N3 A, DN-009-2 |
+| `revisaoConsultada` | Revisão opaca observada, ou nula quando ausente | DN-009-2 |
 
-Até ADR publicada, handoff **pode** omitir estes campos no aceite inicial (**corrige analyze U2**); **FR-F09** / **N2 B** permanecem requisito de desenho nesta feature, com aceite parcial do payload até ADR + spec **008**; agrupamento operacional depende dos campos **N3 A**. Semântica **DN-008-4 B** / **DN-008-5 A** / **008 assinatura A** / **DN-008-8 A** fechada (etapas 3c–3g, **FR-F11**); literais de marcador fechados (**DN-008-5 A**); separador fixo **`|`** propagado (**DN-008-8 A**; dono canônico spec **008**) (fonte: respostas-joao.md, N3 A; §Etapa 3c 11h; §Etapa 3e DN-008-8 A).
+O serializador exige os campos de agrupamento e a presença de revisão para um achado existente. O formato das datas e os demais campos seguem o [contrato aprovado](contracts/proposta-dn-009-2.md).
 
 ### Mensagem normalizada (entrada da assinatura)
 
@@ -100,7 +101,7 @@ Resposta lógica do Módulo Ocorrência ao Finder (**FR-F05**).
 | Campo | Descrição | Fonte |
 |-------|-----------|-------|
 | Confirmação explícita | Handoff aceito | seq. v6 §2 |
-| Corpo HTTP / códigos | **Pendente DN-009-2** — Drive não fixa além de “confirma o recebimento” | respostas-etapa3.md §10 |
+| Corpo HTTP / códigos | `201` inicial ou `200` repetido, com recibo validado contra a identidade completa do lote | DN-009-2 |
 
 **Transição de estado (Finder)**: análise concluída → handoff enviado → **aguardando confirmação** → varredura concluída.
 
@@ -202,3 +203,7 @@ Notificacao --leitura id--> OcorrenciaNegocio (MongoDB compartilhado)
 | Enviar **um** ResumoAnalise por lote | FR-F01, DN-008-7 |
 | Aplicar **DN-008-4 B** / **DN-008-5 A** / **008 assinatura A** (separador fixo **`|`** — **DN-008-8 A**; escape **`|`** → **`\|`** — **DN-008-9 A**) ao compor assinatura | FR-F11 |
 | Falha consulta OpenObserve: até **3 tentativas**; **sem DLQ** ingested (**DLQ B**); depois Finder→Core API (**batchId**, motivo); contrato **[PENDENTE ADR_051]** | FR-F07, DN-008-3, DN-008-6 (rev.) |
+
+## Evidência desta execução
+
+Tipos ResumoAnalise/AchadoAnalise/ChaveResumo são reutilizados da 006. C8 (chave concreta de ocorrência ADR_040) segue pendente; 009-6 A permanece rastreado no modelo, sem nova decisão. No JSON, `dadosSensiveis: null` indica que o resultado é desconhecido. Normalização/composição e agrupamento usam exclusivamente a 008; não existe normalizador paralelo no domínio da 009.

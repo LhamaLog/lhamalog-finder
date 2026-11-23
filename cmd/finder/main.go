@@ -13,6 +13,7 @@ import (
 	"github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue"
 	"github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve"
 	"github.com/LhamaLog/lhamalog-finder/internal/application"
+	"github.com/LhamaLog/lhamalog-finder/internal/bootstrap"
 	"github.com/LhamaLog/lhamalog-finder/internal/config"
 )
 
@@ -53,6 +54,11 @@ func main() {
 		os.Exit(1)
 	}
 	defer lote.Fechar()
+	pipeline, err := bootstrap.Novo(context.Background(), cfg, lote, bootstrap.Opcoes{})
+	if err != nil {
+		log.Error("pipeline recusado", "erro", err)
+		os.Exit(1)
+	}
 
 	ouvinte, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
@@ -78,6 +84,9 @@ func main() {
 	}
 	ctx, parar := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer parar()
+
+	// O consumo começa somente com a análise e a entrega completas conectadas.
+	consumo.Efeito = pipeline
 
 	for {
 		_, err := consumo.Executar(ctx)

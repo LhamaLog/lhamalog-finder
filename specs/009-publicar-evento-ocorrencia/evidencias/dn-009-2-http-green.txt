@@ -1,0 +1,9 @@
+COMMAND: go test -race -count=1 ./internal/adapter/out/modocorrencia ./internal/application/handoff ./internal/application/agrupar
+CWD: /workspace/lhamalog-specs/validacoes/composicao-ejw80zqw
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	1.192s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.012s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar	1.011s
+
+EXIT: 0
+SECONDS: 3.672

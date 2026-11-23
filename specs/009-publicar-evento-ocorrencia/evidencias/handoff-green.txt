@@ -1,0 +1,8 @@
+COMMAND: go test -race -count=1 ./internal/application/handoff ./internal/adapter/out/modocorrencia
+CWD: /workspace/scratch/lhamalog-validation-0x5opxh7
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/handoff	1.013s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/modocorrencia	1.021s
+
+EXIT: 0
+SECONDS: 1.819
