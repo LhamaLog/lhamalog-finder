@@ -1,0 +1,20 @@
+COMMAND: go test -count=1 ./internal/labeleddataset
+CWD: /workspace/scratch/lhamalog-validation-6t4za_3e
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/labeleddataset [github.com/LhamaLog/lhamalog-finder/internal/labeleddataset.test]
+internal/labeleddataset/metrics_test.go:10:10: undefined: LoadConjunto
+internal/labeleddataset/metrics_test.go:11:9: undefined: Avaliar
+internal/labeleddataset/metrics_test.go:16:12: undefined: Avaliar
+internal/labeleddataset/metrics_test.go:17:9: undefined: LoadConjunto
+internal/labeleddataset/metrics_test.go:18:9: undefined: Avaliar
+internal/labeleddataset/metrics_test.go:23:10: undefined: LoadConjunto
+internal/labeleddataset/metrics_test.go:24:9: undefined: Avaliar
+internal/labeleddataset/validate_test.go:8:9: undefined: LoadConjunto
+internal/labeleddataset/validate_test.go:14:14: undefined: LoadConjunto
+internal/labeleddataset/validate_test.go:16:12: undefined: LoadConjunto
+internal/labeleddataset/validate_test.go:16:12: too many errors
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.323

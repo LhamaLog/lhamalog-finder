@@ -1,0 +1,12 @@
+COMMAND: go test -count=1 -v ./internal/labeleddataset -run TestBaseRealRotulada
+CWD: /workspace/scratch/lhamalog-validation-5ewg6wij
+ENV (somente teste): {"FINDER_DATASET_INTEGRATION": "1"}
+=== RUN   TestBaseRealRotulada
+    base_real_test.go:17: base_real_rotulada_indisponivel
+--- FAIL: TestBaseRealRotulada (0.00s)
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/labeleddataset	0.002s
+FAIL
+
+EXIT: 1
+SECONDS: 0.497

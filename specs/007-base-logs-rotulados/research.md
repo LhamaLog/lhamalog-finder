@@ -195,3 +195,11 @@ Aceite na partição `validacao`: precisão, recall e F1 **≥ 95% por classe** 
 - **Rationale**: Coerência com a regra de classe da ocorrência quando há divergência entre logs (clarificação 09/11 citada pela ADR_170); alinha métricas à produção sem alterar gold agregado (DN-007-4 A). Exemplo: gold ERROR + predições ERROR, ERROR, WARNING → prevista ERROR → acerto. Contraexemplo: gold WARNING + predições WARNING, WARNING, ERROR → prevista ERROR → erro (falso positivo para ERROR) (`respostas-etapa3f.md` §D).
 - **Alternatives considered**: A) unanimidade; B) maioria; C) por log (cada membro herda gold do apontamento) — **rejeitadas** (João escolheu D; fonte: respostas-etapa3f.md §Opções).
 - **Fonte**: (fonte: respostas-joao.md §Etapa 3e (João, 16/11 12h40), 007 H2 D; origem: ADR_170; respostas-etapa3f.md §D; DN-007-4 A)
+
+## Evidência desta execução
+
+Origem e autoria não foram fornecidas; o usuário informou não haver base disponível para esta execução. Não foi produzida declaração de anonimização nem contagem real. ORIGEM.md é somente formulário pendente, sem atestação.
+
+007-19 B: a futura entrega T020 deve substituir dados sintéticos usados como prova pela 006 (coordenação T050/006-10 A, sem editar Jira). Até lá, fixtures verificam código, sem prova de precisão de produto.
+
+message_text da base deve ser sem PII (007-16 A); a heurística de rejeição do loader não certifica anonimização. P-010-2/P-010-27 são dependências ortogonais de mascaramento runtime. DN-008-4 B não bloqueia montagem da base (007-17 A). R18/FR-013: sem máximo de volume documental; nenhum limite arbitrário de corpus introduzido.
