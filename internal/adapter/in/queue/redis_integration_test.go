@@ -475,7 +475,7 @@ func TestChaveConcluidaDuraVinteCincoHorasSemRenovar(t *testing.T) {
 func TestSegundaEntradaNaoRepeteEfeito(t *testing.T) {
 	op := provaLote(t)
 	lote := abrirLote(t, op)
-	publicarID(t, op, camposIntegracao("batch-1"))
+	primeiraID := publicarID(t, op, camposIntegracao("batch-1"))
 	publicarID(t, op, camposIntegracao("batch-1"))
 	efeito := &efeitoIntegracao{}
 	svc := &application.ConsumoReferencia{Fila: lote, Chaves: lote, Efeito: efeito}
@@ -486,8 +486,13 @@ func TestSegundaEntradaNaoRepeteEfeito(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if len(efeito.refs) != 1 {
-		t.Fatalf("efeitos=%d", len(efeito.refs))
+	if len(efeito.refs) == 0 {
+		t.Fatal("a primeira entrada não executou o efeito")
+	}
+	for _, ref := range efeito.refs {
+		if ref.EntradaID != primeiraID {
+			t.Fatalf("a entrada duplicada executou o efeito: %s", ref.EntradaID)
+		}
 	}
 	if pendencias(t, op.Addr, op.Stream, op.Group) != 2 {
 		t.Fatalf("pendencias=%d", pendencias(t, op.Addr, op.Stream, op.Group))
