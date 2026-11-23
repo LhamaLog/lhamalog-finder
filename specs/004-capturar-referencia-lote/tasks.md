@@ -244,3 +244,9 @@ T009 Criar a porta de efeito em internal/application/port/out/efeito.go
 - `internal/adapter/in/http/health.go` não muda de significado
 - Commit ao fim de cada tarefa ou grupo lógico
 - Parar em qualquer checkpoint para validar a história sozinha
+
+## Regressão após auditoria T001–T031
+
+- [X] T032 Após conferir as 31 tarefas marcadas, rejeitar JSON com sufixo inválido em metadata/body (FR-010), exigindo EOF após o objeto em `internal/domain/envelope.go`; escrever antes os testes de domínio e de ACK sem efeito no Redis; registrar comandos/saídas.
+
+- [X] T033 Reivindicar entradas expiradas antes da leitura de entradas novas. Usar XAUTOCLAIM com o cursor devolvido pelo Redis para preservar a ociosidade e continuar após uma página vazia. Teste de regressão em `internal/adapter/in/queue/redis_integration_test.go` e correção em `internal/adapter/in/queue/redisStream.go`. [Falha reproduzida](evidencias/dn-009-2-reivindicacao-red.txt) · [Falha de paginação reproduzida](evidencias/dn-009-2-reivindicacao-cursor-red.txt) · [Regressões corrigidas](evidencias/dn-009-2-reivindicacao-cursor-green.txt)

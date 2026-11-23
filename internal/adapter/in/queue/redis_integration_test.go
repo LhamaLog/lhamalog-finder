@@ -723,3 +723,71 @@ func (e *efeitoIntegracao) Executar(_ context.Context, ref domain.Referencia) (b
 	e.refs = append(e.refs, ref)
 	return e.concluido, nil
 }
+
+func TestJSONInvalidoConfirmadoSemEfeito(t *testing.T) {
+	op := provaLote(t)
+	lote := abrirLote(t, op)
+	campos := camposIntegracao("batch-json-invalido")
+	campos["metadata"] = campos["metadata"].(string) + " }"
+	publicarID(t, op, campos)
+	efeito := &efeitoIntegracao{}
+	s := &application.ConsumoReferencia{Fila: lote, Chaves: lote, Efeito: efeito}
+	ctx, cancel := context.WithTimeout(context.Background(), op.Block+time.Second)
+	defer cancel()
+	r, err := s.Executar(ctx)
+	if err != nil || !r.Invalida || r.Confirmacoes != 1 || len(efeito.refs) != 0 || pendencias(t, op.Addr, op.Stream, op.Group) != 0 {
+		t.Fatal("JSON invalido nao foi rejeitado e confirmado sem efeito")
+	}
+}
+
+func TestMesmoConsumidorReivindicaSemZerarOciosidade(t *testing.T) {
+	op := provaLote(t)
+	op.Ociosidade = 30 * time.Millisecond
+	lote := abrirLote(t, op)
+	id := publicarID(t, op, camposIntegracao("mesmo-consumidor"))
+	ctx, cancelar := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelar()
+	if e, ok, err := lote.Ler(ctx); err != nil || !ok || e.ID != id {
+		t.Fatalf("leitura inicial: %+v ok=%v err=%v", e, ok, err)
+	}
+	time.Sleep(op.Ociosidade + 20*time.Millisecond)
+	e, ok, err := lote.Ler(ctx)
+	if err != nil || !ok || e.ID != id || (!e.Ociosa && !e.Reivindicada) {
+		t.Fatalf("mesmo consumidor não obteve a pendência vencida: %+v ok=%v err=%v", e, ok, err)
+	}
+}
+
+func TestReivindicacaoAvancaAlemDasPrimeirasPendencias(t *testing.T) {
+	op := provaLote(t)
+	op.Count = 1
+	op.Ociosidade = time.Minute
+	lote := abrirLote(t, op)
+	for i := 0; i < 10; i++ {
+		publicarID(t, op, camposIntegracao("entrega-recente"))
+	}
+	expirada := publicarID(t, op, camposIntegracao("entrega-expirada"))
+	ctx, cancelar := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelar()
+	rdb := clienteSenha(t, op.Addr, op.Senha)
+	if _, err := rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
+		Group: op.Group, Consumer: "outro", Streams: []string{op.Stream, ">"}, Count: 11, Block: -1,
+	}).Result(); err != nil {
+		t.Fatal(err)
+	}
+	if err := rdb.Do(ctx, "XCLAIM", op.Stream, op.Group, "outro", 0, expirada, "IDLE", 120000, "JUSTID").Err(); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 2; i++ {
+		e, ok, err := lote.Ler(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ok {
+			if e.ID != expirada || !e.Reivindicada {
+				t.Fatalf("obteve entrada ainda em uso: %+v", e)
+			}
+			return
+		}
+	}
+	t.Fatal("não avançou até a pendência expirada após as entradas ainda em uso")
+}

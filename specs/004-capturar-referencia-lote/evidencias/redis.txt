@@ -1,0 +1,65 @@
+COMMAND: go test -race -count=1 -v ./internal/adapter/in/queue
+CWD: /workspace/lhamalog-specs/004
+ENV (somente teste): {"FINDER_REDIS_INTEGRATION": "1", "FINDER_REDIS_ADDR": "127.0.0.1:16379", "FINDER_REDIS_STREAM": "lhamalog:stream:logs", "FINDER_REDIS_GROUP": "finder-prova", "FINDER_REDIS_CONSUMIDOR": "spec004", "FINDER_REDIS_IDEMPOTENCIA": "spec004:", "FINDER_REDIS_COUNT": "2", "FINDER_REDIS_BLOCK": "200ms", "FINDER_REDIS_PENDENCIA_OCIOSA": "1s"}
+=== RUN   TestItemDaMensagem
+--- PASS: TestItemDaMensagem (0.00s)
+=== RUN   TestLiberarDevolveOMesmoItem
+--- PASS: TestLiberarDevolveOMesmoItem (0.00s)
+=== RUN   TestNovaSemNomes
+--- PASS: TestNovaSemNomes (0.00s)
+=== RUN   TestNovaLoteRecusaParametroAusente
+--- PASS: TestNovaLoteRecusaParametroAusente (0.00s)
+=== RUN   TestNomeDaChaveUsaPrefixoExterno
+--- PASS: TestNomeDaChaveUsaPrefixoExterno (0.00s)
+=== RUN   TestDescarteMapaVazioNaoFicaNoMapa
+2026/11/16 21:22:44 INFO item descartado id=1-0
+--- PASS: TestDescarteMapaVazioNaoFicaNoMapa (0.00s)
+=== RUN   TestConclusaoParcialEFalhaNoRedis
+    redis_integration_test.go:42: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestConclusaoParcialEFalhaNoRedis (0.00s)
+=== RUN   TestInstanciaParadaDevolveNoLugarOriginal
+    redis_integration_test.go:85: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestInstanciaParadaDevolveNoLugarOriginal (0.00s)
+=== RUN   TestConsumidorVivoNaoPerdeOItem
+    redis_integration_test.go:107: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestConsumidorVivoNaoPerdeOItem (0.00s)
+=== RUN   TestOrdemDeEntradaComUmaInstancia
+    redis_integration_test.go:126: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestOrdemDeEntradaComUmaInstancia (0.00s)
+=== RUN   TestDuasInstanciasReservamItensDiferentes
+    redis_integration_test.go:148: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestDuasInstanciasReservamItensDiferentes (0.00s)
+=== RUN   TestMesmoCodigoUmaConclusao
+    redis_integration_test.go:167: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestMesmoCodigoUmaConclusao (0.00s)
+=== RUN   TestDescarteInvalidoEItemAceito
+    redis_integration_test.go:193: FINDER_REDIS_STREAM, FINDER_REDIS_GROUP ou FINDER_REDIS_CODIGOS ausente
+--- FAIL: TestDescarteInvalidoEItemAceito (0.00s)
+=== RUN   TestGrupoLeEntradaAnteriorSemDolar
+--- PASS: TestGrupoLeEntradaAnteriorSemDolar (0.02s)
+=== RUN   TestDoisGruposObservamAMesmaEntrada
+--- PASS: TestDoisGruposObservamAMesmaEntrada (0.02s)
+=== RUN   TestInvalidaSaiDaPendenciaSemChaveConcluida
+2026/11/16 21:22:44 INFO entrada inválida id=1794874964953-0 desfecho="entrada inválida" motivo="event diferente de log.ingested" idempotencyId=batch-1
+--- PASS: TestInvalidaSaiDaPendenciaSemChaveConcluida (0.02s)
+=== RUN   TestChaveEmProcessamentoSemPrazo
+2026/11/16 21:22:44 INFO referência entregue id=1794874964968-0 desfecho="referência entregue" idempotencyId=batch-1
+--- PASS: TestChaveEmProcessamentoSemPrazo (0.02s)
+=== RUN   TestChaveConcluidaDuraVinteCincoHorasSemRenovar
+2026/11/16 21:22:44 INFO efeito concluído id=1794874964985-0 desfecho="efeito concluído" idempotencyId=batch-1
+--- PASS: TestChaveConcluidaDuraVinteCincoHorasSemRenovar (1.12s)
+=== RUN   TestSegundaEntradaNaoRepeteEfeito
+2026/11/16 21:22:46 INFO referência entregue id=1794874966100-0 desfecho="referência entregue" idempotencyId=batch-1
+2026/11/16 21:22:46 INFO entrada pendente id=1794874966103-0 desfecho="entrada pendente" idempotencyId=batch-1
+2026/11/16 21:22:46 INFO entrada pendente id=1794874966100-0 desfecho="entrada pendente" idempotencyId=batch-1
+--- PASS: TestSegundaEntradaNaoRepeteEfeito (0.24s)
+=== RUN   TestRedisFechadoNaoConfirma
+--- PASS: TestRedisFechadoNaoConfirma (0.01s)
+=== RUN   TestReivindicacaoRespeitaQuantidade
+--- PASS: TestReivindicacaoRespeitaQuantidade (1.44s)
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	2.883s
+FAIL
+
+EXIT: 1
+SECONDS: 3.649

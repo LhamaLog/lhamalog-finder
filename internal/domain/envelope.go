@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/json"
+	"io"
 	"strings"
 	"time"
 )
@@ -201,7 +202,8 @@ func objetoJSON(texto string) (map[string]any, error) {
 	if err := dec.Decode(&valor); err != nil {
 		return nil, errJSON
 	}
-	if dec.More() {
+	var extra any
+	if err := dec.Decode(&extra); err != io.EOF {
 		return nil, errJSON
 	}
 	objeto, ok := valor.(map[string]any)
