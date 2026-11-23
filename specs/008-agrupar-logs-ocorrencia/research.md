@@ -157,3 +157,21 @@ Consolidação da Fase 0. Cada item cita fonte primária (João, revisão T1, re
 - **Rationale**: Opção A do Especialista §9 alinhada a Finder.mmd `log_signature` (string); hash (**opção B**) **não** escolhido; separador **`|`** fechado pelo João (16/11 12h40).
 - **Alternatives considered**: SHA-256 do texto (**opção B** respostas-etapa3c.md §9) — **rejeitado** (João **008-assinatura A**). Outros separadores (`\t`, `NUL`, etc.) — **rejeitados** (não escolhidos em **DN-008-8 A**).
 - **Fonte**: (fonte: respostas-joao.md, DN-008-8 A / §Etapa 3g (João, 16/11 13h22), DN-008-9 A; origem: §Etapa 3e (João, 16/11 12h40); 008-assinatura A; respostas-etapa3c.md §9; DN-008-1 B)
+
+## Evidência desta execução
+
+DN-008-2: nenhuma migração produtiva é realizada; D2b mantém ressalva de testes. Evolução da 006 (FR-009/D8/T1 rev.) é pré-requisito obrigatório: classificar e entregar ResumoAnalise, sem inserção de ocorrência. A leitura cruzada N3 A usa os tipos comuns 006; nenhuma edição da spec 006 nesta branch.
+
+P-010-2 depende de ADR externa; categorias DN-008-4 B e marcadores estão implementados sem inventar padrões de segurança. DLQ B/DN-008-6 rev.: após três falhas temporárias, aviso Core batchId/motivo; sem DLQ/WebSocket e sem inferência recorrente=false. API Core ADR_051 e query histórica não publicadas.
+
+ADR_035/LLT-216 (008-17 C) e emenda princípio I permanecem externos. A base 007 é JSONL em datasets/labeled-logs/, fora desta implementação. Coordenação 006-10 A: alinhar LLT-200 com as specs 006/008 fora do repo; nenhuma issue modificada.
+
+### Revisão Drive/Jira de 19/11/2026
+
+O Drive confirma que a recorrência é uma flag e que a janela cobre os últimos 500 arquivos de análise. A ADR 013 descreve repetições seguidas, da mesma máquina, em arquivos diferentes, e menciona três ou quatro repetições. A ADR 063 deixa o critério de semelhança como pendência. A prova atual conta três lotes distintos dentro da janela, inclusive se intercalados. A definição final precisa esclarecer limiar, consecutividade e inclusão do lote sob análise. A ADR 168 confirma OpenObserve para a telemetria, com isolamento, e não detalha a consulta histórica de achados. O LLT-200 explicita contador, limites temporais e reabertura aguardando a decisão. [ADR 013](https://docs.google.com/document/d/1nVHv7gm6dpz7Fr2CO_YTF8utMPIPn4MPP-QIZ39NrfM/edit) · [ADR 063](https://docs.google.com/document/d/1zHBgNKh_Mt5mALSsz4zK87_XUghdKgRqGaV3vo2K7NU/edit) · [ADR 168](https://docs.google.com/document/d/1cq0KUW2gWsIq6Mv54SZhXcWIoHlKCqwqUG5XHD3rVFs/edit) · [LLT-200](https://logviewer2026.atlassian.net/browse/LLT-200)
+
+Restam a fonte física do histórico, a ordenação, o contrato Core para a falha operacional, a matriz P-010-27 e o escape de barra invertida literal. Para esse último, a proposta para discussão é escapar a barra invertida primeiro e depois `|`, com testes de distinção entre as duas sequências. A regra de assinatura continua aguardando decisão. A 009 passou a oferecer o efeito de análise que barra lote incompleto antes de qualquer montagem ou handoff. T013 continua parcial até ligar o efeito às dependências reais no executável. Evidência correspondente na branch 009, seção de revisão de `specs/009-publicar-evento-ocorrencia/research.md`.
+
+## Integração DN-009-2 — 20/11/2026
+
+O agrupamento conserva a revisão retornada pelo Módulo e separa a montagem local da etapa de consulta e fusão. O Finder repete a segunda etapa uma vez por conflito de revisão. A spec 009 mantém o cliente comum, verificado na composição. O histórico de recorrência real e o aceite da 008 permanecem pendentes.

@@ -149,3 +149,9 @@ make test
 ```
 
 Validação de aceite formal aguarda conjunto do João e ADR — não executar `go test` como substituto de SC-001/002 sem esses artefatos (010-27 A).
+
+## Verificação desta execução
+
+Cenários 1/4/5/8: testes de application/seguranca_test.go, ordem_seguranca_test.go e cadeia 009 verificam uma passagem, ausência de bruto após falha e ordem mascaramento → classificação → normalização canônica 008. Cenários 2/3: mecanismos de marcador/contagem exercitados com transformador opaco; não substituem catálogo/casos P-010-2/P-010-27. Cenário 6: factory rejeita versão divergente, porém bootstrap/readiness e paridade Java não verificados. Cenário 7: regras reais fora do catálogo dependem artefato. Cenário 9: o código novo atua somente em linhas, não modifica captura integral/atributos OTel; sem aceite cross-serviço. Não existe meta de desempenho própria (010-28 A), nem expansão da minimização ampla LLT-51.
+
+Comandos realmente observados e saídas completas: `evidencias/aceite-final-unit.txt`, `aceite-final-race-integracoes.txt` e `aceite-final-vet.txt` (exit 0). Executados em composição temporária dos patches das specs, com manifesto SHA-256. Para reproduzir: compor os pré-requisitos conforme relatório central, usar Go 1.27.2 e fornecer explicitamente os parâmetros de teste de Redis/OpenObserve; credenciais não estão nos relatórios. `make test` falhou no contêiner por certificado ao baixar módulos; o comando Go local com race passou. Não executar `go test ./...` isoladamente numa branch consumidora e interpretar falta de dependências como falha da composição.

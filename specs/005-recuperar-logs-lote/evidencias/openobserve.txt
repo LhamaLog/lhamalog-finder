@@ -1,0 +1,73 @@
+COMMAND: go test -race -count=1 -v ./internal/adapter/out/openobserve -run TestOpenObserveIntegracao
+CWD: /workspace/lhamalog-specs/005
+ENV (somente teste): {"FINDER_OPENOBSERVE_INTEGRATION": "1", "FINDER_OO_URL": "http://127.0.0.1:15080", "FINDER_OO_TIMEOUT": "5s", "FINDER_OO_PAGINA": "2", "FINDER_OO_CAMPOS_COPIA": "copia", "FINDER_OO_ORDEM": "lhamalog_record_id ASC, copia ASC", "FINDER_OO_CAMPO_TENANT": "tenant_teste", "FINDER_OO_CAMPO_PRODUTO": "produto_teste"}
+=== RUN   TestOpenObserveIntegracao
+=== RUN   TestOpenObserveIntegracao/lote_sintetico
+2026/11/16 21:26:02 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261116212602.872988610 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/lote_de_varios_nao_filtra_recordId
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261116212602.940835239 id=sintetica efeitoConcluido=true esperado=2 encontrado=2
+    integracao_test.go:89: lote de vários filtrou recordId
+=== RUN   TestOpenObserveIntegracao/copias_e_identificador_alem_de_recordCount
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261116212603.066258816 id=sintetica efeitoConcluido=true esperado=2 encontrado=2
+=== RUN   TestOpenObserveIntegracao/vazio_menor_maior_e_misto
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote incompleto" idempotencyId=lote-vazio-20261116212603.123105937 id=sintetica efeitoConcluido=false esperado=1 encontrado=0
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote incompleto" idempotencyId=lote-20261116212603.140938416 id=sintetica efeitoConcluido=false esperado=2 encontrado=1
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="excesso de registros distintos" idempotencyId=lote-maior-20261116212603.179752054 id=sintetica efeitoConcluido=true esperado=1 encontrado=2
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261116212603.140938416 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/dois_tenants
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261116212603.290766483 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/segunda_pagina_inalcancavel
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="indisponibilidade ou timeout" idempotencyId=lote-quebra id=sintetica efeitoConcluido=false
+==================
+WARNING: DATA RACE
+Read at 0x00c000136e70 by goroutine 91:
+  github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve.TestOpenObserveIntegracao.func6()
+      /workspace/lhamalog-specs/005/internal/adapter/out/openobserve/integracao_test.go:211 +0x85d
+  testing.tRunner()
+      /workspace/.tools/go1.27.2/src/testing/testing.go:2195 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/.tools/go1.27.2/src/testing/testing.go:2260 +0x38
+
+Previous write at 0x00c000136e70 by goroutine 94:
+  github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve.(*proxyQuebra).ServeHTTP()
+      /workspace/lhamalog-specs/005/internal/adapter/out/openobserve/integracao_test.go:441 +0x1d5
+  net/http.serverHandler.ServeHTTP()
+      /workspace/.tools/go1.27.2/src/net/http/server.go:3436 +0x2a1
+  net/http.(*conn).serve()
+      /workspace/.tools/go1.27.2/src/net/http/server.go:2157 +0xeda
+  net/http.(*Server).Serve.gowrap3()
+      /workspace/.tools/go1.27.2/src/net/http/server.go:3604 +0x46
+
+Goroutine 91 (running) created at:
+  testing.(*T).Run()
+      /workspace/.tools/go1.27.2/src/testing/testing.go:2260 +0xb12
+  github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve.TestOpenObserveIntegracao()
+      /workspace/lhamalog-specs/005/internal/adapter/out/openobserve/integracao_test.go:197 +0x67e
+  testing.tRunner()
+      /workspace/.tools/go1.27.2/src/testing/testing.go:2195 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/.tools/go1.27.2/src/testing/testing.go:2260 +0x38
+
+Goroutine 94 (finished) created at:
+  net/http.(*Server).Serve()
+      /workspace/.tools/go1.27.2/src/net/http/server.go:3604 +0x929
+  net/http/httptest.(*Server).goServe.func1()
+      /workspace/.tools/go1.27.2/src/net/http/httptest/server.go:586 +0xac
+==================
+    testing.go:1867: race detected during execution of test
+=== RUN   TestOpenObserveIntegracao/isolamento_precede_pagina_inalcancavel
+2026/11/16 21:26:03 INFO recuperação do lote classificacao="inconsistência de identidade ou isolamento" idempotencyId=lote-isolamento id=sintetica efeitoConcluido=true
+--- FAIL: TestOpenObserveIntegracao (0.51s)
+    --- PASS: TestOpenObserveIntegracao/lote_sintetico (0.07s)
+    --- FAIL: TestOpenObserveIntegracao/lote_de_varios_nao_filtra_recordId (0.13s)
+    --- PASS: TestOpenObserveIntegracao/copias_e_identificador_alem_de_recordCount (0.05s)
+    --- PASS: TestOpenObserveIntegracao/vazio_menor_maior_e_misto (0.18s)
+    --- PASS: TestOpenObserveIntegracao/dois_tenants (0.01s)
+    --- FAIL: TestOpenObserveIntegracao/segunda_pagina_inalcancavel (0.01s)
+    --- PASS: TestOpenObserveIntegracao/isolamento_precede_pagina_inalcancavel (0.01s)
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	0.528s
+FAIL
+
+EXIT: 1
+SECONDS: 2.76

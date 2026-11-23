@@ -1,0 +1,28 @@
+COMMAND: go test -count=1 ./internal/application/agrupar ./internal/application/recorrencia ./internal/adapter/out/openobserve
+CWD: /workspace/scratch/lhamalog-validation-6ohsxp7y
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application/agrupar [github.com/LhamaLog/lhamalog-finder/internal/application/agrupar.test]
+internal/application/agrupar/agrupar_test.go:12:9: undefined: ParticionarLote
+internal/application/agrupar/agrupar_test.go:18:9: undefined: Fundir
+internal/application/agrupar/agrupar_test.go:19:12: undefined: Fundir
+internal/application/agrupar/agrupar_test.go:22:45: undefined: PedidoAnalise
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar [build failed]
+# github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia [github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia.test]
+internal/application/recorrencia/avaliar_test.go:8:14: undefined: domain.EvidenciaRecorrencia
+internal/application/recorrencia/avaliar_test.go:9:5: undefined: Avaliar
+internal/application/recorrencia/avaliar_test.go:10:20: undefined: domain.EvidenciaRecorrencia
+internal/application/recorrencia/avaliar_test.go:10:80: undefined: Avaliar
+internal/application/recorrencia/avaliar_test.go:11:5: undefined: Avaliar
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia [build failed]
+# github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve [github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve.test]
+internal/adapter/out/openobserve/recorrencia_test.go:9:63: undefined: out.PedidoRecorrencia
+internal/adapter/out/openobserve/recorrencia_test.go:9:91: undefined: domain.EvidenciaRecorrencia
+internal/adapter/out/openobserve/recorrencia_test.go:9:147: undefined: out.FalhaRecorrencia
+internal/adapter/out/openobserve/recorrencia_test.go:13:58: undefined: Recorrencia
+internal/adapter/out/openobserve/recorrencia_test.go:14:61: undefined: out.PedidoRecorrencia
+internal/adapter/out/openobserve/recorrencia_test.go:17:56: undefined: out.PedidoRecorrencia
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.527

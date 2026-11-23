@@ -76,3 +76,9 @@ A mensagem MUST ser transformada **antes** de compor a assinatura:
 
 - (fonte: respostas-joao.md, DN-008-1 B / 008-2 rev. / 008-15 A; origem: ADR_013, contrato-log-ingested-v1.txt §4)
 - (fonte: respostas-joao.md §Etapa 3b, DN-008-4 B; spec.md, FR-002, FR-002b)
+
+## Evidência desta execução
+
+Implementação canônica em `internal/application/assinatura/`: cinco marcadores fechados, trim/case-insensitive; UUID/data/IP/hex reconhecidos antes de números internos. Cálculo usa classe, mensagem pós-segurança normalizada, service.name e host nessa ordem, com `|` e escape literal `|`→`\|`. `traceId`/`correlationId` ficam fora.
+
+Um componente contendo barra invertida literal retorna `ErrEscapePendente`; não foi inventado um segundo protocolo de escape. A matriz formal P-010-27 A segue aberta; os testes mecânicos não a substituem.
