@@ -50,3 +50,7 @@ HTTP interno + JWT (**N1 A**); rota, respostas 2xx/4xx/5xx e timeout **sem fonte
 
 - (fonte: respostas-joao.md, N2 B / N3 A / N4 A / N1 A / T7 A / 008-4 B / 008-10 A / 008-11 rev.; origem: ADR_062, ADR_040)
 - (fonte: spec.md, FR-001, FR-009, DN-008-3 rev. 3h / DLQ B; respostas-joao.md §Etapa 3g (João, 16/11 13h22))
+
+## Evidência desta execução
+
+N3 A **[PENDENTE ADR]**: assinatura, contagem, primeira/última ocorrência e versão existem no modelo lógico comum 006 e são excluídos do DTO JSON provisório 009. Sem fechamento de nomes externos. Um resumo por lote, batchId com execId opcional; sem geração de execId neste caminho.

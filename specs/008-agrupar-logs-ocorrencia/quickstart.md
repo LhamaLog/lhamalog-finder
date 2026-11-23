@@ -124,3 +124,9 @@ Referência: [consulta-recorrencia-openobserve.md](./contracts/consulta-recorren
 | N2 B | 5 |
 | 008-4 B / 008-10 A | 6 |
 | T7 A | 9 |
+
+## Verificação desta execução
+
+§1–§4: assinatura/partição/gate/chave verificados nos pacotes assinatura e agrupar. Testes canônicos cobrem cinco literais, equivalência e escape de |; matriz formal P-010-27 A e barra invertida literal continuam pendentes. §5–§7: fusão, estado FECHADA preservado e recorrência com 3 lotes distintos/janela de 500 verificados em portas; reabertura real e query histórica OO não executadas. §8: um resumo lógico por lote; HTTP/N3 A bloqueados. §9: INFO participa da mesma preparação e envio; sem traceId/correlationId na assinatura (008-2 A revogada, D1/D2). §10: sem migração de produção (DN-008-2). Consulta por achado e um envio por lote; execId opcional vem da Varredura, jamais criado neste caminho.
+
+Comandos realmente observados e saídas completas: `evidencias/aceite-final-unit.txt`, `aceite-final-race-integracoes.txt` e `aceite-final-vet.txt` (exit 0). Executados em composição temporária dos patches das specs, com manifesto SHA-256. Para reproduzir: compor os pré-requisitos conforme relatório central, usar Go 1.27.2 e fornecer explicitamente os parâmetros de teste de Redis/OpenObserve; credenciais não estão nos relatórios. `make test` falhou no contêiner por certificado ao baixar módulos; o comando Go local com race passou. Não executar `go test ./...` isoladamente numa branch consumidora e interpretar falta de dependências como falha da composição.
