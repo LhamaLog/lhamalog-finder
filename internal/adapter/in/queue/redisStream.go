@@ -367,17 +367,18 @@ type OpcoesLote struct {
 
 // Lote lê o envelope, guarda a chave do lote e confirma pelo id Redis.
 type Lote struct {
-	rdb        *redis.Client
-	stream     string
-	group      string
-	consumidor string
-	prefixo    string
-	count      int64
-	block      time.Duration
-	ociosidade time.Duration
-	mu         sync.Mutex
-	buffer     []domain.Entrada
-	adiados    map[string]struct{}
+	rdb              *redis.Client
+	stream           string
+	group            string
+	consumidor       string
+	prefixo          string
+	count            int64
+	block            time.Duration
+	ociosidade       time.Duration
+	mu               sync.Mutex
+	buffer           []domain.Entrada
+	adiados          map[string]struct{}
+	proximaPendencia string
 }
 
 var _ out.Entradas = (*Lote)(nil)
@@ -398,15 +399,16 @@ func NovaLote(op OpcoesLote) (*Lote, error) {
 		ClientName: op.Consumidor,
 	})
 	lote := &Lote{
-		rdb:        rdb,
-		stream:     op.Stream,
-		group:      op.Group,
-		consumidor: op.Consumidor,
-		prefixo:    op.Idempotencia,
-		count:      op.Count,
-		block:      op.Block,
-		ociosidade: op.Ociosidade,
-		adiados:    map[string]struct{}{},
+		rdb:              rdb,
+		stream:           op.Stream,
+		group:            op.Group,
+		consumidor:       op.Consumidor,
+		prefixo:          op.Idempotencia,
+		count:            op.Count,
+		block:            op.Block,
+		ociosidade:       op.Ociosidade,
+		adiados:          map[string]struct{}{},
+		proximaPendencia: "0-0",
 	}
 	if err := lote.garantirGrupo(context.Background()); err != nil {
 		_ = rdb.Close()
@@ -423,7 +425,8 @@ func (l *Lote) Fechar() error {
 	return l.rdb.Close()
 }
 
-// Ler entrega uma entrada deste grupo. A pendência já deste consumidor não espera o bloqueio.
+// Ler entrega uma entrada deste grupo. Pendências elegíveis são reivindicadas
+// antes da leitura de entradas novas, inclusive as do próprio consumidor.
 // Entrada adiada nesta passagem não volta antes da leitura bloqueante seguinte.
 func (l *Lote) Ler(ctx context.Context) (domain.Entrada, bool, error) {
 	l.mu.Lock()
@@ -431,12 +434,8 @@ func (l *Lote) Ler(ctx context.Context) (domain.Entrada, bool, error) {
 	if entrada, ok := l.daFila(); ok {
 		return entrada, true, nil
 	}
-	if err := l.puxarPendentes(ctx); err != nil {
-		return domain.Entrada{}, false, err
-	}
-	if entrada, ok := l.daFila(); ok {
-		return entrada, true, nil
-	}
+	// XREADGROUP com ID 0 reinicia a ociosidade até da pendência própria.
+	// XAUTOCLAIM verifica a ociosidade antes de renovar a entrega.
 	if err := l.reivindicar(ctx); err != nil {
 		return domain.Entrada{}, false, err
 	}
@@ -550,50 +549,13 @@ func (l *Lote) daFila() (domain.Entrada, bool) {
 	return entrada, true
 }
 
-func (l *Lote) puxarPendentes(ctx context.Context) error {
-	msgs, err := l.lerGrupo(ctx, "0", -1)
-	if err != nil || len(msgs) == 0 {
-		return err
-	}
-	pendentes, err := l.rdb.XPendingExt(ctx, &redis.XPendingExtArgs{
-		Stream:   l.stream,
-		Group:    l.group,
-		Start:    "-",
-		End:      "+",
-		Count:    l.count,
-		Consumer: l.consumidor,
-	}).Result()
-	if err == redis.Nil {
-		pendentes = nil
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-	ociosidade := map[string]time.Duration{}
-	for _, pendente := range pendentes {
-		ociosidade[pendente.ID] = pendente.Idle
-	}
-	for _, msg := range msgs {
-		if _, adiada := l.adiados[msg.ID]; adiada {
-			continue
-		}
-		l.buffer = append(l.buffer, domain.Entrada{
-			ID:     msg.ID,
-			Campos: camposTexto(msg.Values),
-			Ociosa: ociosidade[msg.ID] >= l.ociosidade,
-		})
-	}
-	return nil
-}
-
 func (l *Lote) reivindicar(ctx context.Context) error {
-	msgs, _, err := l.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
+	msgs, proxima, err := l.rdb.XAutoClaim(ctx, &redis.XAutoClaimArgs{
 		Stream:   l.stream,
 		Group:    l.group,
 		Consumer: l.consumidor,
 		MinIdle:  l.ociosidade,
-		Start:    "0-0",
+		Start:    l.proximaPendencia,
 		Count:    l.count,
 	}).Result()
 	if err == redis.Nil {
@@ -602,6 +564,8 @@ func (l *Lote) reivindicar(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// O Redis pode devolver uma página vazia com um cursor não final.
+	l.proximaPendencia = proxima
 	for _, msg := range msgs {
 		if _, adiada := l.adiados[msg.ID]; adiada {
 			continue

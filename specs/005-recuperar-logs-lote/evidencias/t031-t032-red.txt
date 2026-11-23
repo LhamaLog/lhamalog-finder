@@ -1,0 +1,28 @@
+COMMAND: go test -count=1 ./internal/adapter/out/openobserve -run TestRespostaAcima|TestErroDeLeitura|TestStatusNaoPrevisto|TestCorpoHTTPTruncado
+CWD: /workspace/lhamalog-specs/005
+ENV (somente teste): {}
+--- FAIL: TestRespostaAcimaDe32MiBNaoTemTetoInventado (0.18s)
+    cliente_regressao_test.go:19: resposta grande: documentos=0 erro=resposta inválida
+--- FAIL: TestErroDeLeituraNaoEhRespostaInvalida (0.00s)
+    cliente_regressao_test.go:28: erro de leitura: resposta inválida
+--- FAIL: TestStatusNaoPrevistoMantemPendencia (0.00s)
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/Found (0.00s)
+        cliente_regressao_test.go:37: status 302: resposta inválida
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/Bad_Request (0.00s)
+        cliente_regressao_test.go:37: status 400: resposta inválida
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/Not_Found (0.00s)
+        cliente_regressao_test.go:37: status 404: resposta inválida
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/Conflict (0.00s)
+        cliente_regressao_test.go:37: status 409: resposta inválida
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/I'm_a_teapot (0.00s)
+        cliente_regressao_test.go:37: status 418: resposta inválida
+    --- FAIL: TestStatusNaoPrevistoMantemPendencia/Unprocessable_Entity (0.00s)
+        cliente_regressao_test.go:37: status 422: resposta inválida
+--- FAIL: TestCorpoHTTPTruncadoMantemPendencia (0.00s)
+    cliente_regressao_test.go:45: corpo truncado: resposta inválida
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	0.194s
+FAIL
+
+EXIT: 1
+SECONDS: 0.865

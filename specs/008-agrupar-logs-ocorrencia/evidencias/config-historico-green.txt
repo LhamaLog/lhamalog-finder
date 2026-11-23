@@ -1,0 +1,7 @@
+COMMAND: go test -race ./internal/config
+CWD: /workspace/scratch/lhamalog-validation-wzgml2h0
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.018s
+
+EXIT: 0
+SECONDS: 1.619

@@ -1,0 +1,9 @@
+COMMAND: go test -race -count=1 ./internal/application/agrupar ./internal/application/recorrencia ./internal/adapter/out/openobserve
+CWD: /workspace/scratch/lhamalog-validation-218v_bx6
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar	1.017s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/recorrencia	1.014s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	4.713s
+
+EXIT: 0
+SECONDS: 7.378

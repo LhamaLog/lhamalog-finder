@@ -1,0 +1,16 @@
+COMMAND: go test -race -count=1 ./...
+CWD: /workspace/lhamalog-specs/004
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	1.021s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	1.012s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	1.017s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.016s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.016s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	1.024s
+
+EXIT: 0
+SECONDS: 31.523

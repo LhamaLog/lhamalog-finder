@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1",
+  "versao": "finder-2026-11-22.1",
+  "placeholderEmail": "[email omitido]",
+  "marcadorLinhaSegredo": "log com senha omitido",
+  "padroes": [
+    {
+      "id": "email",
+      "acao": "SUBSTITUIR_EMAIL",
+      "regex": "[\\p{L}\\p{N}\\p{M}.!#$%&'*+/=?^_\\x60{|}~-]+@[\\p{L}\\p{N}](?:[\\p{L}\\p{N}\\p{M}-]{0,61}[\\p{L}\\p{N}])?(?:\\.[\\p{L}\\p{N}](?:[\\p{L}\\p{N}\\p{M}-]{0,61}[\\p{L}\\p{N}])?)+"
+    },
+    {
+      "id": "linha-com-segredo",
+      "acao": "OMITIR_LINHA",
+      "regex": "(?i)\\b(?:(?:[a-z][a-z0-9_]*_)?(?:senha|password|passwd|secret|segredo|token)|authorization|bearer|(?:access|refresh|id)[_-]?token|client[_-]?secret|api[_-]?key)\\b"
+    }
+  ]
+}

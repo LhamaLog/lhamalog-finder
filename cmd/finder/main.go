@@ -11,6 +11,7 @@ import (
 	"os/signal"
 
 	"github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue"
+	"github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve"
 	"github.com/LhamaLog/lhamalog-finder/internal/application"
 	"github.com/LhamaLog/lhamalog-finder/internal/config"
 )
@@ -30,6 +31,10 @@ func main() {
 	cfg := config.Carregar()
 	if err := cfg.ValidarConsumo(); err != nil {
 		log.Error("consumo recusado", "erro", err)
+		os.Exit(1)
+	}
+	if _, err := config.InicializarSeguranca(context.Background()); err != nil {
+		log.Error("seguranca recusada", "erro", err)
 		os.Exit(1)
 	}
 	lote, err := queue.NovaLote(queue.OpcoesLote{
@@ -61,9 +66,16 @@ func main() {
 		}
 	}()
 
-	// A porta de efeito fica ausente: esta feature não consulta o OpenObserve.
+	// A recuperação informa o efeito. A confirmação da entrada continua nesta primeira tarefa.
 	// FINDER_WORKERS não define o paralelismo desta leitura.
-	consumo := &application.ConsumoReferencia{Fila: lote, Chaves: lote}
+	consumo := &application.ConsumoReferencia{
+		Fila:   lote,
+		Chaves: lote,
+		Efeito: &application.ServicoRecuperacao{
+			Busca:  openobserve.Cliente{},
+			Acesso: cfg.Acesso(),
+		},
+	}
 	ctx, parar := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer parar()
 

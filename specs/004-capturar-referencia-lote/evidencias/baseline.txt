@@ -1,0 +1,21 @@
+COMMAND: go test -count=1 ./...
+CWD: /workspace/lhamalog-specs/004
+ENV (somente teste): {}
+go: downloading github.com/redis/go-redis/v9 v9.23.0
+go: downloading github.com/joho/godotenv v1.5.1
+go: downloading golang.org/x/sys v0.48.0
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading go.uber.org/atomic v1.12.0
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	0.007s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	0.003s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	0.004s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	0.003s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	0.003s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	0.003s
+
+EXIT: 0
+SECONDS: 21.127

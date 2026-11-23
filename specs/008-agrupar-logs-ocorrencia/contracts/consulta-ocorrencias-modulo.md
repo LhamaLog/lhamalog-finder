@@ -53,3 +53,7 @@ Até contrato publicado, testes MUST usar **mock** da semântica acima, não URL
 
 - (fonte: respostas-joao.md, N2 B / N1 A / 008-11 rev. / Etapa 3 API Módulo; origem: ADR_062, LLT-200, respostas-etapa3.md §10)
 - (fonte: revisao-T1-drive.md, §2)
+
+## Evidência desta execução
+
+Uma consulta por achado, identidade = assinatura + classe + tenantId + productId. O fake em memória é explícito, sem fallback de produção. DN-009-2 mantém rota/JWT/HTTP/5xx/timeout pendentes; uma resposta com múltiplas ocorrências para a chave interrompe o handoff.

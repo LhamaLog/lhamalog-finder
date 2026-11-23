@@ -1,0 +1,14 @@
+COMMAND: go test -count=1 ./internal/application/agrupar ./internal/adapter/out/openobserve -run TestConsultaMemoria|TestErroTemporarioPonteiro
+CWD: /workspace/scratch/lhamalog-validation-q2z0hmah
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application/agrupar [github.com/LhamaLog/lhamalog-finder/internal/application/agrupar.test]
+internal/application/agrupar/agrupar_test.go:90:5: undefined: NovaConsultaMemoria
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar [build failed]
+--- FAIL: TestErroTemporarioPonteiroTambemRepeteTres (0.00s)
+    recorrencia_test.go:50: falha temporaria por ponteiro tratada como critica
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	0.006s
+FAIL
+
+EXIT: 1
+SECONDS: 0.888

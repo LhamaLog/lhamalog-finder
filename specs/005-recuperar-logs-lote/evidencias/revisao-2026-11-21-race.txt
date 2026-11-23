@@ -1,0 +1,425 @@
+go: downloading github.com/joho/godotenv v1.5.1
+go: downloading github.com/redis/go-redis/v9 v9.23.0
+go: downloading go.uber.org/atomic v1.12.0
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading golang.org/x/sys v0.48.0
+=== RUN   TestServidorAtendeHealth
+--- PASS: TestServidorAtendeHealth (0.01s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/cmd/finder	1.024s
+=== RUN   TestHealth
+--- PASS: TestHealth (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/http	1.022s
+=== RUN   TestItemDaMensagem
+--- PASS: TestItemDaMensagem (0.00s)
+=== RUN   TestLiberarDevolveOMesmoItem
+--- PASS: TestLiberarDevolveOMesmoItem (0.00s)
+=== RUN   TestNovaSemNomes
+--- PASS: TestNovaSemNomes (0.00s)
+=== RUN   TestNovaLoteRecusaParametroAusente
+--- PASS: TestNovaLoteRecusaParametroAusente (0.00s)
+=== RUN   TestNomeDaChaveUsaPrefixoExterno
+--- PASS: TestNomeDaChaveUsaPrefixoExterno (0.00s)
+=== RUN   TestDescarteMapaVazioNaoFicaNoMapa
+2026/11/22 01:27:26 INFO item descartado id=1-0
+--- PASS: TestDescarteMapaVazioNaoFicaNoMapa (0.00s)
+=== RUN   TestConclusaoParcialEFalhaNoRedis
+--- PASS: TestConclusaoParcialEFalhaNoRedis (0.04s)
+=== RUN   TestInstanciaParadaDevolveNoLugarOriginal
+--- PASS: TestInstanciaParadaDevolveNoLugarOriginal (0.02s)
+=== RUN   TestConsumidorVivoNaoPerdeOItem
+--- PASS: TestConsumidorVivoNaoPerdeOItem (0.02s)
+=== RUN   TestOrdemDeEntradaComUmaInstancia
+--- PASS: TestOrdemDeEntradaComUmaInstancia (0.02s)
+=== RUN   TestDuasInstanciasReservamItensDiferentes
+--- PASS: TestDuasInstanciasReservamItensDiferentes (0.02s)
+=== RUN   TestMesmoCodigoUmaConclusao
+--- PASS: TestMesmoCodigoUmaConclusao (0.02s)
+=== RUN   TestDescarteInvalidoEItemAceito
+2026/11/22 01:27:26 INFO item descartado id=1795310846592-0
+2026/11/22 01:27:26 INFO item descartado id=1795310846595-0
+--- PASS: TestDescarteInvalidoEItemAceito (0.02s)
+=== RUN   TestGrupoLeEntradaAnteriorSemDolar
+--- PASS: TestGrupoLeEntradaAnteriorSemDolar (0.01s)
+=== RUN   TestDoisGruposObservamAMesmaEntrada
+--- PASS: TestDoisGruposObservamAMesmaEntrada (0.02s)
+=== RUN   TestInvalidaSaiDaPendenciaSemChaveConcluida
+2026/11/22 01:27:26 INFO entrada inválida id=1795310846649-0 desfecho="entrada inválida" motivo="event diferente de log.ingested" idempotencyId=batch-1
+--- PASS: TestInvalidaSaiDaPendenciaSemChaveConcluida (0.02s)
+=== RUN   TestChaveEmProcessamentoSemPrazo
+2026/11/22 01:27:26 INFO referência entregue id=1795310846662-0 desfecho="referência entregue" idempotencyId=batch-1
+--- PASS: TestChaveEmProcessamentoSemPrazo (0.02s)
+=== RUN   TestChaveConcluidaDuraVinteCincoHorasSemRenovar
+2026/11/22 01:27:26 INFO efeito concluído id=1795310846683-0 desfecho="efeito concluído" idempotencyId=batch-1
+--- PASS: TestChaveConcluidaDuraVinteCincoHorasSemRenovar (1.12s)
+=== RUN   TestSegundaEntradaNaoRepeteEfeito
+2026/11/22 01:27:27 INFO referência entregue id=1795310847805-0 desfecho="referência entregue" idempotencyId=batch-1
+2026/11/22 01:27:27 INFO entrada pendente id=1795310847808-0 desfecho="entrada pendente" idempotencyId=batch-1
+2026/11/22 01:27:27 INFO entrada pendente id=1795310847805-0 desfecho="entrada pendente" idempotencyId=batch-1
+--- PASS: TestSegundaEntradaNaoRepeteEfeito (0.13s)
+=== RUN   TestRedisFechadoNaoConfirma
+--- PASS: TestRedisFechadoNaoConfirma (0.02s)
+=== RUN   TestReivindicacaoRespeitaQuantidade
+--- PASS: TestReivindicacaoRespeitaQuantidade (0.53s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/in/queue	3.059s
+?   	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/mongo	[no test files]
+=== RUN   TestRespostaAcimaDe32MiBNaoTemTetoInventado
+--- PASS: TestRespostaAcimaDe32MiBNaoTemTetoInventado (2.46s)
+=== RUN   TestErroDeLeituraNaoEhRespostaInvalida
+--- PASS: TestErroDeLeituraNaoEhRespostaInvalida (0.00s)
+=== RUN   TestStatusNaoPrevistoMantemPendencia
+=== RUN   TestStatusNaoPrevistoMantemPendencia/Found
+=== RUN   TestStatusNaoPrevistoMantemPendencia/Bad_Request
+=== RUN   TestStatusNaoPrevistoMantemPendencia/Not_Found
+=== RUN   TestStatusNaoPrevistoMantemPendencia/Conflict
+=== RUN   TestStatusNaoPrevistoMantemPendencia/I'm_a_teapot
+=== RUN   TestStatusNaoPrevistoMantemPendencia/Unprocessable_Entity
+--- PASS: TestStatusNaoPrevistoMantemPendencia (0.02s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/Found (0.01s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/Bad_Request (0.00s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/Not_Found (0.00s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/Conflict (0.00s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/I'm_a_teapot (0.00s)
+    --- PASS: TestStatusNaoPrevistoMantemPendencia/Unprocessable_Entity (0.00s)
+=== RUN   TestCorpoHTTPTruncadoMantemPendencia
+--- PASS: TestCorpoHTTPTruncadoMantemPendencia (0.00s)
+=== RUN   TestJSONDeSucessoExigeFimValido
+--- PASS: TestJSONDeSucessoExigeFimValido (0.00s)
+=== RUN   TestClienteEnviaBasicENaoGravaTimeout
+--- PASS: TestClienteEnviaBasicENaoGravaTimeout (0.00s)
+=== RUN   TestClienteClassificaFalhaSemConteudo
+=== RUN   TestClienteClassificaFalhaSemConteudo/credencial
+=== RUN   TestClienteClassificaFalhaSemConteudo/invalida
+=== RUN   TestClienteClassificaFalhaSemConteudo/pagina
+=== RUN   TestClienteClassificaFalhaSemConteudo/indisponivel
+--- PASS: TestClienteClassificaFalhaSemConteudo (0.01s)
+    --- PASS: TestClienteClassificaFalhaSemConteudo/credencial (0.00s)
+    --- PASS: TestClienteClassificaFalhaSemConteudo/invalida (0.00s)
+    --- PASS: TestClienteClassificaFalhaSemConteudo/pagina (0.00s)
+    --- PASS: TestClienteClassificaFalhaSemConteudo/indisponivel (0.00s)
+=== RUN   TestClienteTimeout
+--- PASS: TestClienteTimeout (0.20s)
+=== RUN   TestClienteIndisponivel
+--- PASS: TestClienteIndisponivel (0.00s)
+=== RUN   TestHitsVaziosSaoPaginaCurta
+--- PASS: TestHitsVaziosSaoPaginaCurta (0.00s)
+=== RUN   TestMontarCorpoDaConsulta
+--- PASS: TestMontarCorpoDaConsulta (0.00s)
+=== RUN   TestOpenObserveIntegracao
+=== RUN   TestOpenObserveIntegracao/lote_sintetico
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261122012729.156075323 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/lote_de_varios_nao_filtra_recordId
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261122012729.178653067 id=sintetica efeitoConcluido=true esperado=2 encontrado=2
+=== RUN   TestOpenObserveIntegracao/copias_e_identificador_alem_de_recordCount
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261122012729.206055281 id=sintetica efeitoConcluido=true esperado=2 encontrado=2
+=== RUN   TestOpenObserveIntegracao/vazio_menor_maior_e_misto
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote incompleto" idempotencyId=lote-vazio-20261122012729.237966324 id=sintetica efeitoConcluido=false esperado=1 encontrado=0
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote incompleto" idempotencyId=lote-20261122012729.247672958 id=sintetica efeitoConcluido=false esperado=2 encontrado=1
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="excesso de registros distintos" idempotencyId=lote-maior-20261122012729.259333598 id=sintetica efeitoConcluido=true esperado=1 encontrado=2
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261122012729.247672958 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/dois_tenants
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="lote completo" idempotencyId=lote-20261122012729.300261571 id=sintetica efeitoConcluido=true esperado=1 encontrado=1
+=== RUN   TestOpenObserveIntegracao/segunda_pagina_inalcancavel
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="indisponibilidade ou timeout" idempotencyId=lote-quebra id=sintetica efeitoConcluido=false
+=== RUN   TestOpenObserveIntegracao/isolamento_precede_pagina_inalcancavel
+2026/11/22 01:27:29 INFO recuperação do lote classificacao="inconsistência de identidade ou isolamento" idempotencyId=lote-isolamento id=sintetica efeitoConcluido=true
+--- PASS: TestOpenObserveIntegracao (0.17s)
+    --- PASS: TestOpenObserveIntegracao/lote_sintetico (0.02s)
+    --- PASS: TestOpenObserveIntegracao/lote_de_varios_nao_filtra_recordId (0.03s)
+    --- PASS: TestOpenObserveIntegracao/copias_e_identificador_alem_de_recordCount (0.03s)
+    --- PASS: TestOpenObserveIntegracao/vazio_menor_maior_e_misto (0.06s)
+    --- PASS: TestOpenObserveIntegracao/dois_tenants (0.01s)
+    --- PASS: TestOpenObserveIntegracao/segunda_pagina_inalcancavel (0.00s)
+    --- PASS: TestOpenObserveIntegracao/isolamento_precede_pagina_inalcancavel (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	3.925s
+=== RUN   TestExecutarDevolveRegistroInteiro
+--- PASS: TestExecutarDevolveRegistroInteiro (0.00s)
+=== RUN   TestExecutarSemApontamento
+--- PASS: TestExecutarSemApontamento (0.00s)
+=== RUN   TestExecutarParadaNoMeioNaoDeixaPronto
+--- PASS: TestExecutarParadaNoMeioNaoDeixaPronto (0.00s)
+=== RUN   TestExecutarApontamentoVazioNaoConsulta
+--- PASS: TestExecutarApontamentoVazioNaoConsulta (0.00s)
+=== RUN   TestExecutarLogAusente
+--- PASS: TestExecutarLogAusente (0.00s)
+=== RUN   TestExecutarInacessivel
+--- PASS: TestExecutarInacessivel (0.00s)
+=== RUN   TestExecutarSobrepostas
+--- PASS: TestExecutarSobrepostas (0.00s)
+=== RUN   TestExecutarApontamentoRepetido
+--- PASS: TestExecutarApontamentoRepetido (0.00s)
+=== RUN   TestExecutarErroComEstadoProntoNaoGuarda
+--- PASS: TestExecutarErroComEstadoProntoNaoGuarda (0.00s)
+=== RUN   TestExecutarRegistroVazioNaoFicaPronto
+--- PASS: TestExecutarRegistroVazioNaoFicaPronto (0.00s)
+=== RUN   TestExecutarCancelamentoNoMeioDevolveErro
+--- PASS: TestExecutarCancelamentoNoMeioDevolveErro (0.00s)
+=== RUN   TestExecutarParadaDuranteLeituraNaoGuarda
+--- PASS: TestExecutarParadaDuranteLeituraNaoGuarda (0.00s)
+=== RUN   TestExecutarConcluiEDisponibilizaUmaVez
+--- PASS: TestExecutarConcluiEDisponibilizaUmaVez (0.00s)
+=== RUN   TestExecutarSegundoCodigoNaoConclui
+--- PASS: TestExecutarSegundoCodigoNaoConclui (0.00s)
+=== RUN   TestExecutarParadaDoWorkerLibera
+--- PASS: TestExecutarParadaDoWorkerLibera (0.00s)
+=== RUN   TestExecutarFilaVaziaEFalhaDeLeitura
+--- PASS: TestExecutarFilaVaziaEFalhaDeLeitura (0.00s)
+=== RUN   TestExecutarParcialDepoisCompletaSemSegundaContagem
+--- PASS: TestExecutarParcialDepoisCompletaSemSegundaContagem (0.00s)
+=== RUN   TestExecutarDescartaSemPrender
+--- PASS: TestExecutarDescartaSemPrender (0.00s)
+=== RUN   TestExecutarConteudoExtraNaoConclui
+--- PASS: TestExecutarConteudoExtraNaoConclui (0.00s)
+=== RUN   TestInterpretacaoEntregaSemConfirmar
+=== RUN   TestInterpretacaoEntregaSemConfirmar/um_registro_com_trace
+=== RUN   TestInterpretacaoEntregaSemConfirmar/varios_sem_trace
+--- PASS: TestInterpretacaoEntregaSemConfirmar (0.00s)
+    --- PASS: TestInterpretacaoEntregaSemConfirmar/um_registro_com_trace (0.00s)
+    --- PASS: TestInterpretacaoEntregaSemConfirmar/varios_sem_trace (0.00s)
+=== RUN   TestEntradaInvalidaConfirmaUmaVezSemConcluir
+--- PASS: TestEntradaInvalidaConfirmaUmaVezSemConcluir (0.00s)
+=== RUN   TestSegundaEntradaEsperaEEfeitoConcluidoNaoRepete
+--- PASS: TestSegundaEntradaEsperaEEfeitoConcluidoNaoRepete (0.00s)
+=== RUN   TestQuedaAntesEDepoisDoEfeito
+--- PASS: TestQuedaAntesEDepoisDoEfeito (0.00s)
+=== RUN   TestReassumirEntradaAbandonada
+--- PASS: TestReassumirEntradaAbandonada (0.00s)
+=== RUN   TestCorrelationEIdRedisNaoDeduplicam
+--- PASS: TestCorrelationEIdRedisNaoDeduplicam (0.00s)
+=== RUN   TestFeedbackProcessamentoNoTerminal
+=== RUN   TestFeedbackProcessamentoNoTerminal/leitura_sem_entrada
+=== RUN   TestFeedbackProcessamentoNoTerminal/falha_de_leitura
+=== RUN   TestFeedbackProcessamentoNoTerminal/referência_entregue_sem_porta
+=== RUN   TestFeedbackProcessamentoNoTerminal/referência_entregue_efeito_não_concluído
+=== RUN   TestFeedbackProcessamentoNoTerminal/efeito_concluído
+=== RUN   TestFeedbackProcessamentoNoTerminal/confirmada_sem_repetir_efeito
+=== RUN   TestFeedbackProcessamentoNoTerminal/entrada_pendente
+=== RUN   TestFeedbackProcessamentoNoTerminal/entrada_inválida_uma_linha
+--- PASS: TestFeedbackProcessamentoNoTerminal (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/leitura_sem_entrada (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/falha_de_leitura (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/referência_entregue_sem_porta (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/referência_entregue_efeito_não_concluído (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/efeito_concluído (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/confirmada_sem_repetir_efeito (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/entrada_pendente (0.00s)
+    --- PASS: TestFeedbackProcessamentoNoTerminal/entrada_inválida_uma_linha (0.00s)
+=== RUN   TestPaginaCurtaEntregaLoteENaoConfirmaRedis
+--- PASS: TestPaginaCurtaEntregaLoteENaoConfirmaRedis (0.00s)
+=== RUN   TestLoteUnitarioFiltraRecordID
+--- PASS: TestLoteUnitarioFiltraRecordID (0.00s)
+=== RUN   TestConfiguracaoAusenteNaoConsulta
+=== RUN   TestConfiguracaoAusenteNaoConsulta/url
+=== RUN   TestConfiguracaoAusenteNaoConsulta/usuario
+=== RUN   TestConfiguracaoAusenteNaoConsulta/senha
+=== RUN   TestConfiguracaoAusenteNaoConsulta/timeout
+=== RUN   TestConfiguracaoAusenteNaoConsulta/pagina
+=== RUN   TestConfiguracaoAusenteNaoConsulta/lista
+=== RUN   TestConfiguracaoAusenteNaoConsulta/ordem
+--- PASS: TestConfiguracaoAusenteNaoConsulta (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/url (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/usuario (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/senha (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/timeout (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/pagina (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/lista (0.00s)
+    --- PASS: TestConfiguracaoAusenteNaoConsulta/ordem (0.00s)
+=== RUN   TestListaVaziaTornaDiferencaDivergente
+--- PASS: TestListaVaziaTornaDiferencaDivergente (0.00s)
+=== RUN   TestNomesAusentesNaoConsultamEIsolam
+--- PASS: TestNomesAusentesNaoConsultamEIsolam (0.00s)
+=== RUN   TestPaginacaoDedupEContagem
+=== RUN   TestPaginacaoDedupEContagem/varias_paginas_e_multiplo_exato
+=== RUN   TestPaginacaoDedupEContagem/copias_e_identificador_depois_de_recordCount
+=== RUN   TestPaginacaoDedupEContagem/sem_teto_de_paginas
+--- PASS: TestPaginacaoDedupEContagem (0.00s)
+    --- PASS: TestPaginacaoDedupEContagem/varias_paginas_e_multiplo_exato (0.00s)
+    --- PASS: TestPaginacaoDedupEContagem/copias_e_identificador_depois_de_recordCount (0.00s)
+    --- PASS: TestPaginacaoDedupEContagem/sem_teto_de_paginas (0.00s)
+=== RUN   TestCompletudeNaoAfirmaCausa
+=== RUN   TestCompletudeNaoAfirmaCausa/igual
+=== RUN   TestCompletudeNaoAfirmaCausa/menor
+=== RUN   TestCompletudeNaoAfirmaCausa/maior
+=== RUN   TestCompletudeNaoAfirmaCausa/zero
+=== RUN   TestCompletudeNaoAfirmaCausa/lote_misto_usa_só_os_aceitos
+--- PASS: TestCompletudeNaoAfirmaCausa (0.00s)
+    --- PASS: TestCompletudeNaoAfirmaCausa/igual (0.00s)
+    --- PASS: TestCompletudeNaoAfirmaCausa/menor (0.00s)
+    --- PASS: TestCompletudeNaoAfirmaCausa/maior (0.00s)
+    --- PASS: TestCompletudeNaoAfirmaCausa/zero (0.00s)
+    --- PASS: TestCompletudeNaoAfirmaCausa/lote_misto_usa_só_os_aceitos (0.00s)
+=== RUN   TestIsolamentoDeDocumentoECredencial
+--- PASS: TestIsolamentoDeDocumentoECredencial (0.00s)
+=== RUN   TestFalhaClassificadaSemParcial
+=== RUN   TestFalhaClassificadaSemParcial/timeout_na_primeira
+=== RUN   TestFalhaClassificadaSemParcial/credencial
+=== RUN   TestFalhaClassificadaSemParcial/resposta_invalida
+=== RUN   TestFalhaClassificadaSemParcial/falha_na_segunda_pagina
+=== RUN   TestFalhaClassificadaSemParcial/timeout_na_segunda
+=== RUN   TestFalhaClassificadaSemParcial/isolamento_precede_pagina
+=== RUN   TestFalhaClassificadaSemParcial/autenticacao_precede_isolamento
+=== RUN   TestFalhaClassificadaSemParcial/valor_que_nao_pode_ser_filtro
+=== RUN   TestFalhaClassificadaSemParcial/documento_sem_identificador_precede_contagem
+--- PASS: TestFalhaClassificadaSemParcial (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/timeout_na_primeira (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/credencial (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/resposta_invalida (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/falha_na_segunda_pagina (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/timeout_na_segunda (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/isolamento_precede_pagina (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/autenticacao_precede_isolamento (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/valor_que_nao_pode_ser_filtro (0.00s)
+    --- PASS: TestFalhaClassificadaSemParcial/documento_sem_identificador_precede_contagem (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.040s
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/in	[no test files]
+?   	github.com/LhamaLog/lhamalog-finder/internal/application/port/out	[no test files]
+=== RUN   TestCarregarPadrao
+--- PASS: TestCarregarPadrao (0.00s)
+=== RUN   TestCarregarWorkers
+--- PASS: TestCarregarWorkers (0.00s)
+=== RUN   TestAplicarArquivoEnv
+--- PASS: TestAplicarArquivoEnv (0.00s)
+=== RUN   TestAplicarArquivoEnvAusente
+--- PASS: TestAplicarArquivoEnvAusente (0.00s)
+=== RUN   TestCarregarNaoCriaParametrosDeConsumo
+--- PASS: TestCarregarNaoCriaParametrosDeConsumo (0.00s)
+=== RUN   TestCarregarIgnoraArquivoEnvComoPadrao
+--- PASS: TestCarregarIgnoraArquivoEnvComoPadrao (0.00s)
+=== RUN   TestValidarRecusaCadaParametroNumerico
+=== RUN   TestValidarRecusaCadaParametroNumerico/sem_quantidade
+=== RUN   TestValidarRecusaCadaParametroNumerico/sem_bloqueio
+=== RUN   TestValidarRecusaCadaParametroNumerico/sem_ociosidade
+--- PASS: TestValidarRecusaCadaParametroNumerico (0.00s)
+    --- PASS: TestValidarRecusaCadaParametroNumerico/sem_quantidade (0.00s)
+    --- PASS: TestValidarRecusaCadaParametroNumerico/sem_bloqueio (0.00s)
+    --- PASS: TestValidarRecusaCadaParametroNumerico/sem_ociosidade (0.00s)
+=== RUN   TestValidarRecusaNaoPositivoEStreamForaDoContrato
+--- PASS: TestValidarRecusaNaoPositivoEStreamForaDoContrato (0.00s)
+=== RUN   TestValidarAceitaConsumoInformado
+--- PASS: TestValidarAceitaConsumoInformado (0.00s)
+=== RUN   TestCarregarOpenObserveNaoCriaPadrao
+--- PASS: TestCarregarOpenObserveNaoCriaPadrao (0.00s)
+=== RUN   TestCarregarListaCopiaVaziaEstaPresente
+--- PASS: TestCarregarListaCopiaVaziaEstaPresente (0.00s)
+=== RUN   TestCarregarOpenObserveInformadoNaoRegistraSenha
+--- PASS: TestCarregarOpenObserveInformadoNaoRegistraSenha (0.00s)
+=== RUN   TestCarregarOpenObserveRecusaNaoPositivo
+--- PASS: TestCarregarOpenObserveRecusaNaoPositivo (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/config	1.032s
+=== RUN   TestQuadroSemApontamento
+--- PASS: TestQuadroSemApontamento (0.00s)
+=== RUN   TestConcluirGuardaRegistroInteiro
+--- PASS: TestConcluirGuardaRegistroInteiro (0.00s)
+=== RUN   TestParadaNoMeioNaoDeixaPronto
+--- PASS: TestParadaNoMeioNaoDeixaPronto (0.00s)
+=== RUN   TestDepoisQueInstanciaParaNaoExigeLog
+--- PASS: TestDepoisQueInstanciaParaNaoExigeLog (0.00s)
+=== RUN   TestApontamentoVazioEInutilizavel
+--- PASS: TestApontamentoVazioEInutilizavel (0.00s)
+=== RUN   TestAusenteNaoCriaRegistroVazio
+--- PASS: TestAusenteNaoCriaRegistroVazio (0.00s)
+=== RUN   TestInacessivelDistintoDeAusente
+--- PASS: TestInacessivelDistintoDeAusente (0.00s)
+=== RUN   TestMesmoApontamentoUmLogPronto
+--- PASS: TestMesmoApontamentoUmLogPronto (0.00s)
+=== RUN   TestChaveReservaConcluiENaoRenova
+--- PASS: TestChaveReservaConcluiENaoRenova (0.00s)
+=== RUN   TestEnvelopeValidoComESemTrace
+--- PASS: TestEnvelopeValidoComESemTrace (0.00s)
+=== RUN   TestEnvelopeOpcionalAusenteContinuaValido
+--- PASS: TestEnvelopeOpcionalAusenteContinuaValido (0.00s)
+=== RUN   TestEnvelopeInvalido
+=== RUN   TestEnvelopeInvalido/json_metadata
+=== RUN   TestEnvelopeInvalido/json_body
+=== RUN   TestEnvelopeInvalido/tenant_ausente
+=== RUN   TestEnvelopeInvalido/event
+=== RUN   TestEnvelopeInvalido/origin
+=== RUN   TestEnvelopeInvalido/schema_2
+=== RUN   TestEnvelopeInvalido/signal
+=== RUN   TestEnvelopeInvalido/productId_divergente
+=== RUN   TestEnvelopeInvalido/batch_diferente
+=== RUN   TestEnvelopeInvalido/faixa
+=== RUN   TestEnvelopeInvalido/recordCount_zero
+=== RUN   TestEnvelopeInvalido/recordCount_negativo
+=== RUN   TestEnvelopeInvalido/um_sem_recordId
+=== RUN   TestEnvelopeInvalido/varios_com_recordId
+=== RUN   TestEnvelopeInvalido/publishedAt
+=== RUN   TestEnvelopeInvalido/publishedAt_sem_zona
+--- PASS: TestEnvelopeInvalido (0.01s)
+    --- PASS: TestEnvelopeInvalido/json_metadata (0.00s)
+    --- PASS: TestEnvelopeInvalido/json_body (0.00s)
+    --- PASS: TestEnvelopeInvalido/tenant_ausente (0.00s)
+    --- PASS: TestEnvelopeInvalido/event (0.00s)
+    --- PASS: TestEnvelopeInvalido/origin (0.00s)
+    --- PASS: TestEnvelopeInvalido/schema_2 (0.00s)
+    --- PASS: TestEnvelopeInvalido/signal (0.00s)
+    --- PASS: TestEnvelopeInvalido/productId_divergente (0.00s)
+    --- PASS: TestEnvelopeInvalido/batch_diferente (0.00s)
+    --- PASS: TestEnvelopeInvalido/faixa (0.00s)
+    --- PASS: TestEnvelopeInvalido/recordCount_zero (0.00s)
+    --- PASS: TestEnvelopeInvalido/recordCount_negativo (0.00s)
+    --- PASS: TestEnvelopeInvalido/um_sem_recordId (0.00s)
+    --- PASS: TestEnvelopeInvalido/varios_com_recordId (0.00s)
+    --- PASS: TestEnvelopeInvalido/publishedAt (0.00s)
+    --- PASS: TestEnvelopeInvalido/publishedAt_sem_zona (0.00s)
+=== RUN   TestFimConcluiNoMesmoPasso
+--- PASS: TestFimConcluiNoMesmoPasso (0.00s)
+=== RUN   TestFimNaoConcluiSeCodigoJaConcluido
+--- PASS: TestFimNaoConcluiSeCodigoJaConcluido (0.00s)
+=== RUN   TestFimParadaDoWorkerNaoConclui
+--- PASS: TestFimParadaDoWorkerNaoConclui (0.00s)
+=== RUN   TestConcluirJuntosUmaConclusao
+--- PASS: TestConcluirJuntosUmaConclusao (0.00s)
+=== RUN   TestItemForaDeContrato
+--- PASS: TestItemForaDeContrato (0.00s)
+=== RUN   TestSemConsumoNaoConclui
+--- PASS: TestSemConsumoNaoConclui (0.00s)
+=== RUN   TestDeduplicarCopiaEDivergencia
+--- PASS: TestDeduplicarCopiaEDivergencia (0.00s)
+=== RUN   TestDeduplicarIgnoraDocumentoSemIdentificadorENaoUsaCorrelacao
+--- PASS: TestDeduplicarIgnoraDocumentoSemIdentificadorENaoUsaCorrelacao (0.00s)
+=== RUN   TestFecharCompletudeEPrecedencia
+=== RUN   TestFecharCompletudeEPrecedencia/completo
+=== RUN   TestFecharCompletudeEPrecedencia/incompleto
+=== RUN   TestFecharCompletudeEPrecedencia/excesso
+=== RUN   TestFecharCompletudeEPrecedencia/vazio
+=== RUN   TestFecharCompletudeEPrecedencia/sem_identificador_e_contagem
+=== RUN   TestFecharCompletudeEPrecedencia/divergente_e_excesso
+=== RUN   TestFecharCompletudeEPrecedencia/isolamento_e_sem_identificador
+=== RUN   TestFecharCompletudeEPrecedencia/credencial
+=== RUN   TestFecharCompletudeEPrecedencia/resposta
+=== RUN   TestFecharCompletudeEPrecedencia/timeout
+=== RUN   TestFecharCompletudeEPrecedencia/indisponivel
+=== RUN   TestFecharCompletudeEPrecedencia/pagina_seguinte
+=== RUN   TestFecharCompletudeEPrecedencia/pagina_seguinte_depois_de_isolamento
+=== RUN   TestFecharCompletudeEPrecedencia/primeira_pagina_http
+--- PASS: TestFecharCompletudeEPrecedencia (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/completo (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/incompleto (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/excesso (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/vazio (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/sem_identificador_e_contagem (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/divergente_e_excesso (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/isolamento_e_sem_identificador (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/credencial (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/resposta (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/timeout (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/indisponivel (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/pagina_seguinte (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/pagina_seguinte_depois_de_isolamento (0.00s)
+    --- PASS: TestFecharCompletudeEPrecedencia/primeira_pagina_http (0.00s)
+=== RUN   TestConsultaSQLMontaFiltroERecusaValorInaplicavel
+--- PASS: TestConsultaSQLMontaFiltroERecusaValorInaplicavel (0.00s)
+=== RUN   TestIsoladoNaoUsaAtributoInterno
+--- PASS: TestIsoladoNaoUsaAtributoInterno (0.00s)
+=== RUN   TestReservaExclusivaELiberacaoSemPrazo
+--- PASS: TestReservaExclusivaELiberacaoSemPrazo (0.00s)
+=== RUN   TestSegundoTomadorRecebeOutroItem
+--- PASS: TestSegundoTomadorRecebeOutroItem (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/domain	1.044s

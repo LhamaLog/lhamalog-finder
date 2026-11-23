@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/application/assinatura
+CWD: /workspace/lhamalog-specs/008
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/assinatura	1.024s
+
+EXIT: 0
+SECONDS: 1.464

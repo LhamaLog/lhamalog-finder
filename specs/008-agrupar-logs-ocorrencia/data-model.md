@@ -159,3 +159,7 @@ N AchadoAnalise --> 1 ResumoAnalise
 | Valor assinatura: forma texto (**008-assinatura A**); separador **`|`** (**DN-008-8 A**); escape **`|`** → **`\|`** (**DN-008-9 A**) | FR-002c, research R17 |
 | Consulta Módulo **por achado**; envio **um ResumoAnalise/lote** | DN-008-7 B, FR-009 |
 | Composição assinatura fechada; aceite E2E parcial até DN-009-2 / ADR N3 / ADR_051 / escape `\` | DN-008-1 B, SC-005 |
+
+## Evidência desta execução
+
+ChaveUnicidadeOcorrencia, LogAgrupavel, EstadoAgregacaoEntreLotes e ResumoAnaliseEntrega reutilizam/aliasam os tipos da 006. AchadoLote agrega contagem/extremos. MarcaRecorrente nil significa desconhecida e impede envio; FECHADA é propagada como estado anterior, reabertura pertence ao Módulo.

@@ -1,0 +1,15 @@
+COMMAND: go test -count=1 ./internal/application/assinatura
+CWD: /workspace/lhamalog-specs/008
+ENV (somente teste): {}
+# github.com/LhamaLog/lhamalog-finder/internal/application/assinatura [github.com/LhamaLog/lhamalog-finder/internal/application/assinatura.test]
+internal/application/assinatura/normalizar_mensagem_test.go:14:32: undefined: NormalizarMensagem
+internal/application/assinatura/normalizar_mensagem_test.go:17:11: undefined: Calcular
+internal/application/assinatura/normalizar_mensagem_test.go:19:82: undefined: Calcular
+internal/application/assinatura/normalizar_mensagem_test.go:22:5: undefined: NormalizarMensagem
+internal/application/assinatura/normalizar_mensagem_test.go:23:5: undefined: NormalizarMensagem
+internal/application/assinatura/normalizar_mensagem_test.go:24:13: undefined: NormalizarMensagem
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application/assinatura [build failed]
+FAIL
+
+EXIT: 1
+SECONDS: 0.108

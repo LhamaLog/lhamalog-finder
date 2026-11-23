@@ -53,3 +53,9 @@ Após esgotar as **3 tentativas** na consulta, o Finder MUST notificar o **Core*
 
 - (fonte: respostas-joao.md, DN-008-3 / T3 B / 008-3 B / 008-5 A / 008-6 A; §Etapa 3g DLQ B; origem: ADR_013, ADR_063, ADR_168, contrato v1 §8–§9)
 - (fonte: internal/adapter/out/openobserve/doc.go)
+
+## Evidência desta execução
+
+A porta semântica exige histórico recente→antigo e janela de 500 lotes distintos. Três lotes distintos com mesma chave/host ativam recorrência; repetições no lote não contam. A query HTTP histórica continua pendente e tem stub que retorna erro explícito, sem reaproveitar indevidamente a busca de lote 005. Parâmetros explícitos sem defaults em internal/config/recorrencia.go.
+
+Até três tentativas apenas em falha temporária tipada; erro crítico termina na primeira. Esgotamento conserva marca desconhecida e prepara aviso Core batchId/motivo. Sem cliente real ADR_051, não há alegação de aviso efetivamente entregue; sem recorrente=false por degradação.

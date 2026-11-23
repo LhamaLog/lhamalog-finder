@@ -70,3 +70,9 @@ Regex concretas: **[PENDENTE ADR]** — não listadas neste contrato (010-2 A).
 - (fonte: respostas-documentadas.md, 010-3–010-5 / 010-14 / 010-15)
 - (fonte: respostas-joao.md, 010-10 A / 010-16 C / DN-010-2)
 - (origem: ADR_016, ADR_064, SSID_007.1)
+
+## Evidência desta execução
+
+Validação atua somente nas linhas, não em atributos OTel (DN-010-2). O mecanismo recebe transformador opaco do catálogo e preserva a política de exatamente uma passagem por lote. Falha, retorno parcial/cardinalidade inválida ou catálogo ausente elimina trechos do contexto; não existe fallback para linha bruta. Contador é o total retornado pelo artefato.
+
+Regex oficiais, motor, caminho/formato e placeholder de e-mail não foram escolhidos. Logo, T014 tem mecanismo testado, mas as detecções/substituições reais T017/T019/T020/T021 dependem P-010-2. O literal MarcadorOmisso é o único texto de negócio fechado. Fixtures de transformador testam fluxo e ordem; não são novos casos formais de SC-001/002 do João.

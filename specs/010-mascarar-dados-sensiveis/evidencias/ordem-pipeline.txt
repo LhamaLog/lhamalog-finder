@@ -1,0 +1,10 @@
+COMMAND: go test -race -count=1 -v ./internal/application -run TestFronteira010
+CWD: /workspace/scratch/lhamalog-validation-88v68sh1
+ENV (somente teste): {}
+=== RUN   TestFronteira010AntesDaClassificacaoEAssinaturaCanonica
+--- PASS: TestFronteira010AntesDaClassificacaoEAssinaturaCanonica (0.00s)
+PASS
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.010s
+
+EXIT: 0
+SECONDS: 2.242

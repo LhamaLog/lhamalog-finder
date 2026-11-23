@@ -1,0 +1,3 @@
+/config/seguranca/catalogo.json text eol=lf
+/datasets/labeled-logs/*.jsonl text eol=lf
+/datasets/labeled-logs/manifest.json text eol=lf
