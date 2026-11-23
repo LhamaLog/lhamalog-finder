@@ -1,0 +1,8 @@
+COMMAND: go test -race -count=1 ./internal/application ./internal/application/agrupar
+CWD: /workspace/scratch/lhamalog-validation-m0xw9_oh
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application	1.025s
+ok  	github.com/LhamaLog/lhamalog-finder/internal/application/agrupar	1.012s
+
+EXIT: 0
+SECONDS: 2.227

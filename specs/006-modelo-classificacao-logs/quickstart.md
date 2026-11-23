@@ -130,3 +130,9 @@ Guia de **validação** (não implementação). Prova ponta a ponta com Módulo 
 | DLQ B / DN-008-3 rev. 3h / DN-008-6 rev. 3h | §8 (rastreio; spec **008**) |
 
 (fonte: respostas-joao.md; detalhes em [research.md](../research.md))
+
+## Verificação desta execução
+
+§1–§4d: classificacao_test.go e analisar_lote_test.go cobrem classes, partições (3 ERROR equivalentes + 2 INFO distintos), lote/identidade/produto/assinatura inválidos, N consultas/um envio, confirmação, catálogo decisório e snapshot de versão. §6: envelope v1 conferido nos testes existentes/004. §5: HTTP bloqueado DN-009-2. §7: procedimento offline em rastreabilidade.md/007; base real indisponível. §7b: `TestAceiteDesempenhoVMA` é opt-in `FINDER_ACEITE_VMA=1`, exige atestar VM-A real com todos os serviços e 1.000 registros; perfil-vma.txt mostra SKIP, não sucesso de ≤2s. §8: três falhas OO → porta Core batchId/motivo, sem DLQ/WebSocket; cliente ADR_051 pendente.
+
+Comandos realmente observados e saídas completas: `evidencias/aceite-final-unit.txt`, `aceite-final-race-integracoes.txt` e `aceite-final-vet.txt` (exit 0). Executados em composição temporária dos patches das specs, com manifesto SHA-256. Para reproduzir: compor os pré-requisitos conforme relatório central, usar Go 1.27.2 e fornecer explicitamente os parâmetros de teste de Redis/OpenObserve; credenciais não estão nos relatórios. `make test` falhou no contêiner por certificado ao baixar módulos; o comando Go local com race passou. Não executar `go test ./...` isoladamente numa branch consumidora e interpretar falta de dependências como falha da composição.

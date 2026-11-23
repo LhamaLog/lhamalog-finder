@@ -1,0 +1,6 @@
+COMMAND: go vet ./...
+CWD: /workspace/scratch/lhamalog-validation-5ewg6wij
+ENV (somente teste): {}
+
+EXIT: 0
+SECONDS: 1.902

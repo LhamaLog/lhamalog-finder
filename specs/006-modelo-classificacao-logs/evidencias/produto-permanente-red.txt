@@ -1,0 +1,11 @@
+COMMAND: go test -count=1 ./internal/application -run TestProdutoInconsistenteEhPermanente
+CWD: /workspace/scratch/lhamalog-validation-w_5jcsuv
+ENV (somente teste): {}
+--- FAIL: TestProdutoInconsistenteEhPermanenteSemRetry (0.00s)
+    analisar_lote_test.go:127: falha de produto nao sinaliza sem retry
+FAIL
+FAIL	github.com/LhamaLog/lhamalog-finder/internal/application	0.001s
+FAIL
+
+EXIT: 1
+SECONDS: 0.934

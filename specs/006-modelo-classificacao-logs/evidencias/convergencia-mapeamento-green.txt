@@ -1,0 +1,7 @@
+COMMAND: go test -race -count=1 ./internal/adapter/out/openobserve -run TestMapearDocumentoAnalise
+CWD: /workspace/lhamalog-specs/validacoes/composicao-01_w5210
+ENV (somente teste): {}
+ok  	github.com/LhamaLog/lhamalog-finder/internal/adapter/out/openobserve	1.010s
+
+EXIT: 0
+SECONDS: 2.355

@@ -88,3 +88,23 @@ Antes do POST/PUT de envio (contrato **DN-009-2**), o Finder MUST ter executado 
 - (fonte: revisao-T1-drive.md, §2 tabela “Contrato Finder → Módulo Ocorrência”)
 - (fonte: spec.md, FR-007, FR-011)
 - (fonte: respostas-etapa3.md, §10)
+
+## Evidência desta execução
+
+Matriz N3 A **[PENDENTE ADR]**; modelo de memória e DTO provisórios, sem decidir nomes finais:
+
+| Campo lógico | Origem/prova | Situação externa |
+|---|---|---|
+| batchId / execId | Referencia.BatchID / id V ou M injetado pela Varredura; chave estruturada | execId omitido quando ausente; localização HTTP da chave depende DN-009-2 |
+| tenantId / productId | Referência validada; produto body conferido | Sem identidade inventada |
+| tipo / hostName / linhas | Classificação e contexto 010; host da assinatura | Somente três classes e trechos pós-segurança |
+| assinatura | Compositor canônico 008 | [PENDENTE ADR] N3; excluído do JSON provisório |
+| contagem | Partição local; fusão 008 quando utilizada | [PENDENTE ADR] N3 |
+| primeiraOcorrencia / ultimaOcorrencia | Min/max timestamps do log | [PENDENTE ADR] N3 |
+| versaoRegras do achado | Snapshot da entrada do lote | [PENDENTE ADR] N3 |
+| titulo / resumo / numeroLinha / camposExtraido | Estrutura disponível | Semântica final pendente; sem texto de apresentação fabricado |
+| dadosSensiveis | Ponteiro lógico desconhecido | nil/null até semântica acordada; não presume false |
+| contadores.info | Quantidade de logs INFO | DTO 009 usa `informacao` provisoriamente; reconciliação ADR_102/DN-009-2 pendente |
+| dadosSensiveisMascarados | Total informado pelo contexto 010 | Nome final/semântica N3/ADR_102 pendentes |
+
+Um resumo por lote; uma consulta por achado antes do envio. Sem rota, claims, status, timeout ou retry HTTP inventados (DN-009-2). Em falha histórica: até três tentativas temporárias → porta de aviso Core com batchId/motivo; sem DLQ/WebSocket no ingested; cliente Core depende ADR_051.
